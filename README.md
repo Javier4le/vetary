@@ -99,24 +99,24 @@ Las decisiones arquitectónicas completas están documentadas en [`ARCHITECTURE.
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/javier4le/vetary
-cd vetary
+git clone https://github.com/tu-usuario/vetary-api
+cd vetary-api
 
 # Levantar la base de datos
 docker compose up -d
 
 # Instalar dependencias
-pnpm install
+npm install
 
 # Variables de entorno
 cp .env.example .env
 # Completar las variables en .env
 
 # Migraciones
-pnpm prisma migrate dev
+npx prisma migrate dev
 
 # Correr el servidor
-pnpm run start:dev
+npm run start:dev
 ```
 
 > El frontend tiene su propio repositorio: `vetary-web`
@@ -135,5 +135,6 @@ pnpm run start:dev
 
 ## Autor
 
-**Javier Rojas** — Developer Frontend/Backend
+**Javier Rojas** — Developer Frontend/Backend  
+Viña del Mar, Chile  
 [LinkedIn](https://www.linkedin.com/in/javier4le) · [GitHub](https://www.github.com/Javier4le)

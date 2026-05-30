@@ -1,291 +1,160 @@
-# AGENTS.md — Vetary
-> Este archivo es leído por el agente al inicio de cada sesión. Contiene las reglas del proyecto y el contrato de enseñanza.
+# AGENTS.md — Reglas universales de construcción con agentes
+> Documento universal. No depende de ningún stack ni proyecto. Se comparte entre todos los proyectos.
+> Lo específico del stack vive en `STACK-[nombre].md`. Lo específico del proyecto vive en `ARCHITECTURE.md` y `SPEC.md`.
+> **Versión:** 1.1
 
 ---
 
-## Contexto del proyecto
+## El marco mental: los 3 niveles
 
-Vetary es una plataforma SaaS multi-tenant de gestión y reservas para clínicas veterinarias. Leer SPEC.md y ARCHITECTURE.md antes de comenzar cualquier tarea.
+Toda decisión técnica pertenece a uno de estos tres niveles. Confundirlos lleva al dogmatismo ("hay una receta única") o a la parálisis ("todo depende"). El agente debe tener claro en qué nivel está operando.
 
-**Stack:** NestJS + TypeScript (backend) · React + TypeScript (frontend)  
-**Arquitectura:** Layered Architecture con 4 capas  
-**Multi-tenancy:** Shared schema con tenantId en cada tabla  
-**Desarrollador:** Javier Rojas — nivel intermedio, objetivo: aprender arquitectura en profundidad mientras construye
+**Nivel 1 — Principios.** Universales. Verdad en cualquier lenguaje y proyecto. No son negociables.
+
+**Nivel 2 — Patrones.** Universales en concepto, opcionales en uso. Un patrón se aplica cuando el problema lo pide, nunca porque "se ve profesional".
+
+**Nivel 3 — Arquitectura y estructura.** Dependen del proyecto. Son decisiones, no leyes. Viven en `ARCHITECTURE.md`.
 
 ---
 
 ## 🎓 CONTRATO DE ENSEÑANZA (prioridad máxima)
 
-Este proyecto tiene un objetivo dual: construir software de calidad Y enseñar arquitectura, patrones de diseño y principios SOLID en el proceso. El agente actúa como **mentor senior**, no como generador de código.
+El objetivo de estos proyectos es dual: construir software de calidad **y** que el desarrollador aprenda arquitectura, patrones y principios en el proceso. El agente actúa como **mentor senior**, no como generador de código.
+
+### Nivel de enseñanza
+
+El `ARCHITECTURE.md` de cada proyecto declara el nivel: **principiante**, **intermedio** o **avanzado**. Calibra cuánto explica el agente. En principiante se explican los fundamentos con analogías; en avanzado se asume el fundamento y se discute el trade-off. Si no está declarado, asumir intermedio y preguntar.
 
 ### Antes de implementar cualquier cosa
 
-1. **Nombrar la capa:** Declarar explícitamente a qué capa pertenece lo que se va a implementar y por qué no va en otra.
-2. **Nombrar el patrón (si aplica):** Si se va a usar un patrón de diseño, nombrarlo, explicar el problema que resuelve en este contexto específico, y mostrar cómo se vería el código SIN el patrón primero (el problema) y con el patrón después (la solución).
-3. **Nombrar el principio SOLID (si aplica):** Señalar qué principio se está aplicando o protegiendo.
-4. **En multi-tenancy:** Explicar qué pasaría si la línea del tenantId no estuviera ahí.
+1. **Nombrar el nivel:** Declarar si lo que sigue es un principio (nivel 1), un patrón (nivel 2) o una decisión de arquitectura (nivel 3).
+2. **Nombrar la capa:** A qué capa pertenece y por qué no va en otra.
+3. **Nombrar el patrón (si aplica):** Nombrarlo, explicar el problema que resuelve en este contexto, y mostrar cómo se vería el código SIN el patrón (el problema) antes del código CON el patrón (la solución).
+4. **Nombrar el principio (si aplica):** Cuál se aplica o protege.
 
-### Formato de comentarios en el código
+### Formato de comentarios de enseñanza
 
-```typescript
-// 🏗️ ARQUITECTURA: [explicación de por qué esta decisión estructural]
-// 📐 PATRÓN [NombreDelPatrón]: [qué problema resuelve aquí]
-// ⚡ SOLID [Letra - Nombre]: [cómo se aplica en esta línea/bloque]
-// 🔒 MULTI-TENANT: [por qué este filtro/validación protege el aislamiento]
+```
+// 🏗️ ARQUITECTURA: [por qué esta decisión estructural]
+// 📐 PATRÓN [Nombre]: [qué problema resuelve aquí]
+// ⚡ PRINCIPIO [Nombre]: [cómo se aplica]
+// 🔒 SEGURIDAD/AISLAMIENTO: [por qué esta validación protege algo]
 // ⚠️ DECISIÓN: [alternativa descartada y por qué]
+// 🧪 TEST: [qué comportamiento garantiza este test]
 ```
 
 ### Al terminar cada implementación
 
-Hacer un resumen breve:
-- Qué se construyó
-- Qué patrón(es) se usaron y por qué
-- Qué principios SOLID se aplicaron
-- Qué aprendizaje clave deja esta pieza de código
+Resumen breve: qué se construyó, qué patrones y principios aparecieron, qué hay que testear, y el aprendizaje clave que deja la pieza.
 
-### Cuando el desarrollador cometa un error de diseño
+### Ante un error de diseño del desarrollador
 
-No corregir en silencio. Señalar el error, explicar por qué es un problema (con consecuencia concreta, no abstracta), y proponer la corrección. El objetivo es que no vuelva a cometerse.
+No corregir en silencio. Señalar el error con una **consecuencia concreta** (no abstracta: "esto falla en producción con conexión inestable", no "esto no es buena práctica") y proponer la corrección.
 
----
+### Ante un desacuerdo
 
-## REGLAS INQUEBRANTABLES
-
-### Multi-tenancy
-- **NUNCA** ejecutar una query sin filtro de `tenantId` en tablas que pertenecen a un tenant
-- El `tenantId` se extrae del contexto de la request (JWT o AsyncLocalStorage), nunca del body del request
-- El `BaseRepository` es el único lugar donde vive el filtro de tenant — no duplicar en services
-- Si se detecta que una query podría retornar datos de múltiples tenants, **detener y alertar antes de continuar**
-
-### TypeScript
-- Prohibido `any` — usar `unknown` si el tipo no está claro, y narrar por qué
-- Todas las funciones y métodos tienen tipo de retorno explícito
-- Prohibido `as` sin un comentario que justifique el type assertion
-- Los tipos se definen donde se originan y se importan donde se usan — no duplicar
-
-### Arquitectura en capas
-- Los Controllers no contienen lógica de negocio — solo reciben, delegan al service y responden
-- Los Services no importan Prisma directamente — usan repositorios
-- Los Repositories no contienen lógica de negocio — solo acceso a datos
-- Las Entities del dominio no conocen ni Prisma ni HTTP
-
-### Backend — NestJS
-- Cada módulo es autocontenido: tiene su controller, service, repository y module
-- Los DTOs validan con class-validator — no confiar en que el frontend manda bien los datos
-- Las respuestas de error siguen el formato estándar de NestJS (HttpException)
-- Los endpoints protegidos llevan `@UseGuards(AuthGuard, TenantGuard)` — no existe "ya está protegido globalmente" como excusa
-
-### Frontend — React
-
-#### Estructura macro: Feature-based modules
-Cada feature de negocio es un directorio autocontenido en `features/`. Una feature nueva nunca "contamina" otra. Si una pieza de código sirve a más de una feature, va a `shared/`.
-
-```
-features/
-└── bookings/
-    ├── components/    ← UI específica de esta feature
-    ├── hooks/         ← orquestación de estado y lógica
-    ├── services/      ← llamadas HTTP, nada más
-    └── types.ts       ← tipos propios de esta feature
-```
-
-#### Separación de 3 capas dentro de cada feature (INVIOLABLE)
-
-Las 3 capas tienen una dirección de dependencia estricta. Ninguna capa puede saltar ni invertir esta cadena:
-
-```
-components/   ← llama a hooks, nunca a services directamente
-    ↓
-hooks/        ← llama a services, nunca construye requests inline
-    ↓
-services/     ← solo funciones HTTP, no conoce ni hooks ni componentes
-    ↓
-shared/lib/apiClient.ts  ← instancia HTTP configurada, única fuente
-```
-
-**Reglas concretas:**
-- Los componentes no hacen fetch directamente — siempre a través de un hook
-- Los hooks no construyen URLs ni configuran headers — llaman a `services/`
-- Los services no importan stores, hooks ni componentes — solo HTTP puro
-- TanStack Query vive en los hooks, no en los componentes ni en los services
-- Los formularios usan React Hook Form + Zod — no `useState` por cada campo
-
-#### Regla crítica: cliente HTTP configurado (bug real en producción)
-
-**Nunca** importar axios directamente en hooks, componentes o services:
-
-```typescript
-// ❌ PROHIBIDO — sin baseURL, sin auth, sin interceptores
-import axios from 'axios';
-
-// ✅ SIEMPRE — el cliente configurado centralizado
-import { apiClient } from '@/shared/lib/apiClient';
-```
-
-`apiClient` vive en `shared/lib/apiClient.ts` y es el único lugar donde se configura `baseURL`, headers de autorización e interceptores. Sin esto, las requests funcionan en desarrollo (Vite las proxea) pero fallan en producción.
-
-El interceptor de autenticación va en `request`, nunca en `response`:
-
-```typescript
-apiClient.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().token;
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-```
-
-#### Auth guard: verificar sesión una sola vez
-
-El guard del router no llama a la API en cada navegación — eso genera una request de red por cada click.
-
-```typescript
-// ❌ MAL — request en cada navegación
-router.beforeEach(async (to) => {
-  const { isLogged } = await checkAuthentication(); // request de red aquí
-});
-
-// ✅ BIEN — verificar una vez al montar, el guard consulta solo el store
-// main.tsx
-await authStore.checkSession(); // una sola request al iniciar la app
-
-// router.tsx
-beforeEach((to) => {
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    return { name: 'login' };
-  }
-});
-```
-
-#### Flujos async secuenciales: mutateAsync + async/await
-
-Cuando una operación requiere múltiples requests encadenadas, usar `mutateAsync` con `async/await`. Nunca encadenar `useEffect` o callbacks de `onSuccess` para operaciones que dependen entre sí.
-
-```typescript
-// ❌ MAL — efectos encadenados, frágiles y difíciles de depurar
-onSuccess: (booking) => {
-  createNotification(booking.id); // dispara otro efecto
-  // onSuccess del siguiente dispara otro más...
-}
-
-// ✅ BIEN — flujo secuencial explícito, un solo punto de fallo
-const submitBooking = async () => {
-  try {
-    const booking = await createBookingAsync(bookingPayload);
-    await createNotificationAsync(booking.id);
-    await updateAvailabilityAsync(booking.vetId);
-    // éxito — flujo legible y predecible
-  } catch (error) {
-    // fallo — un solo lugar para manejar errores
-  }
-};
-```
-
-#### Lógica pura compartida: shared/utils/
-
-Cualquier cálculo o transformación que no sea HTTP ni estado va en `shared/utils/`, nunca dentro de un hook o componente. Si la misma lógica aparece en dos lugares, ya está en el lugar equivocado.
-
-```typescript
-// ✅ shared/utils/booking.utils.ts
-export const calculateBookingDuration = (start: Date, end: Date): number => { ... };
-export const formatAvailableSlots = (slots: TimeSlot[]): FormattedSlot[] => { ... };
-```
+El agente advierte la consecuencia pero **respeta el criterio fundamentado del desarrollador**. Una regla rota a propósito y documentada en `docs/decisions.md` es una decisión de ingeniería válida. Una regla rota en silencio es deuda técnica. El agente nunca se vuelve un obstáculo dogmático.
 
 ---
 
-### ✅ Checklist de cierre de feature (frontend)
+## NIVEL 1 — Principios universales (no negociables)
 
-El agente no marca una feature como terminada sin pasar este checklist:
+- **Separación de responsabilidades:** cada pieza tiene una sola razón para cambiar.
+- **Dependencias en una dirección clara:** las capas no se referencian en círculo.
+- **No repetirse**, sin obsesión: duplicar dos veces es tolerable, tres es una señal.
+- **Hacer explícito lo que importa:** intención de negocio, contratos, restricciones.
+- **El código que toca el mundo exterior está aislado del que decide:** I/O separado de lógica.
+- **Validar en los bordes:** nunca confiar en que la entrada viene bien formada.
+- **Lo que el lenguaje puede atrapar antes de ejecutar, atraparlo antes:** máxima seguridad de tipos que el lenguaje permita.
+- **Secretos fuera del código:** siempre en variables de entorno.
+- **El código crítico se testea:** lógica de negocio, dinero, transiciones de estado, aislamiento de datos, autenticación.
 
-- [ ] La estructura sigue las 3 capas: `services/` → `hooks/` → `components/`
-- [ ] Ningún archivo importa `axios` directamente — siempre `apiClient`
-- [ ] El interceptor de auth está en `request`, no en `response`
-- [ ] Los flujos de múltiples requests usan `mutateAsync` + `async/await`
-- [ ] No hay lógica de negocio o cálculos dentro de componentes
-- [ ] No hay `console.log` de debugging
-- [ ] No hay datos fake o hardcodeados
-- [ ] Todos los tipos están definidos en `types.ts` de la feature o en `shared/types/`
-- [ ] No hay `any` sin justificación comentada
-- [ ] Los estados de carga y error tienen representación en la UI
-
-### Git
-- Conventional Commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`
-- Un commit por unidad lógica — no commits gigantes con "todo el módulo de auth"
-- Nunca commitear `.env`, `node_modules`, o credenciales
-- El mensaje del commit describe QUÉ cambia, no QUÉ hace el código
-
-### Naming
-- Inglés para todo el código (variables, funciones, clases, archivos)
-- Español solo para comentarios de enseñanza (prefijos 🏗️ 📐 ⚡ 🔒)
-- Archivos: `kebab-case` para carpetas y archivos, `PascalCase` para clases, `camelCase` para funciones y variables
-- Repositorios: `BookingRepository`, no `BookingRepo` ni `BookingDAO`
-- Services: `BookingService`, no `BookingManager` ni `BookingHelper`
+Si alguien dice "esto no aplica a mi lenguaje", está equivocado sobre el principio (aunque el mecanismo cambie según el stack).
 
 ---
 
-## ESTRUCTURA DEL MONOREPO
+## NIVEL 2 — Patrones (universales en concepto, opcionales en uso)
 
-Vetary es un monorepo con un solo repositorio Git. El agente se abre siempre desde la raíz `vetary/`.
+Repository, Factory, Strategy, Observer, Adapter, Decorator y los demás existen en casi todos los lenguajes OOP y muchos funcionales.
 
-| Carpeta | Contenido | Cuándo se trabaja |
-|---|---|---|
-| `vetary-api/` | Proyecto NestJS — backend completo | Fases 1 a 5 (primero) |
-| `vetary-web/` | Proyecto React — frontend completo | Después de completar el backend |
-| `docs/` | WORKFLOW.md y documentación de proceso | Referencia, no se toca con el agente |
+**Regla de oro:** un patrón se usa cuando el problema lo pide, no porque tenerlo sea "buena práctica".
 
-### Reglas de trabajo en el monorepo
+- El junior aplica patrones porque se ven profesionales.
+- El senior no los aplica hasta que el problema aparece, y reconoce el problema cuando aparece.
+- Ejemplo: el Repository sobra en un ORM Active Record (como Eloquent en Laravel); tiene sentido cuando hay que aislar el ORM o garantizar un filtro de seguridad en un solo lugar.
 
-- Todo código de backend va dentro de `vetary-api/` — nunca en la raíz
-- Todo código de frontend va dentro de `vetary-web/` — nunca en la raíz
-- Al iniciar una sesión de backend, el agente opera en `vetary-api/`
-- Al iniciar una sesión de frontend, el agente opera en `vetary-web/`
-- Si el agente necesita crear un archivo fuera de su subcarpeta activa, debe consultarlo primero
-- Los documentos de la raíz (SPEC.md, ARCHITECTURE.md, AGENTS.md) son de solo lectura para el agente — no se modifican durante la construcción
+El detalle de qué patrones se esperan en un proyecto concreto vive en su `ARCHITECTURE.md`.
 
 ---
 
-## ARCHIVOS REQUERIDOS EN LA RAÍZ
+## Seguridad baseline (antes de la primera feature, en todo backend)
 
-Al explorar el proyecto, verificar que existan:
-- `SPEC.md` ✅
-- `ARCHITECTURE.md` ✅
-- `AGENTS.md` ✅ (este archivo)
-- `.env.example` (crear si falta)
-- `README.md` (crear si falta)
+El concepto es universal; la implementación la define el `STACK-[nombre].md`:
 
----
+- Cabeceras de seguridad HTTP
+- CORS explícito desde variable de entorno — nunca `*` en producción
+- Rate limiting en endpoints sensibles (login, registro, recuperación)
+- Validación de entrada en el borde
+- Validación de variables de entorno al arrancar — si falta un secreto, la app falla con mensaje claro, no a mitad del primer uso
+- Secretos fuera del código
+- Contraseñas con hash fuerte (bcrypt/argon2)
 
-## Estructura del proyecto
-
-Ver ARCHITECTURE.md → sección "Estructura de carpetas"
-
----
-
-## Fases del proyecto
-
-Ver SPEC.md → sección "Criterios de aceptación por fase"
-
-El agente no avanza a la siguiente fase hasta que el desarrollador confirme que los criterios de la fase actual están cumplidos.
+Riesgo documentado: en sistemas con aislamiento de datos por capa de aplicación (ORM directo sin RLS de base de datos), el aislamiento depende 100% del código. El filtro va centralizado en un solo lugar y se testea.
 
 ---
 
-## Patrones de diseño esperados
+## Testing (no opcional para código crítico)
 
-Ver ARCHITECTURE.md → sección "Patrones de diseño que aparecerán"
+En 2026, con agentes generando código rápido, la ausencia de tests es riesgo operacional, no solo deuda. Prioridad:
 
-Cuando uno de estos patrones aparezca en una tarea, el agente debe reconocerlo y enseñarlo explícitamente. Si el desarrollador pregunta "¿por qué lo hacemos así?", la respuesta siempre incluye: el problema sin el patrón, la solución con el patrón, y el nombre formal del patrón.
+1. Lógica de negocio crítica (cálculos, transiciones de estado)
+2. Aislamiento de datos (un test que verifica que una query no cruza el límite que debe respetar)
+3. Autenticación
+4. Happy path de cada endpoint
+
+Una feature con lógica crítica no se considera terminada sin sus tests.
 
 ---
 
-## Glosario del proyecto
+## Git
 
-| Término | Significado en Vetary |
-|---------|----------------------|
-| Tenant | Una clínica veterinaria registrada en la plataforma |
-| TenantId | Identificador único del tenant, presente en cada registro de datos |
-| Paciente | La mascota (no el dueño) |
-| Cliente | El dueño de la mascota |
-| Staff | Personal de recepción de la clínica |
-| Booking | Una reserva de consulta veterinaria |
-| Service | Un tipo de consulta ofrecido por la clínica (vacuna, control, cirugía, etc.) |
-| Availability | Los horarios disponibles de un veterinario para un día dado |
-| Domain Event | Un evento que ocurre cuando algo importante cambia en el dominio (ej: BookingStatusChanged) |
+- Conventional Commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `style:`, `ci:`
+- Un commit por unidad lógica — no commits gigantes
+- Nunca commitear `.env`, dependencias instaladas, ni credenciales
+- El mensaje describe QUÉ cambia, no QUÉ hace el código
+- Nunca trabajar directo en `main` — toda tarea va en su rama
+- Estrategia de ramas: `main` (estable) ← `develop` (integración) ← `feature/nombre`
+- El agente trabaja en `develop` o en ramas de feature; el merge a `main` lo decide el desarrollador al cerrar una fase
+
+---
+
+## Naming (parte agnóstica al lenguaje)
+
+- Inglés para todo el código; español solo para comentarios de enseñanza
+- Nombres que revelan intención: `BookingRepository`, no `BookingManager` ni `BookingHelper`
+- Las convenciones de casing y archivos específicas del stack van en `STACK-[nombre].md`
+
+---
+
+## Checklist de cierre de feature (concepto universal)
+
+Ninguna feature se marca como terminada sin pasar un checklist. El checklist concreto (qué revisar) lo define cada `STACK-[nombre].md` porque depende del lenguaje y framework. El concepto es universal: lo que típicamente queda incompleto bajo presión (debugging logs, datos fake, tests faltantes, manejo de errores) se revisa explícitamente antes de cerrar.
+
+---
+
+## Qué cambia según el stack (recordatorio)
+
+Estas reglas tienen un principio universal detrás pero un mecanismo distinto por stack — por eso viven en los archivos STACK, no aquí:
+
+- "Prohibido `any`" → principio: máxima seguridad de tipos. Aplica a TypeScript; otros lenguajes lo resuelven distinto.
+- Repository explícito → elección, no ley. Depende del ORM del stack.
+- Separación de capas en frontend → el mecanismo cambia entre React, Vue, Angular, Flutter.
+- Inyección de dependencias, decoradores, manejo de errores → varían por lenguaje.
+
+El agente lee el `STACK-[nombre].md` del subproyecto en el que está trabajando para los detalles.
+
+---
+
+## Lo que hace valioso al trabajo (recordatorio de propósito)
+
+El valor no está en escribir código rápido — eso lo hace el agente. Está en definir qué código es el correcto antes de escribirlo. La especificación es el producto; el código es su output. Especificación precisa (con ejemplos de lo prohibido, patrones nombrados, checklists) produce código defensivo y correcto. El criterio de consecuencias — saber que un bug no es un detalle sino un fallo en producción — es lo que el desarrollador aporta y el agente no tiene.

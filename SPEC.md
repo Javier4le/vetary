@@ -26,7 +26,7 @@ La estrategia elegida es **base de datos compartida, esquema compartido con `ten
 
 ## Roles del sistema
 
-### Super Admin (tú como dueño de la plataforma)
+### Super Admin (vos como dueño de la plataforma)
 Accede a un panel especial que no pertenece a ningún tenant. Ve todos los tenants registrados, puede activarlos, suspenderlos o eliminarlos. No interactúa con datos clínicos.
 
 ### Admin (dueño o gerente de la clínica)

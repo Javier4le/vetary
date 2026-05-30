@@ -139,18 +139,24 @@ Actualizar este mapa al cerrar cada fase.
 ```
 vetary/
 ├── vetary-api/          # Backend NestJS
-├── vetary-web/          # Frontend proyecto
-|
-├── SPEC.md          ← copia (o symlink)
-├── ARCHITECTURE.md  ← copia (o symlink)
-├── AGENTS.md        ← copia (o symlink)
-|
+│   ├── SPEC.md          ← copia (o symlink)
+│   ├── ARCHITECTURE.md  ← copia (o symlink)
+│   ├── AGENTS.md        ← copia (o symlink)
+│   └── src/
+│
+├── vetary-web/          # Frontend React
+│   ├── SPEC.md          ← copia (o symlink)
+│   ├── ARCHITECTURE.md  ← copia (o symlink)
+│   ├── AGENTS.md        ← copia (o symlink)
+│   └── src/
+│
 └── docs/                # Documentación compartida
     └── WORKFLOW.md      ← este archivo
 ```
 
 > Los tres documentos base (SPEC, ARCHITECTURE, AGENTS.md) van en la raíz
-> para que el agente los encuentre al abrir el proyecto.
+> de cada repositorio para que el agente los encuentre al abrir el proyecto.
+> El agente trabaja en un repo a la vez — primero el backend, luego el frontend.
 
 ---
 

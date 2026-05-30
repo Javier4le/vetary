@@ -1,6 +1,20 @@
 # Vetary — Decisiones de Arquitectura
-**Versión:** 1.0  
+**Versión:** 1.1  
 **Fecha:** Mayo 2026
+
+> Este documento contiene las decisiones específicas de Vetary (nivel 3).
+> Los principios universales viven en `AGENTS.md`. La traducción al stack vive en
+> `vetary-api/STACK-nestjs.md` y `vetary-web/STACK-react.md`.
+
+---
+
+## Nivel de enseñanza
+
+**Nivel actual: principiante.**
+
+El desarrollador pidió explícitamente que se le explique "como si no supiera casi nada". El agente explica los fundamentos con analogías, muestra el problema antes de la solución, y no asume conocimiento previo de patrones.
+
+Este nivel sube a **intermedio** cuando el desarrollador lo indique — típicamente después de las primeras fases, cuando los conceptos base (capas, repository, multi-tenancy) ya estén internalizados. Actualizar esta línea cuando eso ocurra.
 
 ---
 
@@ -118,17 +132,20 @@ Vetary es un **monorepo** — un solo repositorio Git que contiene el backend y 
 
 ```
 vetary/                      ← raíz del monorepo (un solo repo en GitHub)
-├── vetary-api/              ← proyecto NestJS (backend)
-├── vetary-web/              ← proyecto React (frontend)
+├── AGENTS.md                ← reglas universales (compartido con todos los proyectos)
+├── ARCHITECTURE.md          ← decisiones de Vetary (este archivo) + nivel de enseñanza
+├── SPEC.md                  ← qué es Vetary, roles, fases, glosario
+├── README.md                ← cómo levantar el proyecto
 ├── docs/
-│   └── WORKFLOW.md
-├── SPEC.md                  ← documentos en raíz para que el agente los vea
-├── ARCHITECTURE.md
-├── AGENTS.md
-└── README.md
+│   ├── WORKFLOW.md          ← proceso de las dos salas
+│   └── decisions.md         ← ADRs y excepciones documentadas
+├── vetary-api/              ← proyecto NestJS (backend)
+│   └── STACK-nestjs.md      ← traducción al stack backend
+└── vetary-web/              ← proyecto React (frontend)
+    └── STACK-react.md       ← traducción al stack frontend
 ```
 
-**Regla de trabajo:** El agente se abre siempre desde la raíz `vetary/`. En cada sesión se le indica explícitamente en qué subcarpeta está trabajando. El backend se construye primero y de forma completa antes de tocar el frontend.
+**Regla de trabajo:** El agente lee `AGENTS.md`, `ARCHITECTURE.md` y `SPEC.md` de la raíz en cada sesión. Cuando trabaja en el backend, lee además `vetary-api/STACK-nestjs.md`; cuando trabaja en el frontend, `vetary-web/STACK-react.md`. El backend se construye primero y de forma completa antes de tocar el frontend.
 
 ---
 
@@ -233,7 +250,9 @@ Los IDs son CUID (no UUID ni autoincrement). Son seguros para URLs, legibles, y 
 
 ---
 
-## Log de decisiones importantes
+## Log de decisiones
+
+Las decisiones arquitectónicas iniciales y las excepciones a las reglas que surjan durante la construcción se registran en `docs/decisions.md` (ADRs). Las decisiones fundacionales tomadas al inicio del proyecto:
 
 | Fecha | Decisión | Alternativa descartada | Razón |
 |-------|----------|------------------------|-------|
@@ -243,3 +262,4 @@ Los IDs son CUID (no UUID ni autoincrement). Son seguros para URLs, legibles, y 
 | Mayo 2026 | CUID para IDs | UUID, autoincrement | Seguro para URLs, sin exposición de secuencia |
 | Mayo 2026 | NestJS | Express puro, Fastify | Estructura modular fuerza buenas prácticas |
 | Mayo 2026 | React + Vite | Next.js | SSR innecesario; la arquitectura del frontend debe ser clara |
+| Mayo 2026 | Monorepo | Repos separados | Un solo developer, un solo agente; repos separados solo agregan fricción |
