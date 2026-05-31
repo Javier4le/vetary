@@ -1,5 +1,4 @@
 import { createParamDecorator, type ExecutionContext } from '@nestjs/common';
-import type { Tenant } from '@prisma/client';
 
 // 🏗️ ARQUITECTURA: @CurrentTenant() decorator inyecta el tenant actual
 // 📐 PATRÓN: Parameter Decorator — extrae tenant del request sin boilerplate
