@@ -1,0 +1,120 @@
+// 🏗️ ARQUITECTURA: Prisma Schema — Single Source of Truth para el modelo de datos
+// Este schema genera: tipos TypeScript + Prisma Client + migraciones SQL
+// ⚡ PRINCIPIO: Schema as Code — la estructura de BD vive en control de versiones
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// TENANT MODEL
+// ═════════════════════════════════════════════════════════════════════════════
+// 🏗️ ARQUITECTURA: Cada Tenant representa una clínica veterinaria
+// El subdomain se usa para resolver el tenant en requests (clinica-a.vetary.app)
+// Status permite activar/suspender tenants sin borrarlos (soft delete)
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+model Tenant {
+  id        String       @id @default(cuid())
+  name      String // "Clínica Veterinaria San Martín"
+  subdomain String       @unique // "clinica-san-martin" → clinica-san-martin.vetary.app
+  status    TenantStatus @default(ACTIVE)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  // Relations
+  userTenants   UserTenant[]
+  refreshTokens RefreshToken[]
+
+  @@index([subdomain]) // ← Índice para búsqueda rápida por subdomain
+  @@map("tenants")
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// USER MODEL (MULTI-CLINIC)
+// ═════════════════════════════════════════════════════════════════════════════
+// 🏗️ ARQUITECTURA: Un User puede pertenecer a múltiples Tenants
+// Email es GLOBALMENTE único (un usuario, una cuenta, varios tenants)
+// No hay tenantId en User — la relación está en UserTenant (junction table)
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  firstName    String   @map("first_name")
+  lastName     String   @map("last_name")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  userTenants   UserTenant[]
+  refreshTokens RefreshToken[]
+
+  @@index([email]) // ← Índice para búsqueda rápida por email (login)
+  @@map("users")
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// USER-TENANT JUNCTION (MEMBERSHIP + ROLE)
+// ═════════════════════════════════════════════════════════════════════════════
+// 📐 PATRÓN: Many-to-Many con atributos (role)
+// Un User puede ser ADMIN en Tenant A y VET en Tenant B
+// JWT payload al login: { userId, tenantId, role } — resuelto vía subdomain
+
+enum Role {
+  ADMIN // Administrador de la clínica
+  VET // Veterinario
+  STAFF // Personal administrativo
+}
+
+model UserTenant {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  tenantId  String   @map("tenant_id")
+  role      Role
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // 🔒 SEGURIDAD: Un usuario no puede tener múltiples roles en el mismo tenant (v1 simplification)
+  @@unique([userId, tenantId])
+  @@index([userId])
+  @@index([tenantId])
+  @@map("user_tenants")
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// REFRESH TOKEN (DB-BACKED FOR REVOCATION)
+// ═════════════════════════════════════════════════════════════════════════════
+// 🔒 SEGURIDAD: Refresh tokens en DB permiten revocación (logout, logout all devices)
+// Token rotation: cada refresh genera un nuevo par y revoca el anterior
+// onDelete Cascade: si se borra un User o Tenant, sus tokens se borran automáticamente
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  userId    String    @map("user_id")
+  tenantId  String    @map("tenant_id")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at") // null = activo, not null = revocado
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([token]) // ← Búsqueda rápida por token al refrescar
+  @@index([userId, tenantId]) // ← Útil para "logout all devices"
+  @@map("refresh_tokens")
+}
