@@ -1,0 +1,247 @@
+# Vetary — OpenSpec SDD Configuration
+# Generated: 2026-05-31
+# Phase: sdd-init
+# Artifact store: openspec (engram unavailable)
+
+project:
+  name: vetary
+  description: Multi-tenant SaaS platform for veterinary clinic management
+  version: 1.0.0
+  repository: vetary
+
+stack:
+  backend:
+    runtime: Node.js 22
+    framework: NestJS
+    language: TypeScript (strict mode)
+    database: PostgreSQL
+    orm: Prisma
+    auth: JWT with refresh tokens
+    validation: class-validator + class-transformer
+    testing: Jest
+
+  frontend:
+    framework: React 18
+    language: TypeScript (strict mode)
+    build_tool: Vite
+    state_server: TanStack Query v5
+    state_client: Zustand
+    routing: React Router v6
+    ui_styling: Tailwind CSS + shadcn/ui
+    forms: React Hook Form + Zod
+    testing: Vitest
+
+architecture:
+  pattern: Layered Architecture (4 layers)
+  layers:
+    - presentation: Controllers, Guards, Interceptors
+    - application: Services, Use Cases, DTOs
+    - domain: Entities, Business Rules, Domain Events
+    - infrastructure: Repositories, Prisma, External APIs
+
+  dependency_rule: "Presentation → Application → Domain; Infrastructure → Domain"
+
+  multi_tenancy:
+    strategy: Shared database, shared schema with tenantId
+    isolation_mechanism: BaseRepository enforces tenantId filter on all queries
+    golden_rule: "No repository can execute a query without the tenantId filter"
+
+testing:
+  strict_tdd: true
+
+  backend:
+    framework: Jest
+    test_command: "cd vetary-api && npm run test"
+    watch_command: "cd vetary-api && npm run test:watch"
+    coverage_command: "cd vetary-api && npm run test:cov"
+    test_location: "vetary-api/src/**/*.spec.ts"
+
+    test_types:
+      - unit: Business logic (services, factories, domain entities)
+      - integration: Repositories with tenant isolation verification
+      - e2e: Critical auth flows
+
+    coverage_requirements:
+      auth_logic: 100%
+      multi_tenant_isolation: 100%
+      business_rules: 80%
+
+    strict_tdd_modules:
+      - auth
+      - tenants
+      - repositories
+      - bookings
+
+    standard_mode_allowed:
+      - DTOs (validated by class-validator at runtime)
+      - Controllers (thin HTTP handlers)
+      - Configuration files
+      - Database migrations
+
+  frontend:
+    framework: Vitest
+    test_command: "cd vetary-web && npm run test"
+    watch_command: "cd vetary-web && npm run test:watch"
+    test_location: "vetary-web/src/**/*.test.tsx"
+
+    test_types:
+      - component: UI logic
+      - hook: State management
+      - service: API calls (mocked)
+
+strict_tdd_justification: |
+  Critical security and isolation requirements:
+  1. Authentication logic — password hashing, JWT, refresh tokens, RBAC
+     Risk if untested: Unauthorized access, token leakage, privilege escalation
+  2. Multi-tenant data isolation — every query MUST filter by tenantId
+     Risk if untested: Data leakage between tenants (catastrophic legal/business failure)
+  3. Domain state transitions — booking status flow
+     Risk if untested: Invalid state transitions, broken business rules
+
+conventions:
+  typescript:
+    strict_mode: true
+    no_any: true
+    explicit_return_types: true
+
+  backend:
+    file_naming: kebab-case
+    class_naming: PascalCase
+    module_structure:
+      - dto/
+      - entities/
+      - repositories/
+      - services/
+      - controllers/
+      - events/ (if applicable)
+      - factories/ (if applicable)
+      - "[feature].module.ts"
+
+    layer_rules:
+      - "Controllers: HTTP only, zero business logic"
+      - "Services: orchestrate, never touch Prisma directly"
+      - "Repositories: data access only, no business logic"
+      - "DTOs: class-validator decorators, validated by global ValidationPipe"
+
+  frontend:
+    structure: Feature-based modules
+    layer_separation: "services → hooks → components"
+    component_naming: PascalCase
+    hook_naming: camelCase with 'use' prefix
+    critical_rules:
+      - "Never import axios directly — always use shared/lib/apiClient"
+      - "Auth interceptor in request (not response), token read dynamically"
+      - "TanStack Query for server state, Zustand only for UI state"
+
+  git:
+    commit_format: Conventional Commits (feat, fix, chore, docs, refactor, test)
+    branch_strategy: "main ← develop ← feature/[name]"
+    commit_rule: "One commit per logical unit"
+    never_commit:
+      - .env
+      - credentials
+      - node_modules
+
+security_baseline:
+  backend_main_ts:
+    - Helmet (HTTP security headers)
+    - CORS from env var (never '*' in production)
+    - Global ValidationPipe with whitelist true, forbidNonWhitelisted true
+    - Environment variable validation at startup
+    - Swagger/OpenAPI documentation
+    - Rate limiting on auth endpoints
+
+  multi_tenant:
+    - BaseRepository enforces tenantId filter
+    - Integration tests verify cross-tenant queries fail
+    - TenantMiddleware extracts and validates tenant context
+
+  auth:
+    - Passwords hashed with bcrypt (cost factor ≥10)
+    - JWT secret from environment, never hardcoded
+    - Refresh token rotation implemented
+    - Role-based guards with decorators
+
+design_patterns:
+  repository:
+    phase: 1
+    reason: Isolate Prisma; centralize tenantId filter
+    where: Every module
+
+  factory:
+    phase: 3
+    reason: Creating bookings differs by service type
+    where: bookings module
+
+  observer:
+    phase: 3
+    reason: Booking state changes trigger multiple actions
+    where: bookings module
+
+  strategy:
+    phase: 2
+    reason: Availability calculation varies by service type
+    where: availability module
+
+  decorator:
+    phase: 1
+    reason: Auth, roles, tenant metadata on routes
+    where: common/decorators
+
+phases:
+  phase_1:
+    name: "Auth + Multi-tenancy Foundation"
+    scope:
+      - Tenant registration and onboarding
+      - JWT authentication (login, logout, refresh, password recovery)
+      - Role management (SuperAdmin, Admin, Staff, Veterinarian, Client)
+      - BaseRepository with tenant isolation
+      - Auth guards and decorators
+      - Database schema with multi-tenant foundation
+
+    acceptance_criteria:
+      - A tenant can register and receive their subdomain
+      - An admin can log in to their tenant
+      - The system rejects tokens from one tenant accessing another tenant's data
+      - Role-protected routes work correctly
+
+    strict_tdd_applies_to:
+      - Auth service
+      - Tenant service
+      - BaseRepository
+      - Auth guards
+
+risks:
+  tenant_data_leakage:
+    impact: Catastrophic (legal, business)
+    mitigation: Strict TDD for all repository methods; integration tests verify isolation
+
+  auth_vulnerabilities:
+    impact: High (unauthorized access)
+    mitigation: Strict TDD for auth flows; manual security review before Phase 1 close
+
+  missing_test_coverage:
+    impact: Medium (bugs in production)
+    mitigation: Coverage tracking enforced; CI blocks merges below thresholds
+
+  frontend_production_breaks:
+    impact: Medium (user-facing failures)
+    mitigation: apiClient configuration enforced; auth interceptor tested
+
+  state_explosion:
+    impact: Low (complexity creep)
+    mitigation: TanStack Query for server state only; Zustand minimal
+
+teaching_level: principiante
+
+artifacts_store:
+  mode: openspec
+  fallback_reason: Engram unavailable in this session
+  config_location: openspec/config.yaml
+
+sdd_init:
+  status: complete
+  generated: 2026-05-31
+  testing_capabilities_detected: true
+  strict_tdd_activated: true
+  project_context_cached: true
