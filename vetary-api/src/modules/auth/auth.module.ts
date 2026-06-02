@@ -5,10 +5,12 @@ import { ConfigModule } from "../../config/config.module";
 import { ConfigService } from "../../config/config.service";
 import { DatabaseModule } from "../../database/database.module";
 import { UsersModule } from "../users/users.module";
+import { AuthController } from "./controllers/auth.controller";
+import { AuthService } from "./services/auth.service";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 
 // 🏗️ ARQUITECTURA: AuthModule — módulo de autenticación
-// Provee: JWT signing/verification + Passport strategy
+// Provee: JWT signing/verification + Passport strategy + AuthService + AuthController
 // Depende de: UsersModule (para buscar usuarios al login), ConfigModule (para secret)
 //
 // 📐 PATRÓN: Module as Dependency Boundary
@@ -20,7 +22,10 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
 		// 🔒 SEGURIDAD: JwtModule.firma tokens con JWT_SECRET del ConfigService
 		JwtModule.registerAsync({
 			imports: [ConfigModule],
-			useFactory: (configService: { jwtSecret: string; jwtExpiration: string }) => ({
+			useFactory: (configService: {
+				jwtSecret: string;
+				jwtExpiration: string;
+			}) => ({
 				secret: configService.jwtSecret,
 				signOptions: {
 					// ⚡ PRINCIPIO: Defence in Depth — exp corto en token, largo en DB
@@ -35,9 +40,10 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
 		DatabaseModule,
 		UsersModule,
 	],
+	controllers: [AuthController],
 	// JwtStrategy se registra automáticamente como provider de Passport
-	providers: [JwtStrategy],
-	// Exportamos JwtModule para que otros módulos usen JwtService
-	exports: [JwtModule],
+	providers: [JwtStrategy, AuthService],
+	// Exportamos AuthService para que otros módulos puedan usar métodos de auth
+	exports: [AuthService],
 })
 export class AuthModule {}
