@@ -1,3 +1,6 @@
+packages:
+  - 'vetary-api'
+  - 'vetary-web'
 allowBuilds:
   '@nestjs/core': true
   '@prisma/client': true

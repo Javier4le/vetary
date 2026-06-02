@@ -1,0 +1,7 @@
+{
+  "name": "vetary",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vetary — Multi-tenant veterinary clinic management system",
+  "packageManager": "pnpm@11.5.0"
+}

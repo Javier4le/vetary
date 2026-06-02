@@ -3,3 +3,24 @@
 .pi/
 .claude/
 .opencode/
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
