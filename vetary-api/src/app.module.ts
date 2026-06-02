@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { TenantsModule } from './modules/tenants/tenants.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -13,6 +14,7 @@ import { UsersModule } from './modules/users/users.module';
     DatabaseModule, // ← PrismaService global, conexión única a PostgreSQL
     TenantsModule, // ← Registro de clínicas y gestión de tenants
     UsersModule, // ← Gestión de usuarios con scope por tenant
+    AuthModule, // ← Autenticación JWT + Passport
   ],
   controllers: [],
   providers: [],
