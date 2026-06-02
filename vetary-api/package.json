@@ -87,5 +87,6 @@
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1"
     }
-  }
+  },
+  "packageManager": "pnpm@9.x.x"
 }
