@@ -6,8 +6,8 @@ import {
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
-import { ConfigService } from "../../../config/config.service";
-import { PrismaService } from "../../../database/prisma.service";
+import { ConfigService } from "@/config/config.service";
+import { PrismaService } from "@/database/prisma.service";
 import type { JwtPayload } from "../interfaces/jwt-payload.interface";
 
 // 🔒 SEGURIDAD: AuthService — ORQUESTA toda la lógica de autenticación

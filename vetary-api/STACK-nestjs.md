@@ -28,6 +28,32 @@ Regla de dependencia: cada capa solo depende de las que están debajo. El domini
 
 ---
 
+## Gestor de paquetes (regla del proyecto)
+
+- Este proyecto usa **pnpm** como gestor de paquetes oficial.
+- No usar `npm install` ni `yarn` para agregar dependencias en este repo.
+- Comandos esperados: `pnpm install`, `pnpm add`, `pnpm remove`, `pnpm run <script>`.
+- La fuente de verdad está en la raíz del monorepo: `packageManager: "pnpm@11.5.0"`.
+
+---
+
+## Calidad obligatoria antes de commit (backend)
+
+- Todo cambio debe pasar lint y type-check antes de commit.
+- Lint y tipado son barreras tempranas para detectar bugs de integración y regresiones.
+- Comandos mínimos:
+  - `pnpm --filter vetary-api lint`
+  - `pnpm --filter vetary-api exec tsc --noEmit`
+
+---
+
+## Imports: preferir alias absoluto
+
+- Preferir imports absolutos del proyecto (`@/...`) sobre rutas relativas profundas (`../../../...`).
+- Motivo: código más legible y refactors más seguros al mover archivos/carpetas.
+
+---
+
 ## Estructura interna de un módulo
 
 ```

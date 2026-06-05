@@ -1,6 +1,6 @@
 import { ConflictException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
-import { PrismaService } from "../../../database/prisma.service";
+import { PrismaService } from "@/database/prisma.service";
 import { UserRepository } from "../repositories/user.repository";
 import { UserService } from "./user.service";
 import type { CreateUserDto } from "../dto/create-user.dto";

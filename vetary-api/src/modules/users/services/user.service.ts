@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from "@nestjs/common";
 import * as bcrypt from "bcrypt";
 // biome-ignore lint/style/useImportType: NestJS DI requires value import
-import { PrismaService } from "../../../database/prisma.service";
+import { PrismaService } from "@/database/prisma.service";
 // biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { UserRepository } from "../repositories/user.repository";
 import type { CreateUserDto } from "../dto/create-user.dto";

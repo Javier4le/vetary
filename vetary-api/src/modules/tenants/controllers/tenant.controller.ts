@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { Public } from "../../../common/decorators/public.decorator";
+import { Public } from "@/common/decorators/public.decorator";
 import type { RegisterTenantDto } from "../dto/register-tenant.dto";
 // biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { TenantService } from "../services/tenant.service";

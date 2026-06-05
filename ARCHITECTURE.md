@@ -126,6 +126,15 @@ Estos patrones no se implementan porque suenan bien. Aparecen porque el problema
 
 ---
 
+## Gestor de paquetes (regla global del monorepo)
+
+- Este repositorio usa **pnpm** como gestor de paquetes oficial.
+- No usar `npm` ni `yarn` para instalar dependencias o correr scripts en este monorepo.
+- Comandos esperados: `pnpm install`, `pnpm add`, `pnpm remove`, `pnpm --filter <package> <script>`.
+- Fuente de verdad: `package.json` de la raíz con `packageManager: "pnpm@11.5.0"`.
+
+---
+
 ## Estructura del monorepo
 
 Vetary es un **monorepo** — un solo repositorio Git que contiene el backend y el frontend. Esta decisión se tomó porque es un proyecto de un solo developer con un solo agente trabajando secuencialmente. Repos separados solo agregarían fricción sin beneficio real.

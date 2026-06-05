@@ -30,6 +30,32 @@ src/
 
 ---
 
+## Gestor de paquetes (regla del proyecto)
+
+- Este proyecto usa **pnpm** como gestor de paquetes oficial.
+- No usar `npm` ni `yarn` para instalar dependencias o correr scripts en este repo.
+- Comandos esperados: `pnpm install`, `pnpm add`, `pnpm remove`, `pnpm --filter vetary-web <script>`.
+- Fuente de verdad: `package.json` de la raíz del monorepo con `packageManager: "pnpm@11.5.0"`.
+
+---
+
+## Calidad obligatoria antes de commit (frontend)
+
+- Todo cambio debe pasar lint y type-check antes de commit.
+- El objetivo no es “silenciar warnings”; es detectar bugs temprano y mantener consistencia de equipo.
+- Comandos mínimos:
+  - `pnpm --filter vetary-web lint`
+  - `pnpm --filter vetary-web exec tsc --noEmit`
+
+---
+
+## Imports: preferir alias absoluto
+
+- Preferir imports absolutos del proyecto (`@/...`) sobre rutas relativas profundas (`../../../...`).
+- Motivo: mejora mantenibilidad y evita roturas al mover archivos.
+
+---
+
 ## Separación de 3 capas dentro de cada feature (INVIOLABLE)
 
 Dirección de dependencia estricta. Ninguna capa salta ni invierte la cadena:

@@ -3,9 +3,9 @@ import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { Role } from "@prisma/client";
-import { CurrentTenant } from "../../../common/decorators/current-tenant.decorator";
-import { CurrentUser } from "../../../common/decorators/current-user.decorator";
-import { Roles } from "../../../common/decorators/roles.decorator";
+import { CurrentTenant } from "@/common/decorators/current-tenant.decorator";
+import { CurrentUser } from "@/common/decorators/current-user.decorator";
+import { Roles } from "@/common/decorators/roles.decorator";
 import type { CreateUserDto } from "../dto/create-user.dto";
 // biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { UserService } from "../services/user.service";

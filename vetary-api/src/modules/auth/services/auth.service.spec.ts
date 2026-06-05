@@ -1,8 +1,8 @@
 import { ForbiddenException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test, type TestingModule } from "@nestjs/testing";
-import { ConfigService } from "../../../config/config.service";
-import { PrismaService } from "../../../database/prisma.service";
+import { ConfigService } from "@/config/config.service";
+import { PrismaService } from "@/database/prisma.service";
 import { AuthService } from "./auth.service";
 import type { Role } from "@prisma/client";
 

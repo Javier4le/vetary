@@ -586,12 +586,12 @@ Create three guards: AuthGuard (validates JWT, skips if @Public()), TenantGuard 
 **Estimated lines:** ~280 lines (140 code + 140 tests)
 
 **Acceptance:**
-- [ ] All test cases pass (RED → GREEN → REFACTOR)
-- [ ] AuthGuard extends `AuthGuard('jwt')` from Passport
-- [ ] AuthGuard checks `IS_PUBLIC_KEY` metadata before validating JWT
-- [ ] TenantGuard checks `IS_PUBLIC_KEY`, then compares tenant IDs
-- [ ] RolesGuard checks `ROLES_KEY` metadata and `req.user.role`
-- [ ] All guards are exported from `common/guards/index.ts`
+- [x] All test cases pass (RED → GREEN → REFACTOR)
+- [x] AuthGuard extends `AuthGuard('jwt')` from Passport
+- [x] AuthGuard checks `IS_PUBLIC_KEY` metadata before validating JWT
+- [x] TenantGuard checks `IS_PUBLIC_KEY`, then compares tenant IDs
+- [x] RolesGuard checks `ROLES_KEY` metadata and `req.user.role`
+- [x] All guards are exported from `common/guards/index.ts`
 
 **Teaching moment:**
 > **Guard Chain:** Think of security like airport checkpoints. First, show your ticket (AuthGuard). Then, verify your ticket matches this terminal (TenantGuard). Finally, check if you have lounge access (RolesGuard). Order matters — can't check lounge access before verifying the ticket!
@@ -616,13 +616,13 @@ Wire all modules together in AppModule. Register TenantMiddleware globally, conf
 **Estimated lines:** ~120 lines
 
 **Acceptance:**
-- [ ] AppModule imports: ConfigModule (global), PrismaModule (global), CommonModule, TenantsModule, AuthModule, UsersModule
-- [ ] ThrottlerModule configured: 5 req/15min for /auth/login, 3 req/hour for /tenants/register
-- [ ] TenantMiddleware registered globally via `MiddlewareConsumer.apply().forRoutes('*')`
-- [ ] main.ts applies: Helmet, CORS (from config), ValidationPipe (whitelist, forbidNonWhitelisted, transform)
-- [ ] main.ts sets global prefix `/api/v1`
-- [ ] main.ts configures Swagger at `/docs`
-- [ ] main.ts applies HttpExceptionFilter globally
+- [x] AppModule imports: ConfigModule (global), PrismaModule (global), CommonModule, TenantsModule, AuthModule, UsersModule
+- [ ] ThrottlerModule configured: 5 req/15min for /auth/login, 3 req/hour for /tenants/register (deferred to PR3-B / rate-limit slice)
+- [x] TenantMiddleware registered globally via `MiddlewareConsumer.apply().forRoutes('*')`
+- [x] main.ts applies: Helmet, CORS (from config), ValidationPipe (whitelist, forbidNonWhitelisted, transform)
+- [x] main.ts sets global prefix `/api/v1`
+- [x] main.ts configures Swagger at `/docs`
+- [x] main.ts applies HttpExceptionFilter globally
 
 **Teaching moment:**
 > **Dependency Injection Wiring:** NestJS automatically injects dependencies when modules import/export correctly. If AuthModule imports UsersModule and UsersModule exports UserService, AuthService can inject UserService. This is the "magic" of DI.

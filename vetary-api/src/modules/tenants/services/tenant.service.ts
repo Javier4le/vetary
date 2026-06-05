@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import * as bcrypt from "bcrypt";
 // biome-ignore lint/style/useImportType: NestJS DI requires value import
-import { PrismaService } from "../../../database/prisma.service";
+import { PrismaService } from "@/database/prisma.service";
 import type { RegisterTenantDto } from "../dto/register-tenant.dto";
 // biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { TenantRepository } from "../repositories/tenant.repository";

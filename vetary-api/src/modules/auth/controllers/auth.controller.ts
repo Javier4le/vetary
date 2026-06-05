@@ -14,9 +14,9 @@ import {
 	ApiResponse,
 	ApiTags,
 } from "@nestjs/swagger";
-import { CurrentTenant } from "../../../common/decorators/current-tenant.decorator";
-import { CurrentUser } from "../../../common/decorators/current-user.decorator";
-import { Public } from "../../../common/decorators/public.decorator";
+import { CurrentTenant } from "@/common/decorators/current-tenant.decorator";
+import { CurrentUser } from "@/common/decorators/current-user.decorator";
+import { Public } from "@/common/decorators/public.decorator";
 import { LoginDto } from "../dto/login.dto";
 import { RefreshTokenDto } from "../dto/refresh-token.dto";
 import { AuthService } from "../services/auth.service";

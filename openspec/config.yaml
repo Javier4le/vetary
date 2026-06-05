@@ -1,7 +1,7 @@
 # Vetary — OpenSpec SDD Configuration
-# Generated: 2026-05-31
+# Refreshed: 2026-06-03 (was: 2026-05-31)
 # Phase: sdd-init
-# Artifact store: openspec (engram unavailable)
+# Artifact store: hybrid (openspec + engram)
 
 project:
   name: vetary
@@ -12,13 +12,13 @@ project:
 stack:
   backend:
     runtime: Node.js 22
-    framework: NestJS
+    framework: NestJS 10
     language: TypeScript (strict mode)
-    database: PostgreSQL
-    orm: Prisma
-    auth: JWT with refresh tokens
+    database: PostgreSQL (Docker)
+    orm: Prisma 5.8
+    auth: JWT with refresh tokens (passport-jwt)
     validation: class-validator + class-transformer
-    testing: Jest
+    testing: Jest 29.7
 
   frontend:
     framework: React 18
@@ -29,7 +29,8 @@ stack:
     routing: React Router v6
     ui_styling: Tailwind CSS + shadcn/ui
     forms: React Hook Form + Zod
-    testing: Vitest
+    testing: Vitest (no test runner installed yet — STACK-react.md only, project scaffold pending)
+    status: Not bootstrapped (only STACK-react.md exists)
 
 architecture:
   pattern: Layered Architecture (4 layers)
@@ -43,7 +44,7 @@ architecture:
 
   multi_tenancy:
     strategy: Shared database, shared schema with tenantId
-    isolation_mechanism: BaseRepository enforces tenantId filter on all queries
+    isolation_mechanism: TenantMiddleware + TenantContext (AsyncLocalStorage) + BaseRepository filter
     golden_rule: "No repository can execute a query without the tenantId filter"
 
 testing:
@@ -51,15 +52,18 @@ testing:
 
   backend:
     framework: Jest
+    version: 29.7
     test_command: "cd vetary-api && npm run test"
     watch_command: "cd vetary-api && npm run test:watch"
     coverage_command: "cd vetary-api && npm run test:cov"
-    test_location: "vetary-api/src/**/*.spec.ts"
+    test_location: "vetary-api/src/**/*.spec.ts + vetary-api/test/unit/**/*.spec.ts"
+    current_test_count: 7 suites, 72 tests (all passing)
+    e2e_config: test/jest-e2e.json (configured, no E2E tests yet)
 
     test_types:
-      - unit: Business logic (services, factories, domain entities)
-      - integration: Repositories with tenant isolation verification
-      - e2e: Critical auth flows
+      - unit: Business logic (services, repositories, middleware, env validation)
+      - integration: Repositories with tenant isolation verification (planned)
+      - e2e: Critical auth flows (framework configured, no tests yet)
 
     coverage_requirements:
       auth_logic: 100%
@@ -83,6 +87,7 @@ testing:
     test_command: "cd vetary-web && npm run test"
     watch_command: "cd vetary-web && npm run test:watch"
     test_location: "vetary-web/src/**/*.test.tsx"
+    status: Not bootstrapped — test runner will be configured when project is scaffolded
 
     test_types:
       - component: UI logic
@@ -97,6 +102,23 @@ strict_tdd_justification: |
      Risk if untested: Data leakage between tenants (catastrophic legal/business failure)
   3. Domain state transitions — booking status flow
      Risk if untested: Invalid state transitions, broken business rules
+
+quality:
+  linter:
+    tool: ESLint 8.56
+    command: "cd vetary-api && npm run lint"
+    config: Inline in package.json scripts (no .eslintrc file found — likely generated via nest cli)
+
+  type_checker:
+    tool: TypeScript 5.3 (tsc)
+    config: vetary-api/tsconfig.json (strict mode, noImplicitAny, noUnusedLocals, noUnusedParameters)
+
+  formatter:
+    tool: Prettier 3.1 + Biome 1.9 (root-level)
+    command:
+      backend: "cd vetary-api && npm run format"
+      root: biome.json (linter disabled for root, type import rule off)
+    biome_config: Root biome.json — unsafeParameterDecoratorsEnabled for NestJS
 
 conventions:
   typescript:
@@ -153,51 +175,57 @@ security_baseline:
 
   multi_tenant:
     - BaseRepository enforces tenantId filter
+    - TenantMiddleware extracts and validates tenant context (AsyncLocalStorage)
     - Integration tests verify cross-tenant queries fail
-    - TenantMiddleware extracts and validates tenant context
 
   auth:
     - Passwords hashed with bcrypt (cost factor ≥10)
     - JWT secret from environment, never hardcoded
     - Refresh token rotation implemented
-    - Role-based guards with decorators
+    - Role-based guards with decorators (@Roles, @CurrentTenant)
 
 design_patterns:
   repository:
     phase: 1
-    reason: Isolate Prisma; centralize tenantId filter
+    reason: Isolate Prisma; centralize tenantId filter via BaseRepository
     where: Every module
-
-  factory:
-    phase: 3
-    reason: Creating bookings differs by service type
-    where: bookings module
-
-  observer:
-    phase: 3
-    reason: Booking state changes trigger multiple actions
-    where: bookings module
-
-  strategy:
-    phase: 2
-    reason: Availability calculation varies by service type
-    where: availability module
+    status: Implemented (BaseRepository + UserRepository + TenantRepository)
 
   decorator:
     phase: 1
     reason: Auth, roles, tenant metadata on routes
     where: common/decorators
+    status: Implemented (@CurrentUser, @Public, @Roles, @CurrentTenant)
+
+  strategy:
+    phase: 2
+    reason: Availability calculation varies by service type
+    where: availability module
+    status: Planned
+
+  factory:
+    phase: 3
+    reason: Creating bookings differs by service type
+    where: bookings module
+    status: Planned
+
+  observer:
+    phase: 3
+    reason: Booking state changes trigger multiple actions
+    where: bookings module
+    status: Planned
 
 phases:
   phase_1:
     name: "Auth + Multi-tenancy Foundation"
+    status: In progress (openspec/changes/fase-1-fundacion/)
     scope:
-      - Tenant registration and onboarding
-      - JWT authentication (login, logout, refresh, password recovery)
-      - Role management (SuperAdmin, Admin, Staff, Veterinarian, Client)
-      - BaseRepository with tenant isolation
-      - Auth guards and decorators
-      - Database schema with multi-tenant foundation
+      - Tenant registration and onboarding (implemented)
+      - JWT authentication — login, refresh (implemented, logout/password recovery pending)
+      - Role management — SuperAdmin, Admin, Staff, Veterinarian, Client (partially implemented)
+      - BaseRepository with tenant isolation (implemented)
+      - Auth guards and decorators (implemented)
+      - Database schema with multi-tenant foundation (implemented via Prisma)
 
     acceptance_criteria:
       - A tenant can register and receive their subdomain
@@ -210,6 +238,11 @@ phases:
       - Tenant service
       - BaseRepository
       - Auth guards
+
+    test_status:
+      suites: 7 (all passing)
+      tests: 72 (all passing)
+      runner: Jest 29.7
 
 risks:
   tenant_data_leakage:
@@ -235,13 +268,26 @@ risks:
 teaching_level: principiante
 
 artifacts_store:
-  mode: openspec
-  fallback_reason: Engram unavailable in this session
-  config_location: openspec/config.yaml
+  mode: hybrid
+  openspec_path: openspec/config.yaml
+  engram_topic: sdd-init/vetary
+  engram_testing_capabilities: sdd/vetary/testing-capabilities
+  engram_skill_registry: skill-registry
 
 sdd_init:
-  status: complete
+  status: refreshed
   generated: 2026-05-31
+  refreshed: 2026-06-03
   testing_capabilities_detected: true
   strict_tdd_activated: true
   project_context_cached: true
+  changes_from_prior:
+    - Engram now available (was offline in original init)
+    - Mode upgraded from openspec to hybrid
+    - Test count verified: 7 suites, 72 tests passing (was: "no code yet")
+    - vetary-web status clarified: scaffold pending, no test runner installed
+    - openspec/specs/ and openspec/changes/archive/ directories created
+    - ESLint config detection: package.json inline (nest cli default), no standalone .eslintrc
+    - Quality tools table added to config
+    - Phase 1 status updated to reflect real implementation progress
+    - Skill registry rebuilt and saved to both .atl/skill-registry.md and Engram

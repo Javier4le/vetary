@@ -106,17 +106,17 @@ cd vetary-api
 docker compose up -d
 
 # Instalar dependencias
-npm install
+pnpm install
 
 # Variables de entorno
 cp .env.example .env
 # Completar las variables en .env
 
 # Migraciones
-npx prisma migrate dev
+pnpm --filter vetary-api prisma:migrate
 
 # Correr el servidor
-npm run start:dev
+pnpm --filter vetary-api start:dev
 ```
 
 > El frontend tiene su propio repositorio: `vetary-web`

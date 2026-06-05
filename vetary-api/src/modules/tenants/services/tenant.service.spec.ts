@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
-import { PrismaService } from "../../../database/prisma.service";
+import { PrismaService } from "@/database/prisma.service";
 import type { RegisterTenantDto } from "../dto/register-tenant.dto";
 import { TenantRepository } from "../repositories/tenant.repository";
 import { TenantService } from "./tenant.service";

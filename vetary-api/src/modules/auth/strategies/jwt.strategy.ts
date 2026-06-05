@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { ConfigService } from "../../config/config.service";
+import { ConfigService } from "@/config/config.service";
 import type { JwtPayload } from "../interfaces/jwt-payload.interface";
 
 // 🔒 SEGURIDAD: JwtStrategy — valida la firma del JWT en CADA request protegida
@@ -21,7 +21,7 @@ import type { JwtPayload } from "../interfaces/jwt-payload.interface";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
-	constructor(private readonly configService: ConfigService) {
+	constructor(configService: ConfigService) {
 		super({
 			// 📐 PATRÓN: Bearer Token — estándar OAuth2/JWT
 			// El cliente envía: Authorization: Bearer eyJhbG...
