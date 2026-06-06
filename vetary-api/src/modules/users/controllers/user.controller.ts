@@ -6,8 +6,7 @@ import { Role } from "@prisma/client";
 import { CurrentTenant } from "@/common/decorators/current-tenant.decorator";
 import { CurrentUser } from "@/common/decorators/current-user.decorator";
 import { Roles } from "@/common/decorators/roles.decorator";
-import type { CreateUserDto } from "../dto/create-user.dto";
-// biome-ignore lint/style/useImportType: NestJS DI requires value import
+import { CreateUserDto } from "../dto/create-user.dto";
 import { UserService } from "../services/user.service";
 
 // 🏗️ ARQUITECTURA: UserController — solo recibe, delega, responde

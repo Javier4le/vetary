@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { ConfigService as NestConfigService } from '@nestjs/config';
+import { ConfigService as NestConfigService } from '@nestjs/config';
 import type { EnvironmentVariables } from './env.validation';
 
 // 🏗️ ARQUITECTURA: ConfigService centraliza acceso tipado a variables de entorno

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { CustomAuthGuard } from './guards/auth.guard';
 import { TenantGuard } from './guards/tenant.guard';
 import { RolesGuard } from './guards/roles.guard';
@@ -17,7 +18,11 @@ import { RolesGuard } from './guards/roles.guard';
 @Module({
   providers: [
     // 🔒 Cadena de seguridad GLOBAL — se aplica a TODOS los endpoints
-    // Orden CRÍTICO: Auth → Tenant → Roles
+    // Orden CRÍTICO: Throttle → Auth → Tenant → Roles
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard, // 0. Rate limiting (rejects before auth if exceeded)
+    },
     {
       provide: APP_GUARD,
       useClass: CustomAuthGuard, // 1. Validar JWT (o saltar si @Public())

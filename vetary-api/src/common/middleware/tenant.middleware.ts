@@ -13,8 +13,10 @@ import { PrismaService } from "../../database/prisma.service";
 // Corre ANTES de cualquier Guard o Controller
 // Su única responsabilidad: "¿de qué clínica viene esta request?"
 //
-// 📐 PATRÓN Middleware: transforma la request agregando información (req.tenant)
-// No bloquea por reglas de negocio — solo resuelve la identidad del tenant
+// ⚠️ DECISIÓN: Rutas públicas que NO requieren tenant context
+//    - /api/v1/tenants/register → crea un tenant, no necesita uno existente
+//    - /api/v1/auth/login → resuelve tenantId desde body, no subdomain
+//    - /api/v1/auth/refresh → valida refresh token, no necesita subdomain
 //
 // ⚠️ DECISIÓN: Usamos req.hostname para extraer el subdominio
 // Alternativa descartada: header X-Tenant-Id → cliente puede mentir (inseguro)
@@ -31,17 +33,33 @@ declare module "express" {
 	}
 }
 
+// Rutas públicas que no requieren resolución de tenant
+function isTenantAgnosticPath(path: string): boolean {
+  return [
+    "/api/v1/tenants/register",
+    "/api/v1/auth/login",
+    "/api/v1/auth/refresh",
+  ].includes(path);
+}
+
 @Injectable()
 export class TenantMiddleware implements NestMiddleware {
-	constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-	async use(req: Request, _res: Response, next: NextFunction): Promise<void> {
+  async use(req: Request, _res: Response, next: NextFunction): Promise<void> {
+    // ⚡ PRINCIPIO: Skip tenant resolution for tenant-agnostic paths
+    // Register, login, refresh don't need a tenant because they operate
+    // independently of or provide their own tenant context.
+    if (isTenantAgnosticPath(req.path) || isTenantAgnosticPath(req.originalUrl)) {
+      return next();
+    }
+
 		const subdomain = this.extractSubdomain(req.hostname);
 
 		// 🔒 SEGURIDAD: Si no hay subdominio, no sabemos a qué clínica apunta la request
 		if (!subdomain) {
 			throw new BadRequestException(
-				"No tenant subdomain found. Access must be via a clinic subdomain (e.g. clinica-a.vetary.app).",
+				"No tenant subdomain found. Access must be via a clinic subdomain (e.g. clinica-a.vetary.app)."
 			);
 		}
 
@@ -49,8 +67,7 @@ export class TenantMiddleware implements NestMiddleware {
 			where: { subdomain },
 		});
 
-		// 🔒 SEGURIDAD: Subdominio no registrado → 404, no 403
-		// No informamos si el tenant existe o no para no exponer información
+		// 🔒 SEGURIDAD: Subdominio no registrado → 404
 		if (!tenant) {
 			throw new NotFoundException(`Clinic '${subdomain}' not found.`);
 		}
@@ -58,7 +75,7 @@ export class TenantMiddleware implements NestMiddleware {
 		// 🔒 SEGURIDAD: Tenant suspendido → 403 explícito
 		if (tenant.status !== "ACTIVE") {
 			throw new ForbiddenException(
-				"This clinic account is currently suspended. Contact support.",
+				"This clinic account is currently suspended. Contact support."
 			);
 		}
 

@@ -1,6 +1,6 @@
 # Vetary — Workflow de Desarrollo
-**Autor:** Javier Rojas  
-**Fecha:** Mayo 2026  
+**Autor:** Javier Rojas
+**Fecha:** Mayo 2026
 **Propósito:** Definir las dos "salas" del proceso de desarrollo y cuándo usar cada una.
 
 ---
@@ -138,24 +138,23 @@ Actualizar este mapa al cerrar cada fase.
 
 ```
 vetary/
+│
+├── AGENTS.md
+├── ARCHITECTURE.md
+├── SPEC.md
+│
 ├── vetary-api/          # Backend NestJS
-│   ├── SPEC.md          ← copia (o symlink)
-│   ├── ARCHITECTURE.md  ← copia (o symlink)
-│   ├── AGENTS.md        ← copia (o symlink)
-│   └── src/
+│   └── STACK-nestjs.md
 │
 ├── vetary-web/          # Frontend React
-│   ├── SPEC.md          ← copia (o symlink)
-│   ├── ARCHITECTURE.md  ← copia (o symlink)
-│   ├── AGENTS.md        ← copia (o symlink)
-│   └── src/
+│   └── STACK-react.md
 │
 └── docs/                # Documentación compartida
+    ├── decisions.md
     └── WORKFLOW.md      ← este archivo
 ```
 
 > Los tres documentos base (SPEC, ARCHITECTURE, AGENTS.md) van en la raíz
-> de cada repositorio para que el agente los encuentre al abrir el proyecto.
 > El agente trabaja en un repo a la vez — primero el backend, luego el frontend.
 
 ---

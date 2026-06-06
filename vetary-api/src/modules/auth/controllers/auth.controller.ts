@@ -8,6 +8,7 @@ import {
 	UseGuards,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
+import { Throttle } from "@nestjs/throttler";
 import {
 	ApiBearerAuth,
 	ApiOperation,
@@ -39,6 +40,7 @@ export class AuthController {
 	 */
 	@Post("login")
 	@Public()
+	@Throttle({ default: { limit: 5, ttl: 60000 } })
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: "Authenticate user and get tokens" })
 	@ApiResponse({
@@ -83,6 +85,7 @@ export class AuthController {
 	 */
 	@Post("refresh")
 	@Public()
+	@Throttle({ default: { limit: 5, ttl: 60000 } })
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: "Refresh access token using refresh token" })
 	@ApiResponse({

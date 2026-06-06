@@ -38,6 +38,31 @@ Cuando se rompe una regla del AGENTS.md o de un STACK a propósito, se registra 
 
 *(Las decisiones fundacionales del proyecto están en `ARCHITECTURE.md` → Log de decisiones. A partir de la Fase 1, las nuevas decisiones y excepciones se registran aquí.)*
 
+## ADR-002 — Estrategia de ramas por fase (sin merge a main hasta v1.0)
+**Fecha:** 2026-06-05
+**Estado:** aceptada
+**Fase:** Fase 1 (cierre)
+
+### Contexto
+El proyecto avanza por fases funcionales (Auth + Multi-tenancy, Bookings, etc.). Se necesita orden en el historial de Git para saber dónde termina una fase y empieza otra, sin mezclar trabajo incompleto en `main`.
+
+### Decisión
+- `main`: **sólo para la primera versión completa del producto** (v1.0). No recibe merges de fases intermedias.
+- `develop`: rama de integración continua. Recibe los PRs de cada slice (PR3-A, PR3-B, etc.).
+- Al cerrar una fase: se crea un **tag** en `develop` (ej. `fase-1-complete`), NO se mergea a `main`.
+- La siguiente fase parte desde el tag de la anterior.
+
+### Alternativas consideradas
+- **Rama por fase (`feature/fase-1`, `feature/fase-2`):** descartada para el estado actual porque la Fase 1 ya está en `develop`. Moverla ahora sería rewrite de historia sin beneficio real.
+- **Merge a `main` por fase:** descartada explícitamente por el desarrollador; `main` debe representar solo versiones estables de producto.
+
+### Consecuencias
+- Historial limpio: cada fase está demarcada por un tag.
+- `main` permanece como línea de producción hasta v1.0.
+- Se requiere disciplina de taggear al cerrar cada fase.
+
+---
+
 ## ADR-001 — Tenant-scoped JWT sessions for multi-clinic users
 **Fecha:** 2026-06-05
 **Estado:** aceptada

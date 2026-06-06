@@ -1,8 +1,8 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { SkipThrottle } from "@nestjs/throttler";
 import { Public } from "@/common/decorators/public.decorator";
-import type { RegisterTenantDto } from "../dto/register-tenant.dto";
-// biome-ignore lint/style/useImportType: NestJS DI requires value import
+import { RegisterTenantDto } from "../dto/register-tenant.dto";
 import { TenantService } from "../services/tenant.service";
 
 // 🏗️ ARQUITECTURA: Controller — solo recibe la request, delega al service, devuelve respuesta
@@ -17,6 +17,7 @@ export class TenantController {
 	// 📐 PATRÓN: @Public() — este endpoint NO requiere autenticación
 	// Es el punto de entrada del sistema: una nueva clínica se registra sin estar logueada
 	@Public()
+	@SkipThrottle()
 	@Post("register")
 	@HttpCode(HttpStatus.CREATED)
 	@ApiOperation({ summary: "Register a new clinic (tenant)" })
