@@ -26,6 +26,12 @@ Regla de dependencia: cada capa solo depende de las que están debajo. El domini
 - Prohibido `as` sin un comentario que justifique el assertion
 - Los tipos se definen donde se originan y se importan donde se usan
 
+### ⚠️ `import type` y class-transformer metadata
+
+- `import type` rompe la metadata que `class-transformer` y `class-validator` leen en runtime (reflexión).
+- Nunca usar `import type` en clases que llevan decoradores de validación (`@IsString`, etc.) o tokens de inyección de dependencias (`@Injectable`, `@Inject`, etc.).
+- Usar `import` normal para que el decorador preserve la referencia al constructor en runtime.
+
 ---
 
 ## Gestor de paquetes (regla del proyecto)
@@ -33,7 +39,7 @@ Regla de dependencia: cada capa solo depende de las que están debajo. El domini
 - Este proyecto usa **pnpm** como gestor de paquetes oficial.
 - No usar `npm install` ni `yarn` para agregar dependencias en este repo.
 - Comandos esperados: `pnpm install`, `pnpm add`, `pnpm remove`, `pnpm run <script>`.
-- La fuente de verdad está en la raíz del monorepo: `packageManager: "pnpm@11.5.0"`.
+- **En monorepo con pnpm, `packageManager` debe estar en el `package.json` raíz.** No en subpaquetes. La fuente de verdad es unica: `packageManager: "pnpm@11.5.0"`.
 
 ---
 
@@ -189,3 +195,23 @@ Gratis con los decoradores de NestJS. Define el contrato entre backend y fronten
 - [ ] Los endpoints están documentados en Swagger
 - [ ] Hay tests para la lógica crítica y el aislamiento de datos
 - [ ] No hay secretos hardcodeados
+
+---
+
+## Herramientas de verificación activas
+
+| Herramienta | Qué hace | Cuándo corre | Qué error atrapa |
+|---|---|---|---|
+| **Biome** (linter + formatter) | Analiza estático + formatea código | En CI, pre-commit, y manual (`pnpm --filter vetary-api lint`) | Sintaxis inválida, imports no usados, malas prácticas, estilo inconsistente |
+| **tsserver** (TypeScript LSP) | Análisis de tipos en tiempo real | En el editor (VS Code, Neovim, etc.) | Errores de tipo, tipos faltantes, APIs mal usadas |
+| **Jest** (unit tests) | Tests unitarios de lógica aislada | En CI y local (`pnpm --filter vetary-api test`) | Regresiones en lógica de negocio, comportamiento incorrecto de funciones puras |
+| **Tests de integración** (Jest + Prisma) | Tests de capa de servicio con DB real | En CI (`pnpm --filter vetary-api test`) | Bugs en queries, filtros de tenant, transiciones de estado |
+| **E2E / Supertest** | Tests end-to-end de la API HTTP | En CI (`pnpm --filter vetary-api test:e2e`) | Flujos completos rotos, contratos API violados, auth fallando |
+
+### Por qué ESLint fue eliminado
+ESLint estaba configurado con solo `eslint:recommended` y todas las reglas TypeScript estaban desactivadas. Biome 1.9 cubre el 100% de `eslint:recommended` y añade reglas adicionales. Eliminar ESLint reduce dependencias y unifica lint + format en una sola herramienta.
+
+### Reglas clave de Biome para este proyecto
+- `useImportType: off` — Nunca activar. NestJS decorators requieren referencias de clase en runtime.
+- `unsafeParameterDecoratorsEnabled: true` — Requerido para que Biome no falle con decoradores NestJS.
+

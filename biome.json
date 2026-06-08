@@ -2,8 +2,39 @@
 	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
 	"linter": {
 		"rules": {
+			"recommended": true,
+			"correctness": {
+				"noUnusedImports": "error",
+				"noUnusedVariables": "error",
+				"noUnreachable": "error",
+				"noUndeclaredVariables": "error",
+				"noConstAssign": "error"
+			},
+			"suspicious": {
+				"noConsole": "error",
+				"noDebugger": "error",
+				"noDoubleEquals": "error",
+				"noExplicitAny": "error",
+				"noEmptyBlockStatements": "error",
+				"noGlobalIsNan": "error"
+			},
 			"style": {
-				"useImportType": "off"
+				"useConst": "error",
+				"useTemplate": "error",
+				"noVar": "error",
+				"useImportType": "off",
+				"useNodejsImportProtocol": "error",
+				"useShorthandArrayType": "error",
+				"noNonNullAssertion": "error",
+				"noParameterAssign": "error"
+			},
+			"complexity": {
+				"noForEach": "warn",
+				"noStaticOnlyClass": "error",
+				"noUselessSwitchCase": "error"
+			},
+			"performance": {
+				"noDelete": "error"
 			}
 		}
 	},
@@ -11,5 +42,13 @@
 		"parser": {
 			"unsafeParameterDecoratorsEnabled": true
 		}
+	},
+	"formatter": {
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"lineWidth": 100
+	},
+	"organizeImports": {
+		"enabled": true
 	}
 }
