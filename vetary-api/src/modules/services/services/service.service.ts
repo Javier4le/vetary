@@ -29,7 +29,7 @@ export class ServicesService {
 
 		return this.serviceRepository.createService(tenantId, {
 			name: dto.name,
-			description: dto.description,
+			description: dto.description ?? null,
 			durationMinutes: dto.durationMinutes,
 			priceClp: dto.priceClp,
 			isActive: true,
