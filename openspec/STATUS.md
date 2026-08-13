@@ -9,7 +9,8 @@
 
 - Tag: `fase-1-complete` en `develop`
 - Tests unitarios: `npx jest` — `Test Suites: 12 passed, 12 total`; `Tests: 98 passed, 98 total`
-- E2E: `npx jest --config ./test/jest-e2e.json` — `Test Suites: 2 failed, 2 total`; `Tests: 0 total` (fallan porque `test/e2e/utils/test-helper.ts` no incluye `Tenant.timezone`)
+- E2E: `npx jest --config ./test/jest-e2e.json` — `Test Suites: 2 passed, 2 total`; `Tests: 8 passed, 8 total`
+- Migraciones Prisma: `npx prisma migrate status` — `1 migration found in prisma/migrations`; `Database schema is up to date!`
 - Auth + Multi-tenancy funcionando
 - BaseRepository con aislamiento de tenant activo
 
@@ -29,7 +30,7 @@
 ### Implementación (Chained PRs — feature-branch-chain)
 | PR | Estado | Commits | Tests | Líneas |
 |----|--------|---------|-------|--------|
-| PR-1 | ✅ COMPLETADO | 3 commits | Unit: 12 suites / 98 tests verdes; E2E: 2 suites fallidas / 0 tests ejecutados | ~630 |
+| PR-1 | ✅ COMPLETADO | 3 commits | Unit: 12 suites / 98 tests verdes; E2E: 2 suites / 8 tests verdes | ~630 |
 | PR-2 | ⏳ PENDIENTE | — | — | ~160 estimado |
 | PR-3 | ⏳ PENDIENTE | — | — | ~220 estimado |
 
@@ -49,7 +50,7 @@
 - `test/integration/services/` — 6 tests de integración
 - `src/app.module.ts` — ServicesModule registrado
 
-**Tests medidos:** Unit: 12 suites / 98 tests verdes (`npx jest`). E2E: 2 suites fallidas / 0 tests ejecutados (`npx jest --config ./test/jest-e2e.json`) porque `test/e2e/utils/test-helper.ts` no incluye `Tenant.timezone`.
+**Tests medidos:** Unit: 12 suites / 98 tests verdes (`npx jest`). E2E: 2 suites / 8 tests verdes (`npx jest --config ./test/jest-e2e.json`). Migraciones Prisma al día: 1 migración encontrada (`npx prisma migrate status`).
 
 ---
 

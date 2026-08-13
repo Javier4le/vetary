@@ -66,7 +66,7 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
   - Tests required: Yes (integration)
   - Status: ✅ Committed (2e59f4f)
 
-**PR-1 Total**: 3 commits, ~630 lines; unit: 12 suites / 98 tests passing; E2E: 2 suites failed / 0 tests executed because `test/e2e/utils/test-helper.ts` lacks `Tenant.timezone`
+**PR-1 Total**: 3 commits, ~630 lines; unit: 12 suites / 98 tests passing; E2E: 2 suites / 8 tests passing
 **PR-1 Branch**: `feature/fase-2-pr1-services` created from develop
 
 ## Phase 2: Extend Users Module & Vet Profiles (PR 2)
@@ -139,7 +139,7 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
 ## Summary
 
 - Total tasks: 14 (5 completed, 9 remaining)
-- PR-1: COMPLETED (~630 lines; unit: 12 suites / 98 tests passing; E2E: 2 suites failed / 0 tests executed because `test/e2e/utils/test-helper.ts` lacks `Tenant.timezone`)
+- PR-1: COMPLETED (~630 lines; unit: 12 suites / 98 tests passing; E2E: 2 suites / 8 tests passing; Prisma migration status: 1 migration found and database schema up to date)
 - PR-2: PENDING (4 tasks)
 - PR-3: PENDING (5 tasks)
 - Estimated remaining lines: ~300
