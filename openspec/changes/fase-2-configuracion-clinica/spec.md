@@ -91,7 +91,7 @@ The system MUST keep Phase 1 `GET /users` and `POST /users` behavior and SHALL a
 ## Prisma Schema Delta
 - `Tenant`: add `timezone String @default("America/Santiago")`.
 - `Service`: `tenantId` FK→Tenant (cascade), `name`, `description?`, `durationMinutes Int`, `priceClp Int`, `isActive Boolean @default(true)`, timestamps, `@@unique([tenantId,name])`, `@@index([tenantId])`, `@@index([tenantId,isActive])`.
-- `VetProfile`: `userId @unique` FK→User, `tenantId` FK→Tenant, optional `specialty/registrationNumber/bio`, timestamps, `@@index([tenantId])`.
+- `VetProfile`: `userId` FK→User, `tenantId` FK→Tenant, optional `specialty/registrationNumber/bio`, timestamps, `@@unique([tenantId,userId])`, `@@index([tenantId])`. A user may have one profile per tenant.
 - `VetAvailability`: `vetId` FK→User, `tenantId` FK→Tenant, `dayOfWeek Int`, `startTime String`, `endTime String`, timestamps, `@@index([tenantId,vetId,dayOfWeek])`.
 
 ## API Contract (Swagger)

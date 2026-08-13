@@ -63,7 +63,7 @@ model User {
   // Relations
   userTenants      UserTenant[]
   refreshTokens    RefreshToken[]
-  vetProfile       VetProfile?
+  vetProfiles      VetProfile[]
   vetAvailabilities VetAvailability[]
 
   @@index([email]) // ← Índice para búsqueda rápida por email (login)
@@ -153,12 +153,13 @@ model Service {
 // ═════════════════════════════════════════════════════════════════════════════
 // VET PROFILE
 // ═════════════════════════════════════════════════════════════════════════════
-// 🏗️ ARQUITECTURA: Perfil profesional de un veterinario
-// userId es único: un usuario = un perfil de veterinario
+// 🏗️ ARQUITECTURA: Perfil profesional de un veterinario dentro de una clínica
+// 🔒 SEGURIDAD: La identidad profesional es única por tenant; un usuario puede
+// tener un perfil distinto en cada clínica donde ejerce.
 
 model VetProfile {
   id                 String   @id @default(cuid())
-  userId             String   @unique @map("user_id")
+  userId             String   @map("user_id")
   tenantId           String
   specialty          String?
   registrationNumber String?  @map("registration_number")
@@ -169,6 +170,7 @@ model VetProfile {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
+  @@unique([tenantId, userId])
   @@index([tenantId])
   @@map("vet_profiles")
 }

@@ -29,6 +29,8 @@ The system MUST provide an admin-only endpoint to create a VET account and VetPr
 ### Requirement: Existing Email Reuse
 
 The system MUST reuse an existing User when the email already exists globally.
+VetProfile records are tenant-scoped: uniqueness applies to the `(tenantId, userId)`
+pair, so one User MAY have one VetProfile in each tenant.
 
 | ID | Requirement |
 |---|---|

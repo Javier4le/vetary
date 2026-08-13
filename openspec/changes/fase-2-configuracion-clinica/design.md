@@ -18,7 +18,7 @@ The existing `BaseRepository` at `src/database/base.repository.ts` (built in Pha
 
 ### Decision: Atomic Vet Creation within UserService
 
-*   **Choice**: The logic for the `POST /users/vets` endpoint, which creates a `User`, `UserTenant`, and `VetProfile`, will reside in the existing `UserService`. It will use Prisma's `$transaction` API to ensure atomicity. A new `VetProfileRepository` will be injected into `UserService`.
+*   **Choice**: The logic for the `POST /users/vets` endpoint, which creates a `User`, `UserTenant`, and `VetProfile`, will reside in the existing `UserService`. It will use Prisma's `$transaction` API to ensure atomicity. The transaction client performs the writes directly; `VetProfileRepository` remains available for tenant-scoped read paths and other modules because repository methods use the outer Prisma client and cannot participate in this transaction without a transaction-scoped delegate.
 *   **Alternatives considered**: Creating a new `VetsService` to handle this.
 *   **Rationale**: The primary entity being created is a `User` with a specific role and an associated profile. Keeping this logic within `UserService` centralizes user creation lifecycle, leverages existing user-handling logic (e.g., checking for email collisions), and avoids module cross-dependencies at the service layer.
 
@@ -28,12 +28,10 @@ The existing `BaseRepository` at `src/database/base.repository.ts` (built in Pha
 
 ```
     UserController ──(DTO)──> UserService ──(uses)──> UserRepository
-         │                                                 │
-         │                                                 └─(creates User, UserTenant)
-         │
-         └─────────────(uses)──> VetProfileRepository
-                                     │
-                                     └─(creates VetProfile)
+                                      │
+                                      └─(prisma.$transaction client)
+                                           ├─ creates User, UserTenant
+                                           └─ creates tenant-scoped VetProfile
 ```
 
 *All database operations are wrapped in a single `prisma.$transaction` inside `UserService`.*
@@ -44,7 +42,7 @@ The existing `BaseRepository` at `src/database/base.repository.ts` (built in Pha
 |---|---|---|---|
 | `vetary-api/prisma/schema.prisma` | Modify | 1 | Add `Service`, `VetProfile`, `VetAvailability` models and `timezone` to `Tenant`. |
 | `vetary-api/src/modules/services/` | **Create** | 1 | New module for service catalog management (controller, service, repository extending existing BaseRepository, DTOs). |
-| `vetary-api/src/modules/users/services/user.service.ts` | Modify | 2 | Inject `VetProfileRepository` and add `createVet` transactional method. |
+| `vetary-api/src/modules/users/services/user.service.ts` | Modify | 2 | Add `createVet` transactional method; use the transaction client for atomic writes and the repository for tenant-scoped read paths. |
 | `vetary-api/src/modules/users/controllers/user.controller.ts` | Modify | 2 | Add `POST /vets` and `POST /staff` endpoints. |
 | `vetary-api/src/modules/vet-profiles/` | **Create** | 2 | New supporting module for vet profiles (repository, DTOs). No controller/service needed. |
 | `vetary-api/src/modules/availability/` | **Create** | 3 | New module for vet availability (controller, service, repository, DTOs). |
@@ -85,7 +83,7 @@ model Service {
 
 model VetProfile {
   id                 String   @id @default(cuid())
-  userId             String   @unique
+  userId             String
   tenantId           String
   specialty          String?
   registrationNumber String?
@@ -96,6 +94,7 @@ model VetProfile {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
+  @@unique([tenantId, userId])
   @@index([tenantId])
   @@map("vet_profiles")
 }
@@ -158,10 +157,11 @@ export class CreateAvailabilityDto {
 
 ## Migration / Rollout
 
-This is an additive-only change.
-1.  A new Prisma migration will be generated from the schema changes.
-2.  The migration will be applied to the database before the new application code is deployed.
-3.  No data migration is required. Existing endpoints and data are unaffected.
+This change includes a constraint replacement for `VetProfile`: the global
+`userId` unique index is replaced by a composite `(tenantId, userId)` unique
+index. The migration must be applied before the new application code is
+deployed. Existing rows remain valid because each profile already belongs to a
+tenant; only the uniqueness scope changes.
 
 ## Open Questions
 
