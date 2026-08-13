@@ -1,97 +1,142 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { Role } from "@prisma/client";
-import { UserController } from "../../src/modules/users/controllers/user.controller";
-import { UserService } from "../../src/modules/users/services/user.service";
+process.env.DATABASE_URL ??= "postgresql://postgres:postgres@localhost:5432/vetary_dev";
+
+import { randomUUID } from "node:crypto";
+import type { PrismaService as PrismaServiceType } from "../../src/database/prisma.service";
+import type { UserService as UserServiceType } from "../../src/modules/users/services/user.service";
 import type { CreateVetDto } from "../../src/modules/users/dto/create-vet.dto";
-import type { CreateStaffDto } from "../../src/modules/users/dto/create-staff.dto";
 
-// 🧪 INTEGRATION TEST: UserController vets/staff endpoints
-// Verifica que los endpoints deleguen correctamente al servicio y apliquen RBAC vía metadata
+const { PrismaService } = require("../../src/database/prisma.service") as typeof import("../../src/database/prisma.service");
+const { UserRepository } = require("../../src/modules/users/repositories/user.repository") as typeof import("../../src/modules/users/repositories/user.repository");
+const { UserService } = require("../../src/modules/users/services/user.service") as typeof import("../../src/modules/users/services/user.service");
+const { VetProfileRepository } = require("../../src/modules/vet-profiles/repositories/vet-profile.repository") as typeof import("../../src/modules/vet-profiles/repositories/vet-profile.repository");
 
-describe("UserController — vets/staff endpoints", () => {
-	let controller: UserController;
-	let userService: {
-		createUser: jest.Mock;
-		createVet: jest.Mock;
-	};
+describe("UserService.createVet — PostgreSQL integration", () => {
+	let prisma: PrismaServiceType;
+	let userService: UserServiceType;
+	let vetProfileRepository: InstanceType<typeof VetProfileRepository>;
+	let tenantIds: string[];
+	let tenantA: { id: string };
+	let tenantB: { id: string };
+	let tenantC: { id: string };
+	let failVetProfileCreate = false;
 
-	const tenant = { id: "tenant-1", name: "Clínica Test", subdomain: "clinica-test" };
+	beforeAll(async () => {
+		prisma = new PrismaService();
+		await prisma.$connect();
+		userService = new UserService(new UserRepository(prisma), prisma);
+		vetProfileRepository = new VetProfileRepository(prisma);
 
-	beforeEach(async () => {
-		userService = {
-			createUser: jest.fn(),
-			createVet: jest.fn(),
+		prisma.$use(async (params, next) => {
+			if (failVetProfileCreate && params.model === "VetProfile" && params.action === "create") {
+				throw new Error("forced VetProfile failure");
+			}
+
+			return next(params);
+		});
+
+		const tenants = await Promise.all(
+			["a", "b", "c"].map((suffix) =>
+				prisma.tenant.create({
+					data: {
+						name: `PR-2 Integration Tenant ${suffix}`,
+						subdomain: `pr2-integration-${suffix}-${randomUUID()}`,
+					},
+				}),
+			),
+		);
+
+		[tenantA, tenantB, tenantC] = tenants;
+		tenantIds = tenants.map((tenant) => tenant.id);
+	});
+
+	afterEach(async () => {
+		failVetProfileCreate = false;
+		await prisma.vetProfile.deleteMany({ where: { tenantId: { in: tenantIds } } });
+		await prisma.userTenant.deleteMany({ where: { tenantId: { in: tenantIds } } });
+
+		const testUsers = await prisma.user.findMany({
+			where: { email: { startsWith: "pr2.integration." } },
+			select: { id: true },
+		});
+		await prisma.user.deleteMany({ where: { id: { in: testUsers.map((user) => user.id) } } });
+	});
+
+	afterAll(async () => {
+		await prisma.vetProfile.deleteMany({ where: { tenantId: { in: tenantIds } } });
+		await prisma.userTenant.deleteMany({ where: { tenantId: { in: tenantIds } } });
+		await prisma.tenant.deleteMany({ where: { id: { in: tenantIds } } });
+		await prisma.$disconnect();
+	});
+
+	it("persists User, UserTenant, and VetProfile atomically on success", async () => {
+		const dto: CreateVetDto = {
+			email: "pr2.integration.success@example.com",
+			firstName: "Integration",
+			lastName: "Success",
+			specialty: "Surgery",
 		};
 
-		const module: TestingModule = await Test.createTestingModule({
-			controllers: [UserController],
-			providers: [{ provide: UserService, useValue: userService }],
-		}).compile();
+		const result = await userService.createVet(tenantA.id, dto);
 
-		controller = module.get<UserController>(UserController);
+		const user = await prisma.user.findUnique({ where: { email: dto.email } });
+		const memberships = await prisma.userTenant.findMany({ where: { userId: user?.id } });
+		const profiles = await prisma.vetProfile.findMany({ where: { userId: user?.id } });
+
+		expect(result.id).toBe(user?.id);
+		expect(memberships).toHaveLength(1);
+		expect(memberships[0]).toMatchObject({ tenantId: tenantA.id, role: "VET" });
+		expect(profiles).toHaveLength(1);
+		expect(profiles[0]).toMatchObject({ tenantId: tenantA.id, specialty: dto.specialty });
 	});
 
-	afterEach(() => {
-		jest.clearAllMocks();
+	it("allows one global User to have a VetProfile in two tenants", async () => {
+		const dto: CreateVetDto = {
+			email: "pr2.integration.cross-tenant@example.com",
+			firstName: "Cross",
+			lastName: "Tenant",
+		};
+
+		await userService.createVet(tenantA.id, dto);
+		await userService.createVet(tenantB.id, dto);
+
+		const user = await prisma.user.findUnique({ where: { email: dto.email } });
+		const profiles = await prisma.vetProfile.findMany({
+			where: { userId: user?.id },
+			orderBy: { tenantId: "asc" },
+		});
+
+		expect(profiles).toHaveLength(2);
+		expect(profiles.map((profile) => profile.tenantId).sort()).toEqual(
+			[tenantA.id, tenantB.id].sort(),
+		);
 	});
 
-	describe("POST /users/vets", () => {
-		it("should delegate to createVet service with tenant and DTO", async () => {
-			const dto: CreateVetDto = {
-				email: "vet@example.com",
-				firstName: "María",
-				lastName: "López",
-				specialty: "Cirugía",
-			};
-			const expectedResult = {
-				id: "user-1",
-				email: dto.email,
-				role: "VET",
-				specialty: dto.specialty,
-			};
+	it("rolls back User and UserTenant when VetProfile creation fails", async () => {
+		failVetProfileCreate = true;
+		const dto: CreateVetDto = {
+			email: "pr2.integration.rollback@example.com",
+			firstName: "Rollback",
+			lastName: "Failure",
+		};
 
-			userService.createVet.mockResolvedValue(expectedResult);
+		await expect(userService.createVet(tenantC.id, dto)).rejects.toThrow("forced VetProfile failure");
 
-			const result = await controller.createVet(tenant, dto);
-
-			expect(userService.createVet).toHaveBeenCalledWith(tenant.id, dto);
-			expect(result).toEqual(expectedResult);
-		});
-
-		it("should require ADMIN role via @Roles metadata", () => {
-			const roles = Reflect.getMetadata("roles", controller.createVet);
-			expect(roles).toEqual([Role.ADMIN]);
-		});
+		const user = await prisma.user.findUnique({ where: { email: dto.email } });
+		expect(user).toBeNull();
+		expect(await prisma.userTenant.count({ where: { tenantId: tenantC.id } })).toBe(0);
+		expect(await prisma.vetProfile.count({ where: { tenantId: tenantC.id } })).toBe(0);
 	});
 
-	describe("POST /users/staff", () => {
-		it("should delegate to createUser service with role STAFF", async () => {
-			const dto: CreateStaffDto = {
-				email: "staff@example.com",
-				password: "SecurePass123!",
-				firstName: "Ana",
-				lastName: "Torres",
-			};
-			const expectedResult = {
-				id: "user-2",
-				email: dto.email,
-				role: "STAFF",
-			};
+	it("keeps VetProfile reads isolated by tenant", async () => {
+		const dto: CreateVetDto = {
+			email: "pr2.integration.isolation@example.com",
+			firstName: "Tenant",
+			lastName: "Isolation",
+		};
 
-			userService.createUser.mockResolvedValue(expectedResult);
+		const result = await userService.createVet(tenantA.id, dto);
 
-			const result = await controller.createStaff(tenant, dto);
-
-			expect(userService.createUser).toHaveBeenCalledWith(tenant.id, {
-				...dto,
-				role: Role.STAFF,
-			});
-			expect(result).toEqual(expectedResult);
-		});
-
-		it("should require ADMIN role via @Roles metadata", () => {
-			const roles = Reflect.getMetadata("roles", controller.createStaff);
-			expect(roles).toEqual([Role.ADMIN]);
-		});
+		expect(await vetProfileRepository.findByUserIdAndTenant(tenantA.id, result.id)).not.toBeNull();
+		expect(await vetProfileRepository.findByUserIdAndTenant(tenantB.id, result.id)).toBeNull();
 	});
 });

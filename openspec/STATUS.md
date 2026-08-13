@@ -8,9 +8,9 @@
 ## Fase 1 — Fundación ✅ COMPLETADA
 
 - Tag: `fase-1-complete` en `develop`
-- Tests unitarios: `npx jest` — `Test Suites: 12 passed, 12 total`; `Tests: 98 passed, 98 total`
+- Última verificación unit/integration: `npx jest --no-coverage` — `Test Suites: 15 passed, 15 total`; `Tests: 118 passed, 118 total` (Jest emitió un warning de teardown de workers; exit status 0)
 - E2E: `npx jest --config ./test/jest-e2e.json` — `Test Suites: 2 passed, 2 total`; `Tests: 8 passed, 8 total`
-- Migraciones Prisma: `npx prisma migrate status` — `1 migration found in prisma/migrations`; `Database schema is up to date!`
+- Migraciones Prisma: `npx prisma migrate status` — `2 migrations found in prisma/migrations`; `Database schema is up to date!`
 - Auth + Multi-tenancy funcionando
 - BaseRepository con aislamiento de tenant activo
 
@@ -30,8 +30,8 @@
 ### Implementación (Chained PRs — feature-branch-chain)
 | PR | Estado | Commits | Tests | Líneas |
 |----|--------|---------|-------|--------|
-| PR-1 | ✅ COMPLETADO | 3 commits | Unit: 12 suites / 98 tests verdes; E2E: 2 suites / 8 tests verdes | ~630 |
-| PR-2 | ⏳ PENDIENTE | — | — | ~160 estimado |
+| PR-1 | ✅ COMPLETADO | 3 commits | Histórico: Unit 12 suites / 98 tests; E2E: 2 suites / 8 tests | ~630 |
+| PR-2 | 🔧 CORRECCIÓN EN PROGRESO | commits pendientes | Unit/integration: 15 suites / 118 tests; E2E: 2 suites / 8 tests | 974 líneas según ledger nativo |
 | PR-3 | ⏳ PENDIENTE | — | — | ~220 estimado |
 
 ### PR-1 Detalles
@@ -50,16 +50,16 @@
 - `test/integration/services/` — 6 tests de integración
 - `src/app.module.ts` — ServicesModule registrado
 
-**Tests medidos:** Unit: 12 suites / 98 tests verdes (`npx jest`). E2E: 2 suites / 8 tests verdes (`npx jest --config ./test/jest-e2e.json`). Migraciones Prisma al día: 1 migración encontrada (`npx prisma migrate status`).
+**Tests medidos:** `npx jest --no-coverage`: 15 suites / 118 tests; E2E: 2 suites / 8 tests (`npx jest --config ./test/jest-e2e.json`); TypeScript sin errores (`npx tsc --noEmit`); migraciones Prisma al día: 2 migraciones encontradas (`npx prisma migrate status`). Verificación enfocada de users: integración real PostgreSQL 1 suite / 4 tests y controller unitario 1 suite / 4 tests. Jest emitió un warning de teardown de workers, con exit status 0.
 
 ---
 
-### PR-2 Pendiente — Extender users/ + VetProfile
+### PR-2 Completado — Extender users/ + VetProfile
 **Tareas:** T-006 a T-009
 1. VetProfileRepository (extiende BaseRepository)
 2. UserService.createVet() (transacción atómica: User + UserTenant + VetProfile)
 3. UserController: POST /users/vets + POST /users/staff
-4. Tests de integración
+4. Tests de integración real PostgreSQL y tests unitarios de controller
 
 ### PR-3 Pendiente — Availability + Overlap
 **Tareas:** T-010 a T-014

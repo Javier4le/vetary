@@ -5,16 +5,16 @@
 | Field | Value |
 |-------|-------|
 | Estimated changed lines | ~630 actual (PR-1: ~260 code + ~277 tests + schema) |
-| 400-line budget risk | Low (PR-2 and PR-3 within budget) |
+| 400-line budget risk | High (native ledger measured 974 changed lines for PR-2) |
 | Chained PRs recommended | Yes |
 | Suggested split | PR 1 → PR 2 → PR 3 |
 | Delivery strategy | ask-on-risk |
 | Chain strategy | feature-branch-chain |
 
-Decision needed before apply: No (in progress)
+Decision needed before apply: Yes — maintainer decision required before runtime settle
 Chained PRs recommended: Yes
 Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to develop after PR-3
-400-line budget risk: Low
+400-line budget risk: High (native ledger measured 974 changed lines)
 
 ### Suggested Work Units
 
@@ -77,7 +77,7 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
   - Dependencies: T-001
   - Files: `vetary-api/src/modules/vet-profiles/repositories/vet-profile.repository.ts`, `vetary-api/src/modules/vet-profiles/vet-profiles.module.ts`
   - Tests required: Yes (unit) — 8 tests passing
-  - Status: ✅ Committed (pending)
+  - Status: ✅ Completed (commit pending)
 
 - [x] T-007: Modify UserService to inject VetProfileRepository and implement createVet atomic transaction
   - Acceptance: Atomically create User, UserTenant, and VetProfile; rollback on failure
@@ -85,7 +85,7 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
   - Dependencies: T-006
   - Files: `vetary-api/src/modules/users/services/user.service.ts`, `vetary-api/src/modules/users/dto/create-vet.dto.ts`
   - Tests required: Yes (integration) — 4 createVet tests passing (10 total in user.service.spec.ts)
-  - Status: ✅ Committed (pending)
+  - Status: ✅ Completed (commit pending)
 
 - [x] T-008: Extend UserController with POST /users/vets and POST /users/staff with role enforcement
   - Acceptance: Admin-only via @Roles, validation, swagger, reuse existing user creation logic
@@ -93,15 +93,15 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
   - Dependencies: T-007
   - Files: `vetary-api/src/modules/users/controllers/user.controller.ts`, `vetary-api/src/modules/users/dto/create-staff.dto.ts`
   - Tests required: Yes (integration)
-  - Status: ✅ Committed (pending)
+  - Status: ✅ Completed (commit pending)
 
-- [x] T-009: Write integration tests for vets/staff creation, existing email reuse, role enforcement, tenant isolation
-  - Acceptance: Test rollback on failure, valid data paths, and error cases
+- [x] T-009: Write real PostgreSQL integration coverage and controller unit tests for vets/staff creation
+  - Acceptance: Real PostgreSQL integration covers successful persistence, rollback on failure, existing email reuse across tenants, and tenant isolation; controller unit tests cover HTTP role enforcement and request handling
   - Est. lines: 40 | Actual: ~78 lines
   - Dependencies: T-008
-  - Files: `vetary-api/test/integration/users.integration.spec.ts`, `vetary-api/src/modules/users/services/user.service.spec.ts` (createVet tests)
-  - Tests required: Yes (integration) — 4 tests passing
-  - Status: ✅ Committed (pending)
+  - Files: `vetary-api/test/integration/users.integration.spec.ts` (real PostgreSQL integration), `vetary-api/test/unit/users/user.controller.spec.ts` (controller unit tests)
+  - Tests required: Yes — integration: 1 suite / 4 tests passing; controller unit: 1 suite / 4 tests passing
+  - Status: ✅ Completed (commit pending)
 
 ## Phase 3: Availability Module and Overlap Validation (PR 3)
 
@@ -143,8 +143,8 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
 ## Summary
 
 - Total tasks: 14 (9 completed, 5 remaining)
-- PR-1: COMPLETED (~630 lines; unit: 12 suites / 98 tests passing; E2E: 2 suites / 8 tests passing; Prisma migration status: 1 migration found and database schema up to date)
-- PR-2: COMPLETED (4 tasks; ~291 lines; unit: 14 suites / 114 tests passing; E2E: 2 suites / 8 tests passing)
+- PR-1: COMPLETED (~630 lines; historical unit: 12 suites / 98 tests; E2E: 2 suites / 8 tests; Prisma migration status at completion: 1 migration found and database schema up to date)
+- PR-2: CORRECTION IN PROGRESS (T-006 to T-009; native ledger: 974 changed lines; current Jest: 15 suites / 118 tests passing with a worker teardown warning and exit status 0; E2E: 2 suites / 8 tests passing; focused PostgreSQL integration: 1 suite / 4 tests; controller unit: 1 suite / 4 tests; Prisma: 2 migrations found and database schema up to date)
 - PR-3: PENDING (5 tasks)
 - Estimated remaining lines: ~220
 - PR sizes respect 400-line per PR budget
