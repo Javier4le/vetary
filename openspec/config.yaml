@@ -58,7 +58,7 @@ testing:
     coverage_command: "pnpm --filter vetary-api test:cov"
     e2e_command: "pnpm --filter vetary-api test:e2e"
     test_location: "vetary-api/src/**/*.spec.ts + vetary-api/test/{unit,integration,e2e}/**/*.spec.ts"
-    current_test_count: "2026-08-13 — npx jest --no-coverage => Test Suites: 15 passed, 15 total; Tests: 118 passed, 118 total (Jest emitted a worker teardown warning; exit status 0). Focused users integration: 1 suite / 4 tests passed against real PostgreSQL. Focused users controller unit: 1 suite / 4 tests passed. E2E: npx jest --config ./test/jest-e2e.json => Test Suites: 2 passed, 2 total; Tests: 8 passed, 8 total. TypeScript: npx tsc --noEmit => exit status 0."
+    current_test_count: "2026-08-13 — npx jest --no-coverage => Test Suites: 15 passed, 15 total; Tests: 118 passed, 118 total. Focused users integration: 1 suite / 4 tests passed against real PostgreSQL. Focused users controller unit: 1 suite / 4 tests passed. E2E: npx jest --config ./test/jest-e2e.json => Test Suites: 2 passed, 2 total; Tests: 8 passed, 8 total. TypeScript: npx tsc --noEmit => exit status 0."
     e2e_config: test/jest-e2e.json — 2 E2E suites and 8 tests passing (require Postgres via docker-compose)
     migration_status: "2026-08-13 — npx prisma migrate status => 2 migrations found in prisma/migrations; Database schema is up to date!"
 
@@ -311,7 +311,7 @@ sdd_init:
   changes_from_refresh:
     - Linter: ESLint 8.56 → Biome 1.9 (ESLint + Prettier removed in commit d9280eb; see STACK-nestjs.md)
     - Formatter: Prettier 3.1 + Biome → Biome only (lint + format unified)
-    - Test count: 7 suites / 72 → 15 suites / 118 tests (npx jest --no-coverage, measured 2026-08-13; worker teardown warning, exit status 0); E2E verified at 2 suites / 8 tests passing (npx jest --config ./test/jest-e2e.json)
+    - Test count: 7 suites / 72 → 15 suites / 118 tests (npx jest --no-coverage, measured 2026-08-13); E2E verified at 2 suites / 8 tests passing (npx jest --config ./test/jest-e2e.json)
     - Test commands: "`cd vetary-api && npm run …` → `pnpm --filter vetary-api …` (pnpm-only convention)"
     - E2E: corrected from "no E2E tests yet" → 8 configured E2E tests in test/e2e/{auth,security}; current run verified at 2 suites / 8 tests passing
     - PostgreSQL version pinned: 16

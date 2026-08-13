@@ -8,7 +8,7 @@
 ## Fase 1 — Fundación ✅ COMPLETADA
 
 - Tag: `fase-1-complete` en `develop`
-- Última verificación unit/integration: `npx jest --no-coverage` — `Test Suites: 15 passed, 15 total`; `Tests: 118 passed, 118 total` (Jest emitió un warning de teardown de workers; exit status 0)
+- Última verificación unit/integration: `npx jest --no-coverage` — `Test Suites: 15 passed, 15 total`; `Tests: 118 passed, 118 total`
 - E2E: `npx jest --config ./test/jest-e2e.json` — `Test Suites: 2 passed, 2 total`; `Tests: 8 passed, 8 total`
 - Migraciones Prisma: `npx prisma migrate status` — `2 migrations found in prisma/migrations`; `Database schema is up to date!`
 - Auth + Multi-tenancy funcionando
@@ -50,7 +50,7 @@
 - `test/integration/services/` — 6 tests de integración
 - `src/app.module.ts` — ServicesModule registrado
 
-**Tests medidos:** `npx jest --no-coverage`: 15 suites / 118 tests; E2E: 2 suites / 8 tests (`npx jest --config ./test/jest-e2e.json`); TypeScript sin errores (`npx tsc --noEmit`); migraciones Prisma al día: 2 migraciones encontradas (`npx prisma migrate status`). Verificación enfocada de users: integración real PostgreSQL 1 suite / 4 tests y controller unitario 1 suite / 4 tests. Jest emitió un warning de teardown de workers, con exit status 0.
+**Tests medidos:** `npx jest --no-coverage`: 15 suites / 118 tests; E2E: 2 suites / 8 tests (`npx jest --config ./test/jest-e2e.json`); TypeScript sin errores (`npx tsc --noEmit`); migraciones Prisma al día: 2 migraciones encontradas (`npx prisma migrate status`). Verificación enfocada de users: integración real PostgreSQL 1 suite / 4 tests y controller unitario 1 suite / 4 tests.
 
 ---
 

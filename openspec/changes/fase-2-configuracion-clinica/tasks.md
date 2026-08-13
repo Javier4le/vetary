@@ -77,7 +77,7 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
   - Dependencies: T-001
   - Files: `vetary-api/src/modules/vet-profiles/repositories/vet-profile.repository.ts`, `vetary-api/src/modules/vet-profiles/vet-profiles.module.ts`
   - Tests required: Yes (unit) — 8 tests passing
-  - Status: ✅ Completed (commit pending)
+  - Status: ✅ Completed (c918510; schema correction 64324b1)
 
 - [x] T-007: Modify UserService to inject VetProfileRepository and implement createVet atomic transaction
   - Acceptance: Atomically create User, UserTenant, and VetProfile; rollback on failure
@@ -85,7 +85,7 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
   - Dependencies: T-006
   - Files: `vetary-api/src/modules/users/services/user.service.ts`, `vetary-api/src/modules/users/dto/create-vet.dto.ts`
   - Tests required: Yes (integration) — 4 createVet tests passing (10 total in user.service.spec.ts)
-  - Status: ✅ Completed (commit pending)
+  - Status: ✅ Completed (3f14c47; schema correction 64324b1)
 
 - [x] T-008: Extend UserController with POST /users/vets and POST /users/staff with role enforcement
   - Acceptance: Admin-only via @Roles, validation, swagger, reuse existing user creation logic
@@ -93,7 +93,7 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
   - Dependencies: T-007
   - Files: `vetary-api/src/modules/users/controllers/user.controller.ts`, `vetary-api/src/modules/users/dto/create-staff.dto.ts`
   - Tests required: Yes (integration)
-  - Status: ✅ Completed (commit pending)
+  - Status: ✅ Completed (1cb574d)
 
 - [x] T-009: Write real PostgreSQL integration coverage and controller unit tests for vets/staff creation
   - Acceptance: Real PostgreSQL integration covers successful persistence, rollback on failure, existing email reuse across tenants, and tenant isolation; controller unit tests cover HTTP role enforcement and request handling
@@ -101,7 +101,7 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
   - Dependencies: T-008
   - Files: `vetary-api/test/integration/users.integration.spec.ts` (real PostgreSQL integration), `vetary-api/test/unit/users/user.controller.spec.ts` (controller unit tests)
   - Tests required: Yes — integration: 1 suite / 4 tests passing; controller unit: 1 suite / 4 tests passing
-  - Status: ✅ Completed (commit pending)
+  - Status: ✅ Completed (043aa9b)
 
 ## Phase 3: Availability Module and Overlap Validation (PR 3)
 
@@ -144,7 +144,7 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
 
 - Total tasks: 14 (9 completed, 5 remaining)
 - PR-1: COMPLETED (~630 lines; historical unit: 12 suites / 98 tests; E2E: 2 suites / 8 tests; Prisma migration status at completion: 1 migration found and database schema up to date)
-- PR-2: CORRECTION IN PROGRESS (T-006 to T-009; native ledger: 974 changed lines; current Jest: 15 suites / 118 tests passing with a worker teardown warning and exit status 0; E2E: 2 suites / 8 tests passing; focused PostgreSQL integration: 1 suite / 4 tests; controller unit: 1 suite / 4 tests; Prisma: 2 migrations found and database schema up to date)
+- PR-2: CORRECTION IN PROGRESS (T-006 to T-009; native ledger: 974 changed lines; current Jest: 15 suites / 118 tests passing; E2E: 2 suites / 8 tests passing; focused PostgreSQL integration: 1 suite / 4 tests; controller unit: 1 suite / 4 tests; Prisma: 2 migrations found and database schema up to date)
 - PR-3: PENDING (5 tasks)
 - Estimated remaining lines: ~220
 - PR sizes respect 400-line per PR budget
