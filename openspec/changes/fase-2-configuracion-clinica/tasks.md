@@ -71,33 +71,37 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
 
 ## Phase 2: Extend Users Module & Vet Profiles (PR 2)
 
-- [ ] T-006: Add VetProfileRepository extending BaseRepository
+- [x] T-006: Add VetProfileRepository extending BaseRepository
   - Acceptance: Proper tenant scoping and CRUD support
-  - Est. lines: 30
+  - Est. lines: 30 | Actual: ~68 lines
   - Dependencies: T-001
-  - Files: `vetary-api/src/modules/vet-profiles/repositories/vet-profile.repository.ts`
-  - Tests required: Yes (unit)
+  - Files: `vetary-api/src/modules/vet-profiles/repositories/vet-profile.repository.ts`, `vetary-api/src/modules/vet-profiles/vet-profiles.module.ts`
+  - Tests required: Yes (unit) — 8 tests passing
+  - Status: ✅ Committed (pending)
 
-- [ ] T-007: Modify UserService to inject VetProfileRepository and implement createVet atomic transaction
+- [x] T-007: Modify UserService to inject VetProfileRepository and implement createVet atomic transaction
   - Acceptance: Atomically create User, UserTenant, and VetProfile; rollback on failure
-  - Est. lines: 50
+  - Est. lines: 50 | Actual: ~95 lines
   - Dependencies: T-006
-  - Files: `vetary-api/src/modules/users/services/user.service.ts`
-  - Tests required: Yes (integration)
+  - Files: `vetary-api/src/modules/users/services/user.service.ts`, `vetary-api/src/modules/users/dto/create-vet.dto.ts`
+  - Tests required: Yes (integration) — 4 createVet tests passing (10 total in user.service.spec.ts)
+  - Status: ✅ Committed (pending)
 
-- [ ] T-008: Extend UserController with POST /users/vets and POST /users/staff with role enforcement
+- [x] T-008: Extend UserController with POST /users/vets and POST /users/staff with role enforcement
   - Acceptance: Admin-only via @Roles, validation, swagger, reuse existing user creation logic
-  - Est. lines: 40
+  - Est. lines: 40 | Actual: ~50 lines
   - Dependencies: T-007
-  - Files: `vetary-api/src/modules/users/controllers/user.controller.ts`
+  - Files: `vetary-api/src/modules/users/controllers/user.controller.ts`, `vetary-api/src/modules/users/dto/create-staff.dto.ts`
   - Tests required: Yes (integration)
+  - Status: ✅ Committed (pending)
 
-- [ ] T-009: Write integration tests for vets/staff creation, existing email reuse, role enforcement, tenant isolation
+- [x] T-009: Write integration tests for vets/staff creation, existing email reuse, role enforcement, tenant isolation
   - Acceptance: Test rollback on failure, valid data paths, and error cases
-  - Est. lines: 40
+  - Est. lines: 40 | Actual: ~78 lines
   - Dependencies: T-008
-  - Files: `vetary-api/test/integration/users.integration.spec.ts`
-  - Tests required: Yes (integration)
+  - Files: `vetary-api/test/integration/users.integration.spec.ts`, `vetary-api/src/modules/users/services/user.service.spec.ts` (createVet tests)
+  - Tests required: Yes (integration) — 4 tests passing
+  - Status: ✅ Committed (pending)
 
 ## Phase 3: Availability Module and Overlap Validation (PR 3)
 
@@ -138,16 +142,16 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
 
 ## Summary
 
-- Total tasks: 14 (5 completed, 9 remaining)
+- Total tasks: 14 (9 completed, 5 remaining)
 - PR-1: COMPLETED (~630 lines; unit: 12 suites / 98 tests passing; E2E: 2 suites / 8 tests passing; Prisma migration status: 1 migration found and database schema up to date)
-- PR-2: PENDING (4 tasks)
+- PR-2: COMPLETED (4 tasks; ~291 lines; unit: 14 suites / 114 tests passing; E2E: 2 suites / 8 tests passing)
 - PR-3: PENDING (5 tasks)
-- Estimated remaining lines: ~300
+- Estimated remaining lines: ~220
 - PR sizes respect 400-line per PR budget
 - Chain strategy: feature-branch-chain (accumulate in feature/fase-2, merge after PR-3)
 
 ## Recommended Next Action
 
-- Implement PR-2: Extend users/ module with POST /users/vets + VetProfile + POST /users/staff
-- Continue from branch `feature/fase-2-pr1-services` or create `feature/fase-2-pr2-users`
-- Tasks T-006 to T-009
+- Implement PR-3: Availability module (T-010 to T-014)
+- Continue from branch `feature/fase-2-pr2-users` or create `feature/fase-2-pr3-availability`
+- Tasks T-010 to T-014
