@@ -1,107 +1,91 @@
 # Vetary — SDD Init Report
 **Generated:** 2026-05-31  
+**Refreshed:** 2026-08-12  
 **Project:** vetary  
 **Phase:** sdd-init  
-**Status:** ✅ Complete
+**Status:** ✅ Complete (refreshed)
 
 ---
 
 ## Executive Summary
 
-SDD initialization complete for Vetary, a multi-tenant SaaS platform for veterinary clinic management. Project context saved to openspec with strict TDD mode activated due to critical authentication and multi-tenant data isolation requirements.
+SDD initialization complete for Vetary, a multi-tenant SaaS platform for veterinary clinic management. Project context persisted to OpenSpec (`openspec/config.yaml`) and Engram (`sdd-init/vetary`, `sdd/vetary/testing-capabilities`, `skill-registry`) with strict TDD mode ACTIVE.
 
-**Key Findings:**
-- **Testing capabilities:** Jest (backend) + Vitest (frontend) detected from stack specifications
-- **Strict TDD:** ACTIVE — mandatory for auth and tenant isolation logic
-- **Test command:** `cd vetary-api && npm run test`
-- **Code status:** Empty directories (documentation complete, implementation Phase 1 ready to start)
-- **Architecture:** 4-layer architecture with mandatory Repository pattern for tenant filtering
+**Key findings (verified 2026-08-12):**
+- **Testing capabilities:** Jest 29.7 (backend) — **12 suites / 98 tests, all passing** (verified by running the suite). E2E configured with 8 tests in `test/e2e/{auth,security}` (require Postgres). Frontend (Vitest) planned — not bootstrapped.
+- **Strict TDD:** ACTIVE — mandatory for auth, tenant isolation, repositories, bookings, and services logic.
+- **Test command:** `pnpm --filter vetary-api test`
+- **Code status:** Phase 1 COMPLETED (`fase-1-complete` tag); Phase 2 (Clinic Configuration) in progress — PR-1 done, PR-2/PR-3 pending.
+- **Linter/formatter:** Biome 1.9 only (ESLint + Prettier removed — commit `d9280eb`).
+- **Architecture:** 4-layer architecture with mandatory Repository pattern for tenant filtering.
 
 ---
 
 ## 1. Stack Detection
 
 ### Backend (vetary-api/)
-- **Runtime:** Node.js 22
-- **Framework:** NestJS with TypeScript strict mode
-- **Database:** PostgreSQL (via Docker)
-- **ORM:** Prisma
-- **Auth:** JWT with refresh tokens
-- **Validation:** class-validator + class-transformer
-- **Testing:** Jest (standard for NestJS)
+- **Runtime:** Node.js 22 (engine-strict=true in `.npmrc`)
+- **Framework:** NestJS 10 with TypeScript strict mode
+- **Database:** PostgreSQL 16 (Docker)
+- **ORM:** Prisma 5.8
+- **Auth:** JWT with refresh tokens (passport-jwt, bcrypt)
+- **Validation:** class-validator + class-transformer (global ValidationPipe)
+- **Lint/format:** Biome 1.9 (replaced ESLint + Prettier)
+- **Testing:** Jest 29.7
 
 ### Frontend (vetary-web/)
 - **Framework:** React 18 with TypeScript strict mode
 - **Build tool:** Vite
-- **State (server):** TanStack Query v5
-- **State (client):** Zustand
-- **Routing:** React Router v6
-- **UI/Styles:** Tailwind CSS + shadcn/ui
-- **Forms:** React Hook Form + Zod
-- **Testing:** Vitest (modern Vite-based test runner)
+- **State (server):** TanStack Query v5 — **State (client):** Zustand
+- **Routing:** React Router v6 — **UI/Styles:** Tailwind CSS + shadcn/ui — **Forms:** React Hook Form + Zod
+- **Testing:** Vitest (planned — **not bootstrapped**, only `STACK-react.md` exists)
+- **Status:** Frontend implementation deferred (Phase 5 per STATUS.md)
+
+### Other
+- **vetary-app/:** empty placeholder (only `.gitignore`) — not in pnpm workspace
+- **Package manager:** pnpm (monorepo, `packageManager: pnpm@11.5.0` at root)
 
 ---
 
 ## 2. Testing Capabilities
 
-### Backend Testing Stack
-- **Framework:** Jest
+### Backend Testing Stack (verified)
+- **Framework:** Jest 29.7 (ts-jest, `moduleNameMapper` `@/` → `src/`)
+- **Current state:** 12 suites / 98 tests — ALL PASSING (run on 2026-08-12)
 - **Test types:**
-  - Unit tests for business logic (services, factories, domain entities)
-  - Integration tests for repositories (verify tenant isolation)
-  - E2E tests for critical auth flows
-- **Coverage requirements:**
-  - Auth logic: 100%
-  - Multi-tenant isolation: 100%
-  - Business rules: ≥80%
-- **Test location:** `vetary-api/src/**/*.spec.ts`
-- **Test command:** `cd vetary-api && npm run test`
-- **Watch mode:** `cd vetary-api && npm run test:watch`
-- **Coverage:** `cd vetary-api && npm run test:cov`
+  - Unit: business logic, guards (auth/tenant/roles), env validation, BaseRepository, middleware
+  - Integration: services with tenant isolation verification
+  - E2E: `test/e2e/{auth,security}` — 8 tests, configured via `test/jest-e2e.json` (require Postgres)
+- **Coverage requirements:** auth logic 100% · multi-tenant isolation 100% · business rules 80%
+- **Commands:**
+  - Test: `pnpm --filter vetary-api test`
+  - Watch: `pnpm --filter vetary-api test:watch`
+  - Coverage: `pnpm --filter vetary-api test:cov`
+  - E2E: `pnpm --filter vetary-api test:e2e`
 
-### Frontend Testing Stack
-- **Framework:** Vitest
-- **Test types:**
-  - Component tests for UI logic
-  - Hook tests for state management
-  - Service tests for API calls (mocked)
+### Frontend Testing Stack (planned)
+- **Framework:** Vitest — component, hook, and mocked service tests
 - **Test location:** `vetary-web/src/**/*.test.tsx`
-- **Test command:** `cd vetary-web && npm run test`
-- **Watch mode:** `cd vetary-web && npm run test:watch`
+- **Status:** Not bootstrapped — runner will be configured when the project is scaffolded
 
 ---
 
 ## 3. Strict TDD Mode: ACTIVE
 
-### Why Strict TDD is mandatory for Vetary
+**Justification — critical security and isolation requirements:**
 
-**Critical security and isolation requirements:**
+1. **Authentication logic** — password hashing, JWT, refresh token rotation, RBAC
+   - *Risk if untested:* unauthorized access, token leakage, privilege escalation
+2. **Multi-tenant data isolation** — every query MUST filter by `tenantId`
+   - *Risk if untested:* data leakage between tenants (catastrophic legal/business failure)
+3. **Domain state transitions** — booking status flow
+   - *Risk if untested:* invalid state transitions, broken business rules
 
-1. **Authentication logic** — password hashing, JWT generation, refresh token rotation, role-based access control
-   - **Risk if untested:** Unauthorized access, token leakage, privilege escalation
-   - **TDD requirement:** Every auth flow MUST have tests BEFORE implementation
+### Strict TDD Modules
+`auth` · `tenants` · `repositories` · `bookings` · `services`
 
-2. **Multi-tenant data isolation** — every database query MUST filter by `tenantId`
-   - **Risk if untested:** Data leakage between tenants (catastrophic business and legal failure)
-   - **TDD requirement:** Every repository method MUST have integration tests verifying tenant isolation BEFORE implementation
-
-3. **Domain state transitions** — booking status flow (Pendiente → Confirmada → En curso → Completada)
-   - **Risk if untested:** Invalid state transitions, broken business rules
-   - **TDD requirement:** Every state transition MUST have tests BEFORE implementation
-
-### Strict TDD Protocol
-
-1. **Test BEFORE code** — no exceptions for critical modules (auth, tenants, bookings, repositories)
-2. **Test runner configured from Phase 1** — Jest setup happens BEFORE first feature
-3. **CI integration** — tests run on every commit (configured in Phase 6)
-4. **Coverage tracking** — critical modules require 100% coverage (auth, multi-tenant isolation)
-
-### Non-strict modules (Standard Mode allowed)
-
-- UI components without business logic
-- Configuration files
-- Database migrations
-- Documentation
+### Standard Mode Allowed
+DTOs (runtime-validated by class-validator) · Controllers (thin HTTP handlers) · Configuration files · Database migrations
 
 ---
 
@@ -113,185 +97,103 @@ SDD initialization complete for Vetary, a multi-tenant SaaS platform for veterin
 ┌─────────────────────────────────────────┐
 │         PRESENTATION LAYER              │
 │   Controllers · Guards · Interceptors   │
-│   (HTTP in, HTTP out — nothing else)    │
 ├─────────────────────────────────────────┤
 │         APPLICATION LAYER               │
 │   Services · Use Cases · DTOs           │
-│   (orchestrates logic, doesn't contain) │
 ├─────────────────────────────────────────┤
 │           DOMAIN LAYER                  │
 │   Entities · Business Rules · Events    │
-│   (the heart — knows no HTTP or DB)     │
 ├─────────────────────────────────────────┤
 │       INFRASTRUCTURE LAYER              │
 │   Repositories · Prisma · External APIs │
-│   (everything touching the outside)     │
 └─────────────────────────────────────────┘
 ```
 
-**Dependency rule (inviolable):**
-```
-Presentation → Application → Domain
-Infrastructure → Domain (implements domain interfaces)
-```
+**Dependency rule (inviolable):** Presentation → Application → Domain; Infrastructure → Domain.
 
 ### Multi-Tenant Strategy
-
-- **Approach:** Shared database, shared schema with `tenantId` column
-- **Isolation mechanism:** Every query filtered in BaseRepository
-- **Tenant context flow:**
-  ```
-  HTTP Request
-      ↓
-  TenantMiddleware (extracts tenantId from subdomain or JWT)
-      ↓
-  TenantContext (available via AsyncLocalStorage)
-      ↓
-  BaseRepository (every query includes WHERE tenantId = :tenantId)
-      ↓
-  Response
-  ```
-
-**Golden rule:** No repository can execute a query without the tenantId filter.
+- Shared database, shared schema with `tenantId` column
+- Flow: HTTP Request → TenantMiddleware (subdomain/JWT) → TenantContext (AsyncLocalStorage) → BaseRepository (`WHERE tenantId = ?`)
+- **Golden rule:** No repository can execute a query without the tenantId filter.
 
 ---
 
-## 5. Design Patterns (Expected)
+## 5. Design Patterns
 
-These patterns will appear when the problem demands them, not for "best practice":
-
-### Repository Pattern (Phase 1)
-- **Problem:** Prisma scattered across services → ORM change touches everything; tenant filter can be forgotten
-- **Solution:** One repository per entity encapsulating all data access
-- **Where:** Every module from Phase 1
-- **Testing:** Integration tests verify tenant isolation
-
-### Factory Pattern (Phase 3)
-- **Problem:** Creating bookings differs by service type (routine vs emergency vs surgery)
-- **Solution:** BookingFactory returns the correct initialized object
-- **Where:** bookings module
-
-### Observer Pattern / Domain Events (Phase 3)
-- **Problem:** Booking state change triggers multiple actions (update patient record, notify vet, log history)
-- **Solution:** State change emits domain event; other modules listen independently
-- **Where:** bookings module, state transition logic
-
-### Strategy Pattern (Phase 2)
-- **Problem:** Availability calculation varies by service type
-- **Solution:** AvailabilityStrategy interface with implementations per service type
-- **Where:** availability module
-
-### Decorator Pattern (Phase 1)
-- **Problem:** Auth, roles, and tenant metadata on routes
-- **Solution:** Custom decorators @CurrentTenant(), @Roles(), @Public()
-- **Where:** common/decorators
+| Pattern | Phase | Where | Status |
+|---|---|---|---|
+| Repository | 1 | Every module | ✅ Implemented (BaseRepository + User + Tenant + Service repositories) |
+| Decorator | 1 | common/decorators | ✅ Implemented (@CurrentUser, @Public, @Roles, @CurrentTenant) |
+| Strategy | 2 | availability module | ⏳ Planned |
+| Factory | 3 | bookings module | ⏳ Planned |
+| Observer | 3 | bookings module | ⏳ Planned |
 
 ---
 
 ## 6. Conventions Summary
 
 ### TypeScript (Universal)
-- Strict mode: ON
-- No `any` (use `unknown` and cast with explanation)
-- Explicit return types on all functions
-- Types defined at origin, imported where used
+- Strict mode: ON · No `any` (use `unknown` + narrated casts) · Explicit return types
+- ⚠️ Never `import type` on classes with NestJS/class-validator decorators (breaks runtime reflection)
 
 ### Backend (NestJS)
-- Files/folders: kebab-case (`create-user.dto.ts`)
-- Classes: PascalCase (`BookingService`, `BookingRepository`)
-- Module structure: dto/ entities/ repositories/ services/ controllers/ [feature].module.ts
-- Controllers: HTTP only, zero business logic
-- Services: orchestrate, never touch Prisma directly
-- Repositories: data access only, no business logic
-- DTOs: class-validator decorators, validated by global ValidationPipe
+- Files/folders: kebab-case · Classes: PascalCase
+- Module structure: dto/ entities/ repositories/ services/ controllers/ events/ factories/ `[feature].module.ts`
+- Controllers: HTTP only · Services: never touch Prisma directly · Repositories: data access only
+- DTOs: class-validator + global ValidationPipe (whitelist, forbidNonWhitelisted)
 
-### Frontend (React)
-- Feature-based modules (`features/[feature]/`)
-- 3-layer separation: services → hooks → components
-- Components: PascalCase (`BookingForm.tsx`)
-- Hooks: camelCase with `use` prefix (`useBooking.ts`)
-- **Critical:** Never import `axios` directly — always use `shared/lib/apiClient`
-- Auth interceptor in `request` (not `response`), token read dynamically
-- TanStack Query for server state, Zustand only for UI state
-- React Hook Form + Zod for forms
+### Project (Vetary-specific)
+- **pnpm only** — never npm/yarn; `packageManager` at repo root; `engine-strict=true`
+- **Money:** CLP as Int, never Float
+- **Imports:** prefer absolute `@/` aliases over deep relative paths
+- **Tenant isolation:** golden rule above
 
 ### Git
-- Conventional Commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`
-- One commit per logical unit
-- Never commit `.env`, credentials, or `node_modules`
-- Branch strategy: `main` ← `develop` ← `feature/[name]`
+- Conventional Commits · One commit per logical unit · `main` ← `develop` ← `feature/[name]`
+- Never commit `.env`, credentials, `node_modules`
 
 ---
 
-## 7. Security Baseline (Pre-Feature)
+## 7. Security Baseline
 
-Before implementing the first feature, the following MUST be configured:
-
-### Backend (`main.ts`)
-- ✅ Helmet (HTTP security headers)
-- ✅ CORS from env var (never `*` in production)
-- ✅ Global ValidationPipe with `whitelist: true`, `forbidNonWhitelisted: true`
-- ✅ Environment variable validation at startup (fail fast if secrets missing)
-- ✅ Swagger/OpenAPI documentation
-- ✅ Rate limiting on auth endpoints
+### Backend (main.ts)
+Helmet · CORS from env var (never `*`) · global ValidationPipe · env validation at startup (fail fast) · Swagger/OpenAPI · rate limiting on auth endpoints
 
 ### Multi-Tenant Isolation
-- ✅ BaseRepository enforces tenantId filter on all queries
-- ✅ Integration tests verify cross-tenant queries fail
-- ✅ TenantMiddleware extracts and validates tenant context
+BaseRepository enforces tenantId · TenantMiddleware validates context · integration tests verify cross-tenant queries fail
 
 ### Auth
-- ✅ Passwords hashed with bcrypt (cost factor ≥10)
-- ✅ JWT secret from environment, never hardcoded
-- ✅ Refresh token rotation implemented
-- ✅ Role-based guards with decorators
+bcrypt (cost ≥10) · JWT secret from env · refresh token rotation · role guards with decorators
 
 ---
 
-## 8. Phase 1 Readiness
+## 8. Project Progress
 
-### What Phase 1 will build
-- Tenant registration and onboarding
-- JWT-based authentication (login, logout, refresh, password recovery)
-- Role management (SuperAdmin, Admin, Staff, Veterinarian, Client)
-- BaseRepository with tenant isolation
-- Auth guards and decorators
-- Database schema with multi-tenant foundation
+### Phase 1 — Auth + Multi-tenancy Foundation ✅ COMPLETED
+Tag `fase-1-complete` on `develop`. Tests: 12 suites / 98 passing.
 
-### Testing requirements for Phase 1
-**Strict TDD applies to:**
-- Auth service (login, register, token generation, password hashing)
-- Tenant service (creation, subdomain validation)
-- BaseRepository (tenant filter enforcement)
-- Auth guards (role-based access, tenant isolation)
+### Phase 2 — Clinic Configuration 🔄 IN PROGRESS
+Change: `openspec/changes/fase-2-configuracion-clinica/` (proposal, spec, design, tasks)
+Delivery: chained PRs, `feature-branch-chain` strategy
 
-**Standard Mode allowed for:**
-- DTOs (validated by class-validator at runtime)
-- Controllers (thin HTTP handlers)
-- Module wiring
+| PR | Status | Scope |
+|----|--------|-------|
+| PR-1 | ✅ COMPLETED | Services module (schema: Service, VetProfile, VetAvailability, Tenant.timezone; CRUD + soft-disable + tenant isolation); ~630 lines; 49/49 tests green |
+| PR-2 | ⏳ PENDING | VetProfileRepository, `UserService.createVet()` atomic transaction, POST /users/vets + /users/staff |
+| PR-3 | ⏳ PENDING | AvailabilityRepository, AvailabilityService (overlap validation), Controller, tests + E2E |
 
-### Acceptance Criteria (from SPEC.md)
-- ✅ A tenant can register and receive their subdomain
-- ✅ An admin can log in to their tenant
-- ✅ The system rejects tokens from one tenant accessing another tenant's data
-- ✅ Role-protected routes work correctly
+**Business rules documented:** availability weekly recurring / multi-block per day / one timezone per clinic · services soft-disable, price CLP Int, unique name per tenant · vet creation atomic (User + UserTenant + VetProfile) · single-admin per tenant in v1.
+
+Current branch: `feature/fase-2-pr1-services`.
 
 ---
 
 ## 9. Next Recommended Actions
 
-### Immediate (orchestrator)
-1. ✅ Init complete — context saved to openspec/config.yaml
-2. Await user confirmation to proceed with Phase 1
-
-### Phase 1 Setup (when authorized)
-1. Initialize NestJS project (`nest new vetary-api`)
-2. Configure Jest with strict coverage requirements
-3. Install dependencies (Prisma, class-validator, passport-jwt, bcrypt, helmet)
-4. Create Prisma schema with Tenant and User models
-5. Implement BaseRepository with tenant isolation
-6. Write integration tests for BaseRepository (verify cross-tenant queries fail)
-7. Implement auth module (TDD: tests before implementation)
+1. ✅ Init complete — context refreshed in OpenSpec + Engram
+2. **Run `/sdd-onboard`** to walk through the SDD cycle on this codebase (backend focus)
+3. When resuming Phase 2: checkout `feature/fase-2-pr1-services`, continue from T-006 (VetProfileRepository), run `pnpm --filter vetary-api test` first
+4. For E2E work: start Postgres via docker-compose, then `pnpm --filter vetary-api test:e2e`
 
 ---
 
@@ -299,51 +201,57 @@ Before implementing the first feature, the following MUST be configured:
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| **Tenant data leakage** | Catastrophic (legal, business) | Strict TDD for all repository methods; integration tests verify isolation |
-| **Auth vulnerabilities** | High (unauthorized access) | Strict TDD for auth flows; manual security review before Phase 1 close |
-| **Missing test coverage** | Medium (bugs in production) | Coverage tracking enforced; CI blocks merges below thresholds |
-| **Frontend breaks in production** | Medium (user-facing failures) | `apiClient` configuration enforced; auth interceptor tested |
-| **State explosion** | Low (complexity creep) | TanStack Query for server state only; Zustand minimal |
+| Tenant data leakage | Catastrophic (legal, business) | Strict TDD for all repository methods; integration tests verify isolation |
+| Auth vulnerabilities | High (unauthorized access) | Strict TDD for auth flows; manual security review before phase close |
+| Missing test coverage | Medium (bugs in production) | Coverage thresholds enforced (auth/isolation 100%, business 80%) |
+| Frontend production breaks | Medium (user-facing failures) | `apiClient` convention; auth interceptor tested (when frontend bootstraps) |
+| State explosion | Low (complexity creep) | TanStack Query for server state only; Zustand minimal |
 
 ---
 
-## 11. Artifacts Created
+## 11. Artifacts Created (this refresh)
 
 **OpenSpec:**
-- Config: `openspec/config.yaml`
-- Report: `openspec/sdd-init-report.md`
-- Artifact store: openspec (engram unavailable in this session)
+- Config: `openspec/config.yaml` (refreshed 2026-08-12 — linter Biome, 12/98 tests, Phase 1 complete, Phase 2 added, pnpm commands, PostgreSQL 16)
+- Report: `openspec/sdd-init-report.md` (this file)
 
-**Files read:**
-- `/home/j4v0/DEV/projects/vetary/SPEC.md`
-- `/home/j4v0/DEV/projects/vetary/ARCHITECTURE.md`
-- `/home/j4v0/DEV/projects/vetary/vetary-api/STACK-nestjs.md`
-- `/home/j4v0/DEV/projects/vetary/vetary-web/STACK-react.md`
+**Engram (obs IDs):**
+- Project context: `sdd-init/vetary` — obs #18
+- Testing capabilities: `sdd/vetary/testing-capabilities` — obs #32
+- Skill registry: `skill-registry` — obs #33
+
+**Skill registry:** `.atl/skill-registry.md` (2026-08-13) — 18 skills, all paths verified on disk
 
 ---
 
 ## 12. Skill Resolution
 
-**Status:** `none`
+**Status:** `paths-injected`
 
-**Reason:** Init phase does not require project-specific skills beyond stack conventions. Skills are loaded from:
-- Stack conventions: `STACK-nestjs.md` and `STACK-react.md` (read directly)
-- Universal principles: `AGENTS.md` (project instructions)
-
-**Skill registry:** Not required for init phase (no code reading/writing/review).
+Init phase loaded `sdd-init/SKILL.md` (phase contract) and `_shared/SKILL.md` before detection. No project-specific skill injection needed for read-only init + config refresh; skill registry was verified instead.
 
 ---
 
-## Summary
+## Refresh Log (2026-08-12)
 
-Vetary is **fully initialized** for SDD workflow. Strict TDD mode is **ACTIVE** for critical modules (auth, multi-tenant isolation, domain state transitions). Testing capabilities detected and saved to openspec configuration. Phase 1 is **ready to start** upon user authorization.
+Changes applied to the prior init artifacts (approved by user; non-destructive):
 
-**Test command for backend:** `cd vetary-api && npm run test`  
-**Strict TDD modules:** auth, tenants, repositories, bookings  
-**Standard Mode allowed:** DTOs, controllers, configuration, UI components  
-
-All project context (stack, architecture, conventions, security baseline) has been saved to `openspec/config.yaml`.
+1. Linter: ESLint 8.56 → **Biome 1.9** (ESLint + Prettier removed, commit `d9280eb`)
+2. Formatter: Prettier + Biome → **Biome only** (lint + format unified)
+3. Test count: 7 suites / 72 → **12 suites / 98** (verified by running jest)
+4. Test commands: `cd vetary-api && npm run …` → **`pnpm --filter vetary-api …`** (pnpm-only convention)
+5. E2E: "no E2E tests yet" → **8 E2E tests** in `test/e2e/{auth,security}` (require Postgres)
+6. PostgreSQL version pinned: **16**
+7. Phase 1 status: In progress → **COMPLETED** (tag `fase-1-complete`)
+8. Phase 2 added: `fase-2-configuracion-clinica` (PR-1 done, PR-2/3 pending, chained PRs)
+9. Strict TDD modules: added `services`
+10. Conventions added: money CLP Int, no `import type` on decorated classes, pnpm-only, `@/` aliases, engine-strict
+11. Engram context cached (obs #18, #32, #33)
 
 ---
 
-**Next step:** Await orchestrator confirmation to proceed with Phase 1 (Auth + Multi-tenancy foundation).
+**Summary:** Vetary is fully initialized and refreshed for the SDD workflow. Strict TDD is ACTIVE. Testing capabilities verified (12 suites / 98 tests green). Phase 1 complete, Phase 2 in progress. Ready for `/sdd-onboard`.
+
+**Test command:** `pnpm --filter vetary-api test`  
+**Strict TDD modules:** auth, tenants, repositories, bookings, services  
+**Standard Mode:** DTOs, controllers, configuration, migrations
