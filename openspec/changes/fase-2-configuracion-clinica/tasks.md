@@ -66,7 +66,7 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
   - Tests required: Yes (integration)
   - Status: ✅ Committed (2e59f4f)
 
-**PR-1 Total**: 3 commits, ~630 lines, 49/49 tests passing
+**PR-1 Total**: 3 commits, ~630 lines; unit: 12 suites / 98 tests passing; E2E: 2 suites failed / 0 tests executed because `test/e2e/utils/test-helper.ts` lacks `Tenant.timezone`
 **PR-1 Branch**: `feature/fase-2-pr1-services` created from develop
 
 ## Phase 2: Extend Users Module & Vet Profiles (PR 2)
@@ -75,7 +75,7 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
   - Acceptance: Proper tenant scoping and CRUD support
   - Est. lines: 30
   - Dependencies: T-001
-  - Files: `vetary-api/src/modules/vet-profiles/vet-profile.repository.ts`
+  - Files: `vetary-api/src/modules/vet-profiles/repositories/vet-profile.repository.ts`
   - Tests required: Yes (unit)
 
 - [ ] T-007: Modify UserService to inject VetProfileRepository and implement createVet atomic transaction
@@ -105,21 +105,21 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
   - Acceptance: Tenant scoped CRUD; basic validation support
   - Est. lines: 30
   - Dependencies: T-001
-  - Files: `vetary-api/src/modules/availability/availability.repository.ts`
+  - Files: `vetary-api/src/modules/availability/repositories/availability.repository.ts`
   - Tests required: Yes (unit)
 
 - [ ] T-011: Create AvailabilityService with weekly recurring schedule support and overlap validation logic
   - Acceptance: Reject overlapping or cross-midnight blocks; tenant isolation
   - Est. lines: 60
   - Dependencies: T-010
-  - Files: `vetary-api/src/modules/availability/availability.service.ts`
+  - Files: `vetary-api/src/modules/availability/services/availability.service.ts`
   - Tests required: Yes (unit, integration)
 
 - [ ] T-012: Build AvailabilityController with list, create, delete endpoints and RBAC guards
   - Acceptance: Admin-only for writes; correct validation and swagger docs
   - Est. lines: 50
   - Dependencies: T-011
-  - Files: `vetary-api/src/modules/availability/availability.controller.ts`
+  - Files: `vetary-api/src/modules/availability/controllers/availability.controller.ts`
   - Tests required: Yes (integration)
 
 - [ ] T-013: Write integration tests for availability module including overlap and tenant isolation
@@ -139,7 +139,7 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
 ## Summary
 
 - Total tasks: 14 (5 completed, 9 remaining)
-- PR-1: COMPLETED (~630 lines, 49/49 tests passing)
+- PR-1: COMPLETED (~630 lines; unit: 12 suites / 98 tests passing; E2E: 2 suites failed / 0 tests executed because `test/e2e/utils/test-helper.ts` lacks `Tenant.timezone`)
 - PR-2: PENDING (4 tasks)
 - PR-3: PENDING (5 tasks)
 - Estimated remaining lines: ~300
