@@ -63,6 +63,7 @@ const mockPrismaClient = {
         name: data.name || "Test Clinic",
         subdomain: data.subdomain!,
         status: (data.status || "ACTIVE") as TenantStatus,
+        timezone: data.timezone || "America/Santiago",
         createdAt: new Date(),
         updatedAt: new Date(),
       };
