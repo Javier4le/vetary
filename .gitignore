@@ -6,7 +6,7 @@
 
 # Gentle AI SDD skills from the Gentleman Programming ecosystem, installed via OpenClaw.
 # Skill versions are declared in each local SKILL.md frontmatter; OpenClaw itself is not pinned.
-# Local snapshot: 2026-08-12.
+# Local snapshot: 2026-08-13.
 .openclaw/
 
 # Dependencies
