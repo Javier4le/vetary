@@ -7,6 +7,8 @@ import { CurrentTenant } from "@/common/decorators/current-tenant.decorator";
 import { CurrentUser } from "@/common/decorators/current-user.decorator";
 import { Roles } from "@/common/decorators/roles.decorator";
 import { CreateUserDto } from "../dto/create-user.dto";
+import { CreateVetDto } from "../dto/create-vet.dto";
+import { CreateStaffDto } from "../dto/create-staff.dto";
 import { UserService } from "../services/user.service";
 
 // 🏗️ ARQUITECTURA: UserController — solo recibe, delega, responde
@@ -41,6 +43,36 @@ export class UserController {
 		@Body() dto: CreateUserDto,
 	) {
 		return this.userService.createUser(tenant.id, dto);
+	}
+
+	@Post("vets")
+	@Roles(Role.ADMIN)
+	@UseGuards(AuthGuard("jwt"))
+	@HttpCode(HttpStatus.CREATED)
+	@ApiOperation({ summary: "Create a new vet in current clinic (User + VetProfile)" })
+	@ApiResponse({ status: 201, description: "Vet created successfully" })
+	@ApiResponse({ status: 409, description: "User already exists in this clinic" })
+	@ApiResponse({ status: 403, description: "Only ADMIN can create vets" })
+	async createVet(
+		@CurrentTenant() tenant: any,
+		@Body() dto: CreateVetDto,
+	) {
+		return this.userService.createVet(tenant.id, dto);
+	}
+
+	@Post("staff")
+	@Roles(Role.ADMIN)
+	@UseGuards(AuthGuard("jwt"))
+	@HttpCode(HttpStatus.CREATED)
+	@ApiOperation({ summary: "Create a new staff member in current clinic" })
+	@ApiResponse({ status: 201, description: "Staff member created successfully" })
+	@ApiResponse({ status: 409, description: "User already exists in this clinic" })
+	@ApiResponse({ status: 403, description: "Only ADMIN can create staff" })
+	async createStaff(
+		@CurrentTenant() tenant: any,
+		@Body() dto: CreateStaffDto,
+	) {
+		return this.userService.createUser(tenant.id, { ...dto, role: Role.STAFF });
 	}
 
 	@Get("me")
