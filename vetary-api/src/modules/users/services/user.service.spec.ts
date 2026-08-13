@@ -4,6 +4,7 @@ import { PrismaService } from "@/database/prisma.service";
 import { UserRepository } from "../repositories/user.repository";
 import { UserService } from "./user.service";
 import type { CreateUserDto } from "../dto/create-user.dto";
+import type { CreateVetDto } from "../dto/create-vet.dto";
 import type { Role } from "@prisma/client";
 
 // 🧪 TEST: UserService — gestión de usuarios con scope por tenant
@@ -42,6 +43,7 @@ describe("UserService", () => {
 					const txMock = {
 						user: { create: jest.fn() },
 						userTenant: { create: jest.fn() },
+						vetProfile: { create: jest.fn() },
 					};
 					return callback(txMock);
 				}),
@@ -272,6 +274,163 @@ describe("UserService", () => {
 
 			await expect(service.createUser(tenantA.id, dto)).rejects.toThrow(
 				ConflictException,
+			);
+		});
+	});
+
+	describe("createVet()", () => {
+		const createVetDto: CreateVetDto = {
+			email: "newvet@example.com",
+			firstName: "Carlos",
+			lastName: "Gómez",
+			specialty: "Cirugía",
+			registrationNumber: "REG-123",
+			bio: "Especialista en cirugía",
+		};
+
+		it("should create User + UserTenant + VetProfile atomically when email is NEW", async () => {
+			const mockUser = {
+				id: "user-new",
+				email: createVetDto.email,
+				firstName: createVetDto.firstName,
+				lastName: createVetDto.lastName,
+				passwordHash: "hashed-pass",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+			const mockUserTenant = {
+				id: "ut-new",
+				userId: mockUser.id,
+				tenantId: tenantA.id,
+				role: "VET",
+			};
+			const mockVetProfile = {
+				id: "vp-new",
+				userId: mockUser.id,
+				tenantId: tenantA.id,
+				specialty: createVetDto.specialty,
+				registrationNumber: createVetDto.registrationNumber,
+				bio: createVetDto.bio,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+
+			userRepository.findByEmail.mockResolvedValue(null);
+
+			prismaService.$transaction.mockImplementation(
+				async (callback: (tx: any) => Promise<any>) => {
+					const txMock = {
+						user: { create: jest.fn().mockResolvedValue(mockUser) },
+						userTenant: { create: jest.fn().mockResolvedValue(mockUserTenant) },
+						vetProfile: { create: jest.fn().mockResolvedValue(mockVetProfile) },
+					};
+					return callback(txMock);
+				},
+			);
+
+			const result = await service.createVet(tenantA.id, createVetDto);
+
+			expect(prismaService.$transaction).toHaveBeenCalledTimes(1);
+			expect(result).toBeDefined();
+			expect(result.id).toBe("user-new");
+			expect(result.role).toBe("VET");
+			expect(result.specialty).toBe("Cirugía");
+			expect(result.registrationNumber).toBe("REG-123");
+		});
+
+		it("should reuse existing User and create UserTenant + VetProfile in new tenant", async () => {
+			const existingUser = {
+				id: "user-existing",
+				email: "maria@vet.com",
+				firstName: "María",
+				lastName: "López",
+				passwordHash: "existing-hash",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+
+			const mockUserTenant = {
+				id: "ut-reused",
+				userId: existingUser.id,
+				tenantId: tenantB.id,
+				role: "VET",
+			};
+
+			const mockVetProfile = {
+				id: "vp-reused",
+				userId: existingUser.id,
+				tenantId: tenantB.id,
+				specialty: "Dermatología",
+				registrationNumber: null,
+				bio: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+
+			userRepository.findByEmail.mockResolvedValue(existingUser);
+			userRepository.findUserTenant.mockResolvedValue(null);
+
+			prismaService.$transaction.mockImplementation(
+				async (callback: (tx: any) => Promise<any>) => {
+					const txMock = {
+						userTenant: { create: jest.fn().mockResolvedValue(mockUserTenant) },
+						vetProfile: { create: jest.fn().mockResolvedValue(mockVetProfile) },
+					};
+					return callback(txMock);
+				},
+			);
+
+			const dto: CreateVetDto = {
+				email: "maria@vet.com",
+				firstName: "María",
+				lastName: "López",
+				specialty: "Dermatología",
+			};
+
+			const result = await service.createVet(tenantB.id, dto);
+
+			expect(result).toBeDefined();
+			expect(result.id).toBe("user-existing");
+			expect(result.role).toBe("VET");
+			expect(result.specialty).toBe("Dermatología");
+		});
+
+		it("should throw ConflictException when user with email already has UserTenant in this tenant", async () => {
+			const existingUser = {
+				id: "user-existing",
+				email: "maria@vet.com",
+				firstName: "María",
+				lastName: "López",
+				passwordHash: "existing-hash",
+			};
+
+			const existingUserTenant = {
+				id: "ut-existing",
+				userId: existingUser.id,
+				tenantId: tenantA.id,
+				role: "ADMIN",
+			};
+
+			userRepository.findByEmail.mockResolvedValue(existingUser);
+			userRepository.findUserTenant.mockResolvedValue(existingUserTenant);
+
+			const dto: CreateVetDto = {
+				email: "maria@vet.com",
+				firstName: "María",
+				lastName: "López",
+			};
+
+			await expect(service.createVet(tenantA.id, dto)).rejects.toThrow(
+				ConflictException,
+			);
+		});
+
+		it("should propagate error and rollback when transaction fails", async () => {
+			userRepository.findByEmail.mockResolvedValue(null);
+			prismaService.$transaction.mockRejectedValue(new Error("DB error"));
+
+			await expect(service.createVet(tenantA.id, createVetDto)).rejects.toThrow(
+				"DB error",
 			);
 		});
 	});
