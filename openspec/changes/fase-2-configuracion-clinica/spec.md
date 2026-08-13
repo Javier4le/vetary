@@ -1,3 +1,7 @@
+> **DEPRECATED LAYOUT — superseded by domain delta specs under `specs/`:**
+> `clinic-services/spec.md`, `users-vets/spec.md`, `users-staff/spec.md`, `vet-weekly-availability/spec.md`.
+> This file is retained for historical reference only.
+
 # Delta for Clinic Configuration (Phase 2)
 
 **Change**: `fase-2-configuracion-clinica`
