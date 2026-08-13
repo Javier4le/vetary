@@ -80,8 +80,8 @@ Las decisiones arquitectónicas completas están documentadas en [`ARCHITECTURE.
 
 | Fase | Descripción | Estado |
 |------|-------------|--------|
-| 1 | Auth + Multi-tenancy | ⬜ En construcción |
-| 2 | Configuración de la clínica | ⬜ Pendiente |
+| 1 | Auth + Multi-tenancy | ✅ Completa |
+| 2 | Configuración de la clínica | 🔄 En progreso (PR-1 completo; PR-2 y PR-3 pendientes) |
 | 3 | Sistema de reservas | ⬜ Pendiente |
 | 4 | Ficha clínica | ⬜ Pendiente |
 | 5 | Dashboard + UI final | ⬜ Pendiente |

@@ -29,12 +29,16 @@ model Tenant {
   name      String // "Clínica Veterinaria San Martín"
   subdomain String       @unique // "clinica-san-martin" → clinica-san-martin.vetary.app
   status    TenantStatus @default(ACTIVE)
+  timezone  String       @default("America/Santiago")
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 
   // Relations
-  userTenants   UserTenant[]
-  refreshTokens RefreshToken[]
+  userTenants       UserTenant[]
+  refreshTokens     RefreshToken[]
+  services          Service[]
+  vetProfiles       VetProfile[]
+  vetAvailabilities VetAvailability[]
 
   @@index([subdomain]) // ← Índice para búsqueda rápida por subdomain
   @@map("tenants")
@@ -57,8 +61,10 @@ model User {
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   // Relations
-  userTenants   UserTenant[]
-  refreshTokens RefreshToken[]
+  userTenants      UserTenant[]
+  refreshTokens    RefreshToken[]
+  vetProfile       VetProfile?
+  vetAvailabilities VetAvailability[]
 
   @@index([email]) // ← Índice para búsqueda rápida por email (login)
   @@map("users")
@@ -117,4 +123,76 @@ model RefreshToken {
   @@index([token]) // ← Búsqueda rápida por token al refrescar
   @@index([userId, tenantId]) // ← Útil para "logout all devices"
   @@map("refresh_tokens")
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SERVICE (CLINIC SERVICE CATALOG)
+// ═════════════════════════════════════════════════════════════════════════════
+// 📐 PATRÓN: BaseRepository — template para entidades scoped por tenant
+// 🔒 SEGURIDAD: Cada service pertenece a un tenant; el nombre es único por tenant
+
+model Service {
+  id              String   @id @default(cuid())
+  tenantId        String
+  name            String
+  description     String?
+  durationMinutes Int      @map("duration_minutes")
+  priceClp        Int      @map("price_clp")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@index([tenantId, isActive])
+  @@map("services")
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// VET PROFILE
+// ═════════════════════════════════════════════════════════════════════════════
+// 🏗️ ARQUITECTURA: Perfil profesional de un veterinario
+// userId es único: un usuario = un perfil de veterinario
+
+model VetProfile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique @map("user_id")
+  tenantId           String
+  specialty          String?
+  registrationNumber String?  @map("registration_number")
+  bio                String?
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("vet_profiles")
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// VET AVAILABILITY
+// ═════════════════════════════════════════════════════════════════════════════
+// 🏗️ ARQUITECTURA: Horarios semanales de disponibilidad de veterinarios
+// dayOfWeek: 0=Domingo, 1=Lunes, ..., 6=Sábado
+// startTime/endTime: formato "HH:mm" (ej: "09:00")
+
+model VetAvailability {
+  id        String   @id @default(cuid())
+  vetId     String   @map("vet_id")
+  tenantId  String
+  dayOfWeek Int      @map("day_of_week")
+  startTime String   @map("start_time")
+  endTime   String   @map("end_time")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  vet    User   @relation(fields: [vetId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, vetId, dayOfWeek])
+  @@map("vet_availabilities")
 }
