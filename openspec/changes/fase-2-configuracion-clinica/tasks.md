@@ -111,53 +111,55 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
 
 ## Phase 3: Availability Module and Overlap Validation (PR 3)
 
-- [ ] T-010: Implement AvailabilityRepository extending BaseRepository
+- [x] T-010: Implement AvailabilityRepository extending BaseRepository
   - Acceptance: Tenant scoped CRUD; basic validation support
   - Est. lines: 30
   - Dependencies: T-001
   - Files: `vetary-api/src/modules/availability/repositories/availability.repository.ts`
-  - Tests required: Yes (unit)
+  - Tests required: Yes (unit) — 5 tests passing
+  - Status: ✅ Completed
 
-- [ ] T-011: Create AvailabilityService with weekly recurring schedule support and overlap validation logic
+- [x] T-011: Create AvailabilityService with weekly recurring schedule support and overlap validation logic
   - Acceptance: Reject overlapping or cross-midnight blocks; tenant isolation
   - Est. lines: 60
   - Dependencies: T-010
   - Files: `vetary-api/src/modules/availability/services/availability.service.ts`
-  - Tests required: Yes (unit, integration)
+  - Tests required: Yes (unit, integration) — 7 service tests passing
+  - Status: ✅ Completed
 
-- [ ] T-012: Build AvailabilityController with list, create, delete endpoints and RBAC guards
+- [x] T-012: Build AvailabilityController with list, create, delete endpoints and RBAC guards
   - Acceptance: Admin-only for writes; correct validation and swagger docs
   - Est. lines: 50
   - Dependencies: T-011
   - Files: `vetary-api/src/modules/availability/controllers/availability.controller.ts`
   - Tests required: Yes (integration)
+  - Status: ✅ Completed
 
-- [ ] T-013: Write integration tests for availability module including overlap and tenant isolation
+- [x] T-013: Write integration tests for availability module including overlap and tenant isolation
   - Acceptance: Check multiple slots, conflict rejection, unauthorized access
   - Est. lines: 40
   - Dependencies: T-012
   - Files: `vetary-api/test/integration/availability.integration.spec.ts`
-  - Tests required: Yes (integration)
+  - Tests required: Yes (integration) — 8 real PostgreSQL tests passing
+  - Status: ✅ Completed
 
-- [ ] T-014: Write E2E tests for /users/vets and /availability workflows
+- [x] T-014: Write E2E tests for /users/vets and /availability workflows
   - Acceptance: End-to-end flows with multi-table transaction and conflict errors
   - Est. lines: 40
   - Dependencies: T-009, T-013
   - Files: `vetary-api/test/e2e/clinic-config.e2e-spec.ts`
-  - Tests required: Yes (E2E)
+  - Tests required: Yes (E2E) — 7 E2E tests passing
+  - Status: ✅ Completed
 
 ## Summary
 
-- Total tasks: 14 (9 completed, 5 remaining)
+- Total tasks: 14 (14 completed, 0 remaining)
 - PR-1: COMPLETED (~630 lines; historical unit: 12 suites / 98 tests; E2E: 2 suites / 8 tests; Prisma migration status at completion: 1 migration found and database schema up to date)
-- PR-2: CORRECTION IN PROGRESS (T-006 to T-009; native ledger: 974 changed lines; current Jest: 15 suites / 118 tests passing; E2E: 2 suites / 8 tests passing; focused PostgreSQL integration: 1 suite / 4 tests; controller unit: 1 suite / 4 tests; Prisma: 2 migrations found and database schema up to date)
-- PR-3: PENDING (5 tasks)
-- Estimated remaining lines: ~220
-- PR sizes respect 400-line per PR budget
-- Chain strategy: feature-branch-chain (accumulate in feature/fase-2, merge after PR-3)
+- PR-2: COMPLETED (T-006 to T-009; current Jest: 15 suites / 118 tests passing; E2E: 2 suites / 8 tests passing; focused PostgreSQL integration: 1 suite / 4 tests; controller unit: 1 suite / 4 tests; Prisma: 2 migrations found and database schema up to date)
+- PR-3: COMPLETED (T-010 to T-014; current Jest: 14 suites / 111 tests passing; integration: 4 suites / 27 tests passing; E2E: 3 suites / 15 tests passing; Prisma 5.22.0; Biome: 0 errors/warnings; TypeScript: 0 errors)
+- Chain strategy: feature-branch-chain (accumulate in feature/fase-2, merge to develop after PR-3)
 
 ## Recommended Next Action
 
-- Implement PR-3: Availability module (T-010 to T-014)
-- Continue from branch `feature/fase-2-pr2-users` or create `feature/fase-2-pr3-availability`
-- Tasks T-010 to T-014
+- Run `sdd-verify` for change `fase-2-configuracion-clinica`
+- Prepare PR-3 for review under feature-branch-chain strategy

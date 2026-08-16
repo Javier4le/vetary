@@ -7,9 +7,20 @@
 // completa del request lifecycle.
 
 import { randomUUID } from "node:crypto";
-import { INestApplication, ValidationPipe } from "@nestjs/common";
+import { INestApplication, Module, ValidationPipe } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
 import { Test, type TestingModule } from "@nestjs/testing";
-import type { RefreshToken, Role, Tenant, TenantStatus, User, UserTenant } from "@prisma/client";
+import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
+import type {
+	RefreshToken,
+	Role,
+	Tenant,
+	TenantStatus,
+	User,
+	UserTenant,
+	VetAvailability,
+	VetProfile,
+} from "@prisma/client";
 import { AppModule } from "../../../src/app.module";
 import { PrismaService } from "../../../src/database/prisma.service";
 
@@ -23,6 +34,8 @@ interface InMemoryDb {
 	users: User[];
 	userTenants: UserTenant[];
 	refreshTokens: RefreshToken[];
+	vetProfiles: VetProfile[];
+	vetAvailabilities: VetAvailability[];
 }
 
 function required<T>(value: T | undefined, field: string): T {
@@ -38,6 +51,8 @@ function createEmptyDb(): InMemoryDb {
 		users: [],
 		userTenants: [],
 		refreshTokens: [],
+		vetProfiles: [],
+		vetAvailabilities: [],
 	};
 }
 
@@ -183,7 +198,75 @@ const mockPrismaClient = {
 			);
 		},
 	},
+	vetProfile: {
+		create: async ({ data }: { data: Partial<VetProfile> }) => {
+			const profile: VetProfile = {
+				id: data.id || randomUUID(),
+				userId: required(data.userId, "userId"),
+				tenantId: required(data.tenantId, "tenantId"),
+				specialty: data.specialty ?? null,
+				registrationNumber: data.registrationNumber ?? null,
+				bio: data.bio ?? null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+			db.vetProfiles.push(profile);
+			return profile;
+		},
+		findFirst: async ({ where }: { where: { userId?: string; tenantId?: string } }) => {
+			return (
+				db.vetProfiles.find(
+					(profile) =>
+						(!where.userId || profile.userId === where.userId) &&
+						(!where.tenantId || profile.tenantId === where.tenantId),
+				) || null
+			);
+		},
+	},
+	vetAvailability: {
+		create: async ({ data }: { data: Partial<VetAvailability> }) => {
+			const slot: VetAvailability = {
+				id: data.id || randomUUID(),
+				vetId: required(data.vetId, "vetId"),
+				tenantId: required(data.tenantId, "tenantId"),
+				dayOfWeek: required(data.dayOfWeek, "dayOfWeek"),
+				startTime: required(data.startTime, "startTime"),
+				endTime: required(data.endTime, "endTime"),
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
+			db.vetAvailabilities.push(slot);
+			return slot;
+		},
+		findMany: async ({
+			where,
+		}: { where: { tenantId?: string; vetId?: string; dayOfWeek?: number } }) => {
+			return db.vetAvailabilities.filter(
+				(slot) =>
+					(!where.tenantId || slot.tenantId === where.tenantId) &&
+					(!where.vetId || slot.vetId === where.vetId) &&
+					(where.dayOfWeek === undefined || slot.dayOfWeek === where.dayOfWeek),
+			);
+		},
+		deleteMany: async ({ where }: { where: { id?: string; tenantId?: string } }) => {
+			const beforeCount = db.vetAvailabilities.length;
+			db.vetAvailabilities = db.vetAvailabilities.filter(
+				(slot) => !(slot.id === where.id && slot.tenantId === where.tenantId),
+			);
+			return { count: beforeCount - db.vetAvailabilities.length };
+		},
+	},
 };
+
+// ═════════════════════════════════════════════════════════════════════════════
+// Throttler bypass for E2E tests — prevents 429 Too Many Requests under test load
+// ═════════════════════════════════════════════════════════════════════════════
+
+@Module({
+	providers: [{ provide: ThrottlerGuard, useValue: { canActivate: () => true } }],
+	exports: [ThrottlerGuard],
+})
+class NoOpThrottlerModule {}
 
 // ═════════════════════════════════════════════════════════════════════════════
 // Create E2E Testing Application
@@ -196,6 +279,8 @@ export async function createTestingApp(): Promise<INestApplication> {
 	const moduleFixture: TestingModule = await Test.createTestingModule({
 		imports: [AppModule],
 	})
+		.overrideModule(ThrottlerModule)
+		.useModule(NoOpThrottlerModule)
 		.overrideProvider(PrismaService)
 		.useValue({
 			$connect: async () => {
@@ -261,6 +346,36 @@ export async function seedClinic(
 	});
 
 	return { tenant, user, userTenant };
+}
+
+// Helper: seed an additional user into an existing clinic
+export async function seedUser(
+	tenantId: string,
+	email: string,
+	passwordHash: string,
+	role: Role,
+): Promise<User> {
+	const user = await mockPrismaClient.user.create({
+		data: { email, passwordHash, firstName: "Test", lastName: "User" },
+	});
+	await mockPrismaClient.userTenant.create({
+		data: { userId: user.id, tenantId, role },
+	});
+	return user;
+}
+
+// Helper: create a signed JWT access token for an existing userTenant
+export function createAccessToken(
+	userId: string,
+	tenantId: string,
+	role: Role,
+	email: string,
+): string {
+	const jwtService = new JwtService({
+		secret:
+			process.env.JWT_SECRET || "local-dev-secret-change-in-production-min-32-characters-required",
+	});
+	return jwtService.sign({ sub: userId, tenantId, role, email });
 }
 
 // Helper para esperar promises (evitar flakiness en tests asíncronos)
