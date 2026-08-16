@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches:
+      - develop
+      - main
+
+permissions:
+  contents: read
+
+env:
+  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/vetary_dev
+
+jobs:
+  quality:
+    name: Vetary API CI
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: vetary_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d vetary_dev"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Biome
+        run: pnpm exec biome check .
+
+      - name: Unit tests
+        working-directory: vetary-api
+        run: pnpm exec jest --no-coverage
+
+      - name: Apply Prisma migrations
+        working-directory: vetary-api
+        run: pnpm exec prisma migrate deploy
+
+      - name: Integration tests
+        working-directory: vetary-api
+        run: pnpm exec jest --config ./test/jest-integration.json --no-coverage
+
+      - name: E2E tests
+        working-directory: vetary-api
+        run: pnpm exec jest --config ./test/jest-e2e.json --no-coverage
+
+      - name: TypeScript
+        working-directory: vetary-api
+        run: pnpm exec tsc --noEmit
