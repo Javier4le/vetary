@@ -11,6 +11,12 @@
 | Delivery strategy | ask-on-risk |
 | Chain strategy | feature-branch-chain |
 
+### PR-3 Functional Budget
+
+PR-3 (T-010 to T-014) has a functional estimate of approximately 220 changed lines.
+This budget excludes repository-wide formatting/normalization commits and does not inherit
+the PR-2 candidate's 4,999-line quality baseline.
+
 Decision needed before apply: Yes — maintainer decision required before runtime settle
 Chained PRs recommended: Yes
 Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to develop after PR-3
