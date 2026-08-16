@@ -1,7 +1,7 @@
 # Vetary — Estado del Proyecto
 
-> Actualizado: 2026-08-13
-> Sesión actual: Fase 2 — Configuración de la clínica (PR-1 COMPLETADO)
+> Actualizado: 2026-08-16
+> Sesión actual: Fase 2 — Configuración de la clínica COMPLETADA
 
 ---
 
@@ -16,7 +16,11 @@
 
 ---
 
-## Fase 2 — Configuración de la Clínica 🔄 EN PROGRESO
+## Fase 2 — Configuración de la Clínica ✅ COMPLETADA
+
+- Tag pendiente de crear en `develop`: `fase-2-complete`
+- Merge de cierre: `3963847` (PR-3 availability)
+- RDD final: receipt completo con candidato funcional medido en 1.210 líneas
 
 ### SDD Completado
 | Fase | Estado | Artifacts |
@@ -31,8 +35,8 @@
 | PR | Estado | Commits | Tests | Líneas |
 |----|--------|---------|-------|--------|
 | PR-1 | ✅ COMPLETADO | 3 commits | Histórico: Unit 12 suites / 98 tests; E2E: 2 suites / 8 tests | ~630 |
-| PR-2 | 🔧 CORRECCIÓN EN PROGRESO | commits pendientes | Unit/integration: 15 suites / 118 tests; E2E: 2 suites / 8 tests | 974 líneas según ledger nativo |
-| PR-3 | ⏳ PENDIENTE | — | — | ~220 estimado |
+| PR-2 | ✅ COMPLETADO | merge incluido en `develop` | Unit/integration: 15 suites / 118 tests; E2E: 2 suites / 8 tests | 974 líneas medidas |
+| PR-3 | ✅ COMPLETADO | merge `3963847` | Unit: 14 suites / 111 tests; Integration: 4 suites / 27 tests; E2E: 3 suites / 15 tests | 1.210 líneas medidas |
 
 ### PR-1 Detalles
 **Branch:** `feature/fase-2-pr1-services` (desde `develop`)
@@ -61,12 +65,14 @@
 3. UserController: POST /users/vets + POST /users/staff
 4. Tests de integración real PostgreSQL y tests unitarios de controller
 
-### PR-3 Pendiente — Availability + Overlap
+### PR-3 Completado — Availability + Overlap
 **Tareas:** T-010 a T-014
 1. AvailabilityRepository
 2. AvailabilityService (overlap validation)
 3. AvailabilityController
 4. Tests + E2E
+
+**Evidencia:** Biome 0 errores/warnings, TypeScript 0 errores, Prisma 5.22.0 con 2 migraciones al día.
 
 ---
 
@@ -88,10 +94,10 @@
 ## Siguiente Sesión
 
 ### Instrucciones para retomar
-1. Checkout branch existente: `feature/fase-2-pr1-services`
-2. Continuar desde T-006 (VetProfileRepository)
-3. Ejecutar tests antes de empezar: `cd vetary-api && npx jest`
-4. Verificar que todos pasen antes de modificar código
+1. La Fase 2 está cerrada con tag `fase-2-complete`.
+2. No iniciar Fase 3 hasta definir sus unidades funcionales y presupuestos.
+3. Las estimaciones deben incluir producción, tests, fixtures, configuración y OpenSpec.
+4. Los barridos de calidad se ejecutan como cambios independientes sobre `develop`.
 
 ### Contexto disponible
 - **Engram** (persistente): buscar `sdd/fase-2-configuracion-clinica/*`
@@ -111,9 +117,10 @@
 ## Artefactos SDD
 | Tipo | Ubicación |
 |------|-----------|
-| Proposal | `openspec/changes/fase-2-configuracion-clinica/proposal.md` |
-| Spec | `openspec/changes/fase-2-configuracion-clinica/spec.md` |
-| Design | `openspec/changes/fase-2-configuracion-clinica/design.md` |
-| Tasks | `openspec/changes/fase-2-configuracion-clinica/tasks.md` |
+| Proposal | `openspec/changes/archive/2026-08-16-fase-2-configuracion-clinica/proposal.md` |
+| Specs | `openspec/specs/{clinic-services,users-vets,users-staff,vet-weekly-availability}/spec.md` |
+| Design | `openspec/changes/archive/2026-08-16-fase-2-configuracion-clinica/design.md` |
+| Tasks | `openspec/changes/archive/2026-08-16-fase-2-configuracion-clinica/tasks.md` |
+| Verify | `openspec/changes/archive/2026-08-16-fase-2-configuracion-clinica/verify-report.md` |
 | Apply Progress | Engram: `sdd/fase-2-configuracion-clinica/apply-progress` |
 | Product Decisions | Engram: `sdd/fase-2-configuracion-clinica/product-decisions` |
