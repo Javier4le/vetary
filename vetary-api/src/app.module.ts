@@ -5,6 +5,7 @@ import { TenantMiddleware } from "./common/middleware/tenant.middleware";
 import { ConfigModule } from "./config/config.module";
 import { DatabaseModule } from "./database/database.module";
 import { AuthModule } from "./modules/auth/auth.module";
+import { AvailabilityModule } from "./modules/availability/availability.module";
 import { ServicesModule } from "./modules/services/services.module";
 import { TenantsModule } from "./modules/tenants/tenants.module";
 import { UsersModule } from "./modules/users/users.module";
@@ -37,6 +38,7 @@ import { UsersModule } from "./modules/users/users.module";
 		TenantsModule,
 		UsersModule,
 		ServicesModule,
+		AvailabilityModule,
 		AuthModule,
 	],
 	controllers: [],
