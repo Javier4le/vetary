@@ -1,5 +1,5 @@
-import { IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import { IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
 
 // 📐 PATRÓN DTO: Update — solo campos opcionales
 // ⚡ PRINCIPIO: Partial Updates — el cliente solo envía lo que quiere cambiar

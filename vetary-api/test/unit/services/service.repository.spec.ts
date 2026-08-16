@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import type { Service } from "@prisma/client";
 import { PrismaService } from "../../../src/database/prisma.service";
 import { ServiceRepository } from "../../../src/modules/services/repositories/service.repository";
-import type { Service } from "@prisma/client";
 
 describe("ServiceRepository", () => {
 	let repository: ServiceRepository;
@@ -17,10 +17,7 @@ describe("ServiceRepository", () => {
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
-			providers: [
-				ServiceRepository,
-				{ provide: PrismaService, useValue: mockPrismaService },
-			],
+			providers: [ServiceRepository, { provide: PrismaService, useValue: mockPrismaService }],
 		}).compile();
 
 		repository = module.get<ServiceRepository>(ServiceRepository);

@@ -58,13 +58,13 @@ testing:
     coverage_command: "pnpm --filter vetary-api test:cov"
     e2e_command: "pnpm --filter vetary-api test:e2e"
     test_location: "vetary-api/src/**/*.spec.ts + vetary-api/test/{unit,integration,e2e}/**/*.spec.ts"
-    current_test_count: "2026-08-13 — Unit: npx jest => Test Suites: 12 passed, 12 total; Tests: 98 passed, 98 total. E2E: npx jest --config ./test/jest-e2e.json => Test Suites: 2 passed, 2 total; Tests: 8 passed, 8 total."
+    current_test_count: "2026-08-13 — npx jest --no-coverage => Test Suites: 15 passed, 15 total; Tests: 118 passed, 118 total. Focused users integration: 1 suite / 4 tests passed against real PostgreSQL. Focused users controller unit: 1 suite / 4 tests passed. E2E: npx jest --config ./test/jest-e2e.json => Test Suites: 2 passed, 2 total; Tests: 8 passed, 8 total. TypeScript: npx tsc --noEmit => exit status 0."
     e2e_config: test/jest-e2e.json — 2 E2E suites and 8 tests passing (require Postgres via docker-compose)
-    migration_status: "2026-08-13 — npx prisma migrate status => 1 migration found in prisma/migrations; Database schema is up to date!"
+    migration_status: "2026-08-13 — npx prisma migrate status => 2 migrations found in prisma/migrations; Database schema is up to date!"
 
     test_types:
       - unit: Business logic (services, repositories, middleware, env validation)
-      - integration: Repositories with tenant isolation verification (planned)
+      - integration: Real PostgreSQL persistence, rollback, cross-tenant reuse, and tenant isolation verification
       - e2e: Critical auth flows (framework configured; 2 suites and 8 tests passing)
 
     coverage_requirements:
@@ -251,8 +251,8 @@ phases:
       - Auth guards
 
     test_status:
-      suites: 12 (unit, passing; npx jest, measured 2026-08-13)
-      tests: 98 (unit, passing; npx jest, measured 2026-08-13)
+      suites: 15 (unit/integration, passing; npx jest --no-coverage, measured 2026-08-13)
+      tests: 118 (unit/integration, passing; npx jest --no-coverage, measured 2026-08-13)
       e2e: 2 suites passed, 8 tests passed (npx jest --config ./test/jest-e2e.json, measured 2026-08-13)
       runner: Jest 29.7
 
@@ -263,7 +263,7 @@ phases:
     delivery_strategy: Chained PRs — feature-branch-chain (PRs target tracker branch; only it merges to main)
     pr_status:
       PR-1: COMPLETED — services module (Service, VetProfile, VetAvailability, Tenant.timezone schema; CRUD + soft-disable + tenant isolation); ~630 lines; 49/49 tests green at merge
-      PR-2: PENDING — VetProfileRepository, UserService.createVet() atomic transaction (User + UserTenant + VetProfile), POST /users/vets + /users/staff
+      PR-2: CORRECTION IN PROGRESS — VetProfileRepository, UserService.createVet() atomic transaction (User + UserTenant + VetProfile), POST /users/vets + /users/staff; schema and real PostgreSQL integration corrections pending maintainer budget decision
       PR-3: PENDING — AvailabilityRepository, AvailabilityService (overlap validation), AvailabilityController, tests + E2E
     business_rules:
       - "Availability: weekly recurring, multi-block per day, one timezone per clinic"
@@ -311,12 +311,12 @@ sdd_init:
   changes_from_refresh:
     - Linter: ESLint 8.56 → Biome 1.9 (ESLint + Prettier removed in commit d9280eb; see STACK-nestjs.md)
     - Formatter: Prettier 3.1 + Biome → Biome only (lint + format unified)
-    - Test count: 7 suites / 72 → 12 suites / 98 unit tests (npx jest, measured 2026-08-13); E2E verified at 2 suites / 8 tests passing (npx jest --config ./test/jest-e2e.json)
+    - Test count: 7 suites / 72 → 15 suites / 118 tests (npx jest --no-coverage, measured 2026-08-13); E2E verified at 2 suites / 8 tests passing (npx jest --config ./test/jest-e2e.json)
     - Test commands: "`cd vetary-api && npm run …` → `pnpm --filter vetary-api …` (pnpm-only convention)"
     - E2E: corrected from "no E2E tests yet" → 8 configured E2E tests in test/e2e/{auth,security}; current run verified at 2 suites / 8 tests passing
     - PostgreSQL version pinned: 16
     - Phase 1 status: In progress → COMPLETED (tag fase-1-complete)
-    - Phase 2 added: fase-2-configuracion-clinica (PR-1 done, PR-2/3 pending, chained PR feature-branch-chain)
+    - Phase 2 added: fase-2-configuracion-clinica (PR-1 and PR-2 done, PR-3 pending, chained PR feature-branch-chain)
     - strict_tdd_modules: added services
     - Conventions added: money CLP Int, no import type on decorated classes, pnpm-only, @/ alias imports, engine-strict
     - Engram: sdd-init/vetary (obs #18), sdd/vetary/testing-capabilities (obs #32), skill-registry (obs #33)

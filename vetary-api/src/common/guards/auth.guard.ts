@@ -1,10 +1,6 @@
-import {
-  Injectable,
-  ExecutionContext,
-  UnauthorizedException,
-} from "@nestjs/common";
-import { AuthGuard as PassportAuthGuard } from "@nestjs/passport";
+import { ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import { AuthGuard as PassportAuthGuard } from "@nestjs/passport";
 import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
 
 // 🏗️ ARQUITECTURA: AuthGuard — SEGUNDO en la cadena (después de TenantMiddleware)
@@ -18,38 +14,38 @@ import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
 
 @Injectable()
 export class CustomAuthGuard extends PassportAuthGuard("jwt") {
-  constructor(private reflector: Reflector) {
-    super();
-  }
+	constructor(private reflector: Reflector) {
+		super();
+	}
 
-  /**
-   * ENTRYPOINT de NestJS para cada request protegida.
-   * Primero lee @Public() metadata; si está presente, salta JWT.
-   */
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+	/**
+	 * ENTRYPOINT de NestJS para cada request protegida.
+	 * Primero lee @Public() metadata; si está presente, salta JWT.
+	 */
+	async canActivate(context: ExecutionContext): Promise<boolean> {
+		const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+			context.getHandler(),
+			context.getClass(),
+		]);
 
-    if (isPublic) {
-      // 📐 PATRÓN: Short-circuit — evita overhead de verificación JWT en rutas públicas
-      return true;
-    }
+		if (isPublic) {
+			// 📐 PATRÓN: Short-circuit — evita overhead de verificación JWT en rutas públicas
+			return true;
+		}
 
-    // Delegar a Passport JWT strategy (verify firma + expiración)
-    return (await super.canActivate(context)) as boolean;
-  }
+		// Delegar a Passport JWT strategy (verify firma + expiración)
+		return (await super.canActivate(context)) as boolean;
+	}
 
-  /**
-   * Se ejecuta DESPUÉS de que Passport validó la firma.
-   * Si err o user son falsy → token inválido o expirado.
-   */
-  handleRequest<TUser = any>(err: any, user: any): TUser {
-    if (err || !user) {
-      // 🔒 SEGURIDAD: Nunca exponer detalles del error al cliente
-      throw err || new UnauthorizedException("Invalid token");
-    }
-    return user;
-  }
+	/**
+	 * Se ejecuta DESPUÉS de que Passport validó la firma.
+	 * Si err o user son falsy → token inválido o expirado.
+	 */
+	handleRequest<TUser = any>(err: any, user: any): TUser {
+		if (err || !user) {
+			// 🔒 SEGURIDAD: Nunca exponer detalles del error al cliente
+			throw err || new UnauthorizedException("Invalid token");
+		}
+		return user;
+	}
 }

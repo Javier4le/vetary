@@ -1,6 +1,14 @@
-import { IsEnum, IsEmail, IsNotEmpty, IsString, Matches, MaxLength, MinLength } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import type { Role } from "@prisma/client";
+import {
+	IsEmail,
+	IsEnum,
+	IsNotEmpty,
+	IsString,
+	Matches,
+	MaxLength,
+	MinLength,
+} from "class-validator";
 
 // 📐 PATRÓN DTO: Data Transfer Object — define el contrato de entrada de la API
 // ⚡ PRINCIPIO: Válida en el borde — nunca confiar en que el cliente manda datos bien formados

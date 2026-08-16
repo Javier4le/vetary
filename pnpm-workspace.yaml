@@ -2,6 +2,7 @@ packages:
   - 'vetary-api'
   - 'vetary-web'
 allowBuilds:
+  '@biomejs/biome': true
   '@nestjs/core': true
   '@prisma/client': true
   '@prisma/engines': true

@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-} from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
 
@@ -24,38 +19,36 @@ import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
 
 @Injectable()
 export class TenantGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+	constructor(private reflector: Reflector) {}
 
-  canActivate(context: ExecutionContext): boolean {
-    // Rutas públicas no necesitan verificación de tenant
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+	canActivate(context: ExecutionContext): boolean {
+		// Rutas públicas no necesitan verificación de tenant
+		const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+			context.getHandler(),
+			context.getClass(),
+		]);
 
-    if (isPublic) {
-      return true;
-    }
+		if (isPublic) {
+			return true;
+		}
 
-    const request = context.switchToHttp().getRequest();
-    const tenant = request.tenant; // Set by TenantMiddleware
-    const user = request.user; // Set by AuthGuard
+		const request = context.switchToHttp().getRequest();
+		const tenant = request.tenant; // Set by TenantMiddleware
+		const user = request.user; // Set by AuthGuard
 
-    // 🔒 SEGURIDAD: Fail closed — contexto faltante = rechazo inmediato
-    if (!tenant || !user) {
-      throw new ForbiddenException("Tenant or user context missing");
-    }
+		// 🔒 SEGURIDAD: Fail closed — contexto faltante = rechazo inmediato
+		if (!tenant || !user) {
+			throw new ForbiddenException("Tenant or user context missing");
+		}
 
-    // 🔒 SEGURIDAD: CORE del aislamiento multi-tenant
-    //   ej: user loggeó en Clinic A (JWT con tenantId=A),
-    //       pero la request llegó por clinic-b.vetary.app (tenant.id=B)
-    //   → Rechazar. El token NO pertenece a esta clínica.
-    if (tenant.id !== user.tenantId) {
-      throw new ForbiddenException(
-        "Your token belongs to a different clinic",
-      );
-    }
+		// 🔒 SEGURIDAD: CORE del aislamiento multi-tenant
+		//   ej: user loggeó en Clinic A (JWT con tenantId=A),
+		//       pero la request llegó por clinic-b.vetary.app (tenant.id=B)
+		//   → Rechazar. El token NO pertenece a esta clínica.
+		if (tenant.id !== user.tenantId) {
+			throw new ForbiddenException("Your token belongs to a different clinic");
+		}
 
-    return true;
-  }
+		return true;
+	}
 }

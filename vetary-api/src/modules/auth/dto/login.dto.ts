@@ -1,5 +1,5 @@
-import { IsEmail, IsNotEmpty, IsString, IsUUID } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import { IsEmail, IsNotEmpty, IsString, IsUUID } from "class-validator";
 
 // 📐 PATRÓN DTO: Data Transfer Object — define el contrato de entrada del login
 // ⚡ PRINCIPIO: Validate at the Border — nunca confiar en que el cliente manda datos bien formados

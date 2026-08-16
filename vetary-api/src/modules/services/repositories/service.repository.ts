@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 
+import { BaseRepository } from "@/database/base.repository";
 // biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { PrismaService } from "@/database/prisma.service";
-import { BaseRepository } from "@/database/base.repository";
 import type { Service } from "@prisma/client";
 
 // 📐 PATRÓN Repository: encapsula todo el acceso a datos relacionados con Service
@@ -36,10 +36,7 @@ export class ServiceRepository extends BaseRepository<Service> {
 	 * 🔒 SEGURIDAD: Encuentra un servicio por ID dentro de un tenant específico
 	 * Doble filtro: id + tenantId — prevención de cross-tenant access
 	 */
-	async findByIdAndTenant(
-		tenantId: string,
-		id: string,
-	): Promise<Service | null> {
+	async findByIdAndTenant(tenantId: string, id: string): Promise<Service | null> {
 		return this.findOneByTenant(tenantId, { id });
 	}
 

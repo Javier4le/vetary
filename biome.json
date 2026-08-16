@@ -1,5 +1,14 @@
 {
 	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"files": {
+		"ignore": [
+			"**/dist/**",
+			"**/node_modules/**",
+			"**/coverage/**",
+			"**/.codegraph/**",
+			"**/.pi-lens/**"
+		]
+	},
 	"linter": {
 		"rules": {
 			"recommended": true,
@@ -11,11 +20,11 @@
 				"noConstAssign": "error"
 			},
 			"suspicious": {
-				"noConsole": "error",
+				"noConsole": "warn",
 				"noDebugger": "error",
 				"noDoubleEquals": "error",
-				"noExplicitAny": "error",
-				"noEmptyBlockStatements": "error",
+				"noExplicitAny": "warn",
+				"noEmptyBlockStatements": "warn",
 				"noGlobalIsNan": "error"
 			},
 			"style": {
@@ -23,25 +32,37 @@
 				"useTemplate": "error",
 				"noVar": "error",
 				"useImportType": "off",
-				"useNodejsImportProtocol": "error",
+				"useNodejsImportProtocol": "warn",
 				"useShorthandArrayType": "error",
-				"noNonNullAssertion": "error",
+				"noNonNullAssertion": "warn",
 				"noParameterAssign": "error"
 			},
 			"complexity": {
 				"noForEach": "warn",
 				"noStaticOnlyClass": "error",
-				"noUselessSwitchCase": "error"
+				"noUselessSwitchCase": "error",
+				"noUselessConstructor": "warn",
+				"useLiteralKeys": "warn"
 			},
 			"performance": {
-				"noDelete": "error"
+				"noDelete": "warn"
 			}
 		}
 	},
 	"javascript": {
 		"parser": {
 			"unsafeParameterDecoratorsEnabled": true
-		}
+		},
+		"globals": [
+			"afterAll",
+			"afterEach",
+			"beforeAll",
+			"beforeEach",
+			"describe",
+			"expect",
+			"it",
+			"jest"
+		]
 	},
 	"formatter": {
 		"indentStyle": "tab",

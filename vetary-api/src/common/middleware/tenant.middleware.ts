@@ -2,8 +2,8 @@ import {
 	BadRequestException,
 	ForbiddenException,
 	Injectable,
-	NotFoundException,
 	type NestMiddleware,
+	NotFoundException,
 } from "@nestjs/common";
 import type { NextFunction, Request, Response } from "express";
 // biome-ignore lint/style/useImportType: NestJS DI requires value import
@@ -35,31 +35,27 @@ declare module "express" {
 
 // Rutas públicas que no requieren resolución de tenant
 function isTenantAgnosticPath(path: string): boolean {
-  return [
-    "/api/v1/tenants/register",
-    "/api/v1/auth/login",
-    "/api/v1/auth/refresh",
-  ].includes(path);
+	return ["/api/v1/tenants/register", "/api/v1/auth/login", "/api/v1/auth/refresh"].includes(path);
 }
 
 @Injectable()
 export class TenantMiddleware implements NestMiddleware {
-  constructor(private readonly prisma: PrismaService) {}
+	constructor(private readonly prisma: PrismaService) {}
 
-  async use(req: Request, _res: Response, next: NextFunction): Promise<void> {
-    // ⚡ PRINCIPIO: Skip tenant resolution for tenant-agnostic paths
-    // Register, login, refresh don't need a tenant because they operate
-    // independently of or provide their own tenant context.
-    if (isTenantAgnosticPath(req.path) || isTenantAgnosticPath(req.originalUrl)) {
-      return next();
-    }
+	async use(req: Request, _res: Response, next: NextFunction): Promise<void> {
+		// ⚡ PRINCIPIO: Skip tenant resolution for tenant-agnostic paths
+		// Register, login, refresh don't need a tenant because they operate
+		// independently of or provide their own tenant context.
+		if (isTenantAgnosticPath(req.path) || isTenantAgnosticPath(req.originalUrl)) {
+			return next();
+		}
 
 		const subdomain = this.extractSubdomain(req.hostname);
 
 		// 🔒 SEGURIDAD: Si no hay subdominio, no sabemos a qué clínica apunta la request
 		if (!subdomain) {
 			throw new BadRequestException(
-				"No tenant subdomain found. Access must be via a clinic subdomain (e.g. clinica-a.vetary.app)."
+				"No tenant subdomain found. Access must be via a clinic subdomain (e.g. clinica-a.vetary.app).",
 			);
 		}
 
@@ -74,9 +70,7 @@ export class TenantMiddleware implements NestMiddleware {
 
 		// 🔒 SEGURIDAD: Tenant suspendido → 403 explícito
 		if (tenant.status !== "ACTIVE") {
-			throw new ForbiddenException(
-				"This clinic account is currently suspended. Contact support."
-			);
+			throw new ForbiddenException("This clinic account is currently suspended. Contact support.");
 		}
 
 		// ⚡ PRINCIPIO: Explicit over Implicit

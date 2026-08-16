@@ -1,7 +1,7 @@
 import { Test, type TestingModule } from "@nestjs/testing";
-import { AuthController } from "./auth.controller";
 // biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { AuthService } from "../services/auth.service";
+import { AuthController } from "./auth.controller";
 
 // 🧪 TEST: AuthController — capa HTTP de autenticación
 // Verifica: rutas correctas, delegación a AuthService, estructura de responses
