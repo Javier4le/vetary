@@ -1,18 +1,13 @@
-process.env.DATABASE_URL ??= "postgresql://postgres:postgres@localhost:5432/vetary_dev";
-
 import { randomUUID } from "node:crypto";
-import type { PrismaService as PrismaServiceType } from "../../src/database/prisma.service";
-import type { UserService as UserServiceType } from "../../src/modules/users/services/user.service";
+import { PrismaService } from "../../src/database/prisma.service";
 import type { CreateVetDto } from "../../src/modules/users/dto/create-vet.dto";
-
-const { PrismaService } = require("../../src/database/prisma.service") as typeof import("../../src/database/prisma.service");
-const { UserRepository } = require("../../src/modules/users/repositories/user.repository") as typeof import("../../src/modules/users/repositories/user.repository");
-const { UserService } = require("../../src/modules/users/services/user.service") as typeof import("../../src/modules/users/services/user.service");
-const { VetProfileRepository } = require("../../src/modules/vet-profiles/repositories/vet-profile.repository") as typeof import("../../src/modules/vet-profiles/repositories/vet-profile.repository");
+import { UserRepository } from "../../src/modules/users/repositories/user.repository";
+import { UserService } from "../../src/modules/users/services/user.service";
+import { VetProfileRepository } from "../../src/modules/vet-profiles/repositories/vet-profile.repository";
 
 describe("UserService.createVet — PostgreSQL integration", () => {
-	let prisma: PrismaServiceType;
-	let userService: UserServiceType;
+	let prisma: PrismaService;
+	let userService: UserService;
 	let vetProfileRepository: InstanceType<typeof VetProfileRepository>;
 	let tenantIds: string[];
 	let tenantA: { id: string };
@@ -23,16 +18,24 @@ describe("UserService.createVet — PostgreSQL integration", () => {
 	beforeAll(async () => {
 		prisma = new PrismaService();
 		await prisma.$connect();
-		userService = new UserService(new UserRepository(prisma), prisma);
-		vetProfileRepository = new VetProfileRepository(prisma);
+		const transactionalPrisma = prisma.$extends({
+			query: {
+				vetProfile: {
+					async create({ args, query }) {
+						if (failVetProfileCreate) {
+							throw new Error("forced VetProfile failure");
+						}
 
-		prisma.$use(async (params, next) => {
-			if (failVetProfileCreate && params.model === "VetProfile" && params.action === "create") {
-				throw new Error("forced VetProfile failure");
-			}
-
-			return next(params);
+						return query(args);
+					},
+				},
+			},
 		});
+		userService = new UserService(
+			new UserRepository(prisma),
+			transactionalPrisma as unknown as PrismaService,
+		);
+		vetProfileRepository = new VetProfileRepository(prisma);
 
 		const tenants = await Promise.all(
 			["a", "b", "c"].map((suffix) =>
@@ -119,7 +122,9 @@ describe("UserService.createVet — PostgreSQL integration", () => {
 			lastName: "Failure",
 		};
 
-		await expect(userService.createVet(tenantC.id, dto)).rejects.toThrow("forced VetProfile failure");
+		await expect(userService.createVet(tenantC.id, dto)).rejects.toThrow(
+			"forced VetProfile failure",
+		);
 
 		const user = await prisma.user.findUnique({ where: { email: dto.email } });
 		expect(user).toBeNull();
