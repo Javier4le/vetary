@@ -116,6 +116,12 @@ Una feature con lógica crítica no se considera terminada sin sus tests.
 
 ---
 
+## Regla de evidencia
+
+Ninguna tarea se marca como completada sin evidencia en la salida de comandos. Los números se miden en la sesión actual y no se copian de Engram. Si un commit afirma agregar X, `git show <hash> --stat` debe mostrar X.
+
+---
+
 ## Git
 
 - Conventional Commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `style:`, `ci:`
