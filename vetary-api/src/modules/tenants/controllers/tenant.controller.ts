@@ -1,7 +1,7 @@
+import { Public } from "@/common/decorators/public.decorator";
 import { Body, Controller, HttpCode, HttpStatus, Post } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { SkipThrottle } from "@nestjs/throttler";
-import { Public } from "@/common/decorators/public.decorator";
 import { RegisterTenantDto } from "../dto/register-tenant.dto";
 import { TenantService } from "../services/tenant.service";
 

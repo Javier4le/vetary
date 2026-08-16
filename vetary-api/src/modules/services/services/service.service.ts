@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 
-// biome-ignore lint/style/useImportType: NestJS DI requires value import
-import { ServiceRepository } from "../repositories/service.repository";
+import type { Service } from "@prisma/client";
 import type { CreateServiceDto } from "../dto/create-service.dto";
 import type { UpdateServiceDto } from "../dto/update-service.dto";
-import type { Service } from "@prisma/client";
+// biome-ignore lint/style/useImportType: NestJS DI requires value import
+import { ServiceRepository } from "../repositories/service.repository";
 
 // 📐 PATRÓN: Service — orquesta la lógica de negocio sin conocer HTTP
 // ⚡ PRINCIPIO: Single Responsibility — solo gestión de servicios, nada más
@@ -62,11 +62,7 @@ export class ServicesService {
 	 * Actualiza un servicio existente
 	 * 🔒 SEGURIDAD: updateForTenant filtra por tenantId + id
 	 */
-	async update(
-		tenantId: string,
-		id: string,
-		dto: UpdateServiceDto,
-	): Promise<Service> {
+	async update(tenantId: string, id: string, dto: UpdateServiceDto): Promise<Service> {
 		// Verificar que el servicio existe antes de actualizar
 		await this.findOne(tenantId, id);
 

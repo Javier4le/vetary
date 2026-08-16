@@ -1,11 +1,7 @@
-import {
-	BadRequestException,
-	ConflictException,
-	Injectable,
-} from "@nestjs/common";
-import * as bcrypt from "bcrypt";
 // biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { PrismaService } from "@/database/prisma.service";
+import { BadRequestException, ConflictException, Injectable } from "@nestjs/common";
+import * as bcrypt from "bcrypt";
 import type { RegisterTenantDto } from "../dto/register-tenant.dto";
 // biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { TenantRepository } from "../repositories/tenant.repository";
@@ -67,9 +63,7 @@ export class TenantService {
 		// ─── Validaciones de negocio (antes de tocar la BD) ──────────────────
 		this.validateSubdomain(dto.subdomain);
 
-		const subdomainExists = await this.tenantRepository.existsBySubdomain(
-			dto.subdomain,
-		);
+		const subdomainExists = await this.tenantRepository.existsBySubdomain(dto.subdomain);
 		if (subdomainExists) {
 			throw new ConflictException(
 				`Subdomain '${dto.subdomain}' is already taken. Please choose another.`,
@@ -144,9 +138,7 @@ export class TenantService {
 		}
 
 		if (subdomain.length > 63) {
-			throw new BadRequestException(
-				"Subdomain cannot exceed 63 characters (DNS limit).",
-			);
+			throw new BadRequestException("Subdomain cannot exceed 63 characters (DNS limit).");
 		}
 
 		if (!SUBDOMAIN_REGEX.test(subdomain)) {
@@ -156,9 +148,7 @@ export class TenantService {
 		}
 
 		if (RESERVED_SUBDOMAINS.has(subdomain)) {
-			throw new BadRequestException(
-				`'${subdomain}' is a reserved subdomain and cannot be used.`,
-			);
+			throw new BadRequestException(`'${subdomain}' is a reserved subdomain and cannot be used.`);
 		}
 	}
 }

@@ -1,7 +1,7 @@
+import { ConfigService } from "@/config/config.service";
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { ConfigService } from "@/config/config.service";
 import type { JwtPayload } from "../interfaces/jwt-payload.interface";
 
 // 🔒 SEGURIDAD: JwtStrategy — valida la firma del JWT en CADA request protegida

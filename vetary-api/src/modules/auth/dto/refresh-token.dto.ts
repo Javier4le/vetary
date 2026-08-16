@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsString } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import { IsNotEmpty, IsString } from "class-validator";
 
 // 📐 PATRÓN DTO: Data Transfer Object — define el contrato de entrada para refresh/logout
 // ⚡ PRINCIPIO: Validate at the Border — el refresh token viaja en body por seguridad (no en URL)

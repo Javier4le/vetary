@@ -1,9 +1,9 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { Role } from "@prisma/client";
 import { UserController } from "../../../src/modules/users/controllers/user.controller";
-import { UserService } from "../../../src/modules/users/services/user.service";
-import type { CreateVetDto } from "../../../src/modules/users/dto/create-vet.dto";
 import type { CreateStaffDto } from "../../../src/modules/users/dto/create-staff.dto";
+import type { CreateVetDto } from "../../../src/modules/users/dto/create-vet.dto";
+import { UserService } from "../../../src/modules/users/services/user.service";
 
 // 🧪 INTEGRATION TEST: UserController vets/staff endpoints
 // Verifica que los endpoints deleguen correctamente al servicio y apliquen RBAC vía metadata

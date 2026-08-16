@@ -1,5 +1,5 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
 
 // 📐 PATRÓN DTO: Data Transfer Object para creación de veterinarios
 // ⚡ PRINCIPIO: Válida en el borde — nunca confiar en que el cliente manda datos bien formados

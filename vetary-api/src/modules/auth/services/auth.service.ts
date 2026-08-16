@@ -1,13 +1,9 @@
-import {
-	ForbiddenException,
-	Injectable,
-	UnauthorizedException,
-} from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import * as bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
 import { ConfigService } from "@/config/config.service";
 import { PrismaService } from "@/database/prisma.service";
+import { ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import * as bcrypt from "bcrypt";
 import type { JwtPayload } from "../interfaces/jwt-payload.interface";
 
 // 🔒 SEGURIDAD: AuthService — ORQUESTA toda la lógica de autenticación
@@ -81,10 +77,7 @@ export class AuthService {
 		}
 
 		// 3. Verificar contraseña
-		const isPasswordValid = await this.comparePasswords(
-			password,
-			user.passwordHash,
-		);
+		const isPasswordValid = await this.comparePasswords(password, user.passwordHash);
 
 		if (!isPasswordValid) {
 			throw new UnauthorizedException("Invalid credentials");
@@ -102,9 +95,7 @@ export class AuthService {
 
 		// 5. Generar y almacenar refresh token (UUID, 7 días de expiración)
 		const refreshToken = randomUUID();
-		const refreshTokenExpiresIn = parseExpiration(
-			this.configService.refreshTokenExpiration,
-		);
+		const refreshTokenExpiresIn = parseExpiration(this.configService.refreshTokenExpiration);
 		const expiresAt = new Date(Date.now() + refreshTokenExpiresIn);
 
 		await this.prisma.refreshToken.create({
@@ -132,9 +123,7 @@ export class AuthService {
 	 * 🔒 SEGURIDAD: Token Rotation — cada refresh revoca el token anterior
 	 * Mitiga riesgo de robo: si alguien intercepta un token usado, ya no sirve.
 	 */
-	async refresh(
-		refreshToken: string,
-	): Promise<{ accessToken: string; refreshToken: string }> {
+	async refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
 		// 1. Buscar refresh token
 		const tokenRecord = await this.prisma.refreshToken.findUnique({
 			where: { token: refreshToken },
@@ -191,9 +180,7 @@ export class AuthService {
 
 		// 6. Generar y almacenar NUEVO refresh token
 		const newRefreshToken = randomUUID();
-		const refreshTokenExpiresIn = parseExpiration(
-			this.configService.refreshTokenExpiration,
-		);
+		const refreshTokenExpiresIn = parseExpiration(this.configService.refreshTokenExpiration);
 		const expiresAt = new Date(Date.now() + refreshTokenExpiresIn);
 
 		await this.prisma.refreshToken.create({

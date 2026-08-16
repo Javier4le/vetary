@@ -1,5 +1,5 @@
-import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-validator";
 
 // 📐 PATRÓN DTO: Data Transfer Object — define el contrato de entrada de la API para crear un servicio
 // ⚡ PRINCIPIO: Válida en el borde — nunca confiar en que el cliente manda datos bien formados

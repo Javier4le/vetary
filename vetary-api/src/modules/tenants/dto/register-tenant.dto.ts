@@ -1,10 +1,4 @@
-import {
-	IsEmail,
-	IsString,
-	Matches,
-	MaxLength,
-	MinLength,
-} from "class-validator";
+import { IsEmail, IsString, Matches, MaxLength, MinLength } from "class-validator";
 
 // 📐 PATRÓN DTO: Data Transfer Object — define el contrato de entrada de la API
 // class-validator valida automáticamente gracias al ValidationPipe global en main.ts
@@ -25,8 +19,7 @@ export class RegisterTenantDto {
 		message: "Subdomain cannot exceed 63 characters (DNS limit)",
 	})
 	@Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
-		message:
-			"Subdomain can only contain lowercase letters, numbers, and hyphens (e.g. mi-clinica)",
+		message: "Subdomain can only contain lowercase letters, numbers, and hyphens (e.g. mi-clinica)",
 	})
 	subdomain!: string;
 

@@ -1,11 +1,7 @@
-import {
-	BadRequestException,
-	ForbiddenException,
-	NotFoundException,
-} from "@nestjs/common";
+import { BadRequestException, ForbiddenException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
-import { TenantMiddleware } from "./tenant.middleware";
 import { PrismaService } from "../../database/prisma.service";
+import { TenantMiddleware } from "./tenant.middleware";
 
 // 🧪 TEST: TenantMiddleware — verifica que el contexto de tenant se resuelve correctamente
 // antes de que la request llegue a cualquier guard o controller
@@ -34,10 +30,7 @@ describe("TenantMiddleware", () => {
 		};
 
 		const module: TestingModule = await Test.createTestingModule({
-			providers: [
-				TenantMiddleware,
-				{ provide: PrismaService, useValue: prismaService },
-			],
+			providers: [TenantMiddleware, { provide: PrismaService, useValue: prismaService }],
 		}).compile();
 
 		middleware = module.get<TenantMiddleware>(TenantMiddleware);
@@ -68,9 +61,7 @@ describe("TenantMiddleware", () => {
 		const res: any = {};
 		const next = jest.fn();
 
-		await expect(middleware.use(req, res, next)).rejects.toThrow(
-			NotFoundException,
-		);
+		await expect(middleware.use(req, res, next)).rejects.toThrow(NotFoundException);
 	});
 
 	// 🧪 TEST: Tenant suspendido → 403
@@ -81,9 +72,7 @@ describe("TenantMiddleware", () => {
 		const res: any = {};
 		const next = jest.fn();
 
-		await expect(middleware.use(req, res, next)).rejects.toThrow(
-			ForbiddenException,
-		);
+		await expect(middleware.use(req, res, next)).rejects.toThrow(ForbiddenException);
 	});
 
 	// 🧪 TEST: Sin subdomain (localhost sin variable de entorno) → 400
@@ -94,9 +83,7 @@ describe("TenantMiddleware", () => {
 		const res: any = {};
 		const next = jest.fn();
 
-		await expect(middleware.use(req, res, next)).rejects.toThrow(
-			BadRequestException,
-		);
+		await expect(middleware.use(req, res, next)).rejects.toThrow(BadRequestException);
 	});
 
 	// 🧪 TEST: Localhost con DEFAULT_TENANT_SUBDOMAIN en dev → usa el fallback

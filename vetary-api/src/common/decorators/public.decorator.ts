@@ -1,10 +1,10 @@
-import { SetMetadata } from '@nestjs/common';
+import { SetMetadata } from "@nestjs/common";
 
 // 🏗️ ARQUITECTURA: @Public() decorator marca rutas públicas (sin autenticación)
 // 📐 PATRÓN: Decorator Pattern — añade metadata sin modificar el método
 // Guards leen esta metadata para decidir si validar JWT o no
 
-export const IS_PUBLIC_KEY = 'isPublic';
+export const IS_PUBLIC_KEY = "isPublic";
 
 /**
  * @Public() decorator

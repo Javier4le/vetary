@@ -1,10 +1,10 @@
+import { ConfigService } from "@/config/config.service";
+import { PrismaService } from "@/database/prisma.service";
 import { ForbiddenException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test, type TestingModule } from "@nestjs/testing";
-import { ConfigService } from "@/config/config.service";
-import { PrismaService } from "@/database/prisma.service";
-import { AuthService } from "./auth.service";
 import type { Role } from "@prisma/client";
+import { AuthService } from "./auth.service";
 
 // 🧪 TEST: AuthService — autenticación, tokens y seguridad
 // Strict TDD: estos tests SE ESCRIBEN ANTES de la implementación
@@ -163,11 +163,7 @@ describe("AuthService", () => {
 				token: "mock-refresh-token",
 			});
 
-			const result = await service.login(
-				"vet@clinica.com",
-				"SecurePass123!",
-				"tenant-a",
-			);
+			const result = await service.login("vet@clinica.com", "SecurePass123!", "tenant-a");
 
 			expect(result).toHaveProperty("accessToken", "mock-access-token");
 			expect(prismaService.user.findUnique).toHaveBeenCalledWith({
@@ -208,17 +204,17 @@ describe("AuthService", () => {
 				passwordHash: realHash,
 			});
 
-			await expect(
-				service.login("vet@clinica.com", "WrongPass123!", "tenant-a"),
-			).rejects.toThrow(UnauthorizedException);
+			await expect(service.login("vet@clinica.com", "WrongPass123!", "tenant-a")).rejects.toThrow(
+				UnauthorizedException,
+			);
 		});
 
 		it("should throw UnauthorizedException when user not found", async () => {
 			prismaService.user.findUnique.mockResolvedValue(null);
 
-			await expect(
-				service.login("nonexistent@clinica.com", "anypass", "tenant-a"),
-			).rejects.toThrow(UnauthorizedException);
+			await expect(service.login("nonexistent@clinica.com", "anypass", "tenant-a")).rejects.toThrow(
+				UnauthorizedException,
+			);
 		});
 
 		it("should throw ForbiddenException when user has no UserTenant for tenantId", async () => {
@@ -230,9 +226,9 @@ describe("AuthService", () => {
 			// User exists but has NO membership in this tenant
 			prismaService.userTenant.findFirst.mockResolvedValue(null);
 
-			await expect(
-				service.login("vet@clinica.com", "SecurePass123!", "tenant-b"),
-			).rejects.toThrow(ForbiddenException);
+			await expect(service.login("vet@clinica.com", "SecurePass123!", "tenant-b")).rejects.toThrow(
+				ForbiddenException,
+			);
 		});
 	});
 
@@ -253,9 +249,7 @@ describe("AuthService", () => {
 			prismaService.userTenant.findFirst.mockResolvedValue(mockUserTenant);
 			prismaService.user.findUnique.mockResolvedValue(mockUser);
 
-			const result = await service.refresh(
-				"550e8400-e29b-41d4-a716-446655440000",
-			);
+			const result = await service.refresh("550e8400-e29b-41d4-a716-446655440000");
 
 			// Revocar el token anterior
 			expect(prismaService.refreshToken.update).toHaveBeenCalledWith({
@@ -281,9 +275,9 @@ describe("AuthService", () => {
 
 			prismaService.refreshToken.findUnique.mockResolvedValue(mockToken);
 
-			await expect(
-				service.refresh("550e8400-e29b-41d4-a716-446655440000"),
-			).rejects.toThrow(UnauthorizedException);
+			await expect(service.refresh("550e8400-e29b-41d4-a716-446655440000")).rejects.toThrow(
+				UnauthorizedException,
+			);
 		});
 
 		it("should throw UnauthorizedException for expired token", async () => {
@@ -295,17 +289,15 @@ describe("AuthService", () => {
 
 			prismaService.refreshToken.findUnique.mockResolvedValue(mockToken);
 
-			await expect(
-				service.refresh("550e8400-e29b-41d4-a716-446655440000"),
-			).rejects.toThrow(UnauthorizedException);
+			await expect(service.refresh("550e8400-e29b-41d4-a716-446655440000")).rejects.toThrow(
+				UnauthorizedException,
+			);
 		});
 
 		it("should throw UnauthorizedException for non-existent token", async () => {
 			prismaService.refreshToken.findUnique.mockResolvedValue(null);
 
-			await expect(service.refresh("non-existent-token")).rejects.toThrow(
-				UnauthorizedException,
-			);
+			await expect(service.refresh("non-existent-token")).rejects.toThrow(UnauthorizedException);
 		});
 	});
 
@@ -333,9 +325,7 @@ describe("AuthService", () => {
 		it("should throw UnauthorizedException for non-existent token", async () => {
 			prismaService.refreshToken.findUnique.mockResolvedValue(null);
 
-			await expect(service.logout("non-existent-token")).rejects.toThrow(
-				UnauthorizedException,
-			);
+			await expect(service.logout("non-existent-token")).rejects.toThrow(UnauthorizedException);
 		});
 	});
 });

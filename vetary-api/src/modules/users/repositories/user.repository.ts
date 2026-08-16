@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
 // biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { PrismaService } from "@/database/prisma.service";
+import { Injectable } from "@nestjs/common";
 import type { Role, User } from "@prisma/client";
 
 // 📐 PATRÓN Repository: encapsula todo el acceso a datos relacionados con User

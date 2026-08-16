@@ -1,6 +1,6 @@
+import { PrismaService } from "@/database/prisma.service";
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
-import { PrismaService } from "@/database/prisma.service";
 import type { RegisterTenantDto } from "../dto/register-tenant.dto";
 import { TenantRepository } from "../repositories/tenant.repository";
 import { TenantService } from "./tenant.service";
@@ -39,48 +39,40 @@ describe("TenantService", () => {
 		// Prisma $transaction ejecuta el callback con un cliente transaccional
 		// En tests, lo simulamos ejecutando el callback directamente con un mock
 		prismaService = {
-			$transaction: jest
-				.fn()
-				.mockImplementation(async (callback: (tx: any) => Promise<any>) => {
-					const txMock = {
-						tenant: {
-							create: jest
-								.fn()
-								.mockResolvedValue({
-									id: "tenant-1",
-									subdomain: "laspalmeras",
-									name: "Clínica Las Palmeras",
-									status: "ACTIVE",
-									createdAt: new Date(),
-									updatedAt: new Date(),
-								}),
-						},
-						user: {
-							create: jest
-								.fn()
-								.mockResolvedValue({
-									id: "user-1",
-									email: "admin@laspalmeras.com",
-									firstName: "Juan",
-									lastName: "Pérez",
-									passwordHash: "hashed",
-									createdAt: new Date(),
-									updatedAt: new Date(),
-								}),
-						},
-						userTenant: {
-							create: jest
-								.fn()
-								.mockResolvedValue({
-									id: "ut-1",
-									userId: "user-1",
-									tenantId: "tenant-1",
-									role: "ADMIN",
-								}),
-						},
-					};
-					return callback(txMock);
-				}),
+			$transaction: jest.fn().mockImplementation(async (callback: (tx: any) => Promise<any>) => {
+				const txMock = {
+					tenant: {
+						create: jest.fn().mockResolvedValue({
+							id: "tenant-1",
+							subdomain: "laspalmeras",
+							name: "Clínica Las Palmeras",
+							status: "ACTIVE",
+							createdAt: new Date(),
+							updatedAt: new Date(),
+						}),
+					},
+					user: {
+						create: jest.fn().mockResolvedValue({
+							id: "user-1",
+							email: "admin@laspalmeras.com",
+							firstName: "Juan",
+							lastName: "Pérez",
+							passwordHash: "hashed",
+							createdAt: new Date(),
+							updatedAt: new Date(),
+						}),
+					},
+					userTenant: {
+						create: jest.fn().mockResolvedValue({
+							id: "ut-1",
+							userId: "user-1",
+							tenantId: "tenant-1",
+							role: "ADMIN",
+						}),
+					},
+				};
+				return callback(txMock);
+			}),
 		};
 
 		const module: TestingModule = await Test.createTestingModule({
@@ -113,9 +105,7 @@ describe("TenantService", () => {
 		it("should throw ConflictException when subdomain already exists", async () => {
 			tenantRepository.existsBySubdomain.mockResolvedValue(true);
 
-			await expect(service.register(validDto)).rejects.toThrow(
-				ConflictException,
-			);
+			await expect(service.register(validDto)).rejects.toThrow(ConflictException);
 		});
 
 		it.each([
@@ -166,22 +156,16 @@ describe("TenantService", () => {
 
 		it("should rollback entire transaction when user creation fails", async () => {
 			// Simulamos que la creación del user falla dentro de la transacción
-			prismaService.$transaction.mockImplementation(
-				async (callback: (tx: any) => Promise<any>) => {
-					const txMock = {
-						tenant: { create: jest.fn().mockResolvedValue({ id: "tenant-1" }) },
-						user: {
-							create: jest
-								.fn()
-								.mockRejectedValue(
-									new Error("Unique constraint violation on email"),
-								),
-						},
-						userTenant: { create: jest.fn() },
-					};
-					return callback(txMock); // Prisma hace rollback automático si el callback lanza
-				},
-			);
+			prismaService.$transaction.mockImplementation(async (callback: (tx: any) => Promise<any>) => {
+				const txMock = {
+					tenant: { create: jest.fn().mockResolvedValue({ id: "tenant-1" }) },
+					user: {
+						create: jest.fn().mockRejectedValue(new Error("Unique constraint violation on email")),
+					},
+					userTenant: { create: jest.fn() },
+				};
+				return callback(txMock); // Prisma hace rollback automático si el callback lanza
+			});
 
 			await expect(service.register(validDto)).rejects.toThrow();
 			// El $transaction se llamó (intento), pero el callback falló → rollback automático

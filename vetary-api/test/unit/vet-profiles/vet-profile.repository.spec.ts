@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import type { VetProfile } from "@prisma/client";
 import { PrismaService } from "../../../src/database/prisma.service";
 import { VetProfileRepository } from "../../../src/modules/vet-profiles/repositories/vet-profile.repository";
-import type { VetProfile } from "@prisma/client";
 
 // 🧪 TEST: VetProfileRepository — aislamiento por tenant para perfiles de veterinarios
 // Strict TDD: tests escritos antes/durante la implementación
@@ -21,10 +21,7 @@ describe("VetProfileRepository", () => {
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
-			providers: [
-				VetProfileRepository,
-				{ provide: PrismaService, useValue: mockPrismaService },
-			],
+			providers: [VetProfileRepository, { provide: PrismaService, useValue: mockPrismaService }],
 		}).compile();
 
 		repository = module.get<VetProfileRepository>(VetProfileRepository);

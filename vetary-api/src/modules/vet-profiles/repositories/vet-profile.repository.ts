@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { BaseRepository } from "@/database/base.repository";
 // biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { PrismaService } from "@/database/prisma.service";
-import { BaseRepository } from "@/database/base.repository";
+import { Injectable } from "@nestjs/common";
 import type { VetProfile } from "@prisma/client";
 
 // 📐 PATRÓN Repository: encapsula todo el acceso a datos relacionados con VetProfile
@@ -22,17 +22,11 @@ export class VetProfileRepository extends BaseRepository<VetProfile> {
 		return this.findByTenant(tenantId);
 	}
 
-	async findByIdAndTenant(
-		tenantId: string,
-		id: string,
-	): Promise<VetProfile | null> {
+	async findByIdAndTenant(tenantId: string, id: string): Promise<VetProfile | null> {
 		return this.findOneByTenant(tenantId, { id });
 	}
 
-	async findByUserIdAndTenant(
-		tenantId: string,
-		userId: string,
-	): Promise<VetProfile | null> {
+	async findByUserIdAndTenant(tenantId: string, userId: string): Promise<VetProfile | null> {
 		return this.findOneByTenant(tenantId, { userId });
 	}
 

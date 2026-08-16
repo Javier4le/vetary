@@ -1,3 +1,5 @@
+import { CurrentTenant } from "@/common/decorators/current-tenant.decorator";
+import { Roles } from "@/common/decorators/roles.decorator";
 import {
 	Body,
 	Controller,
@@ -10,11 +12,9 @@ import {
 	Post,
 	UseGuards,
 } from "@nestjs/common";
-import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Role } from "@prisma/client";
-import { CurrentTenant } from "@/common/decorators/current-tenant.decorator";
-import { Roles } from "@/common/decorators/roles.decorator";
 import { CreateServiceDto } from "../dto/create-service.dto";
 import { UpdateServiceDto } from "../dto/update-service.dto";
 import { ServicesService } from "../services/service.service";
@@ -45,10 +45,7 @@ export class ServiceController {
 	@ApiResponse({ status: 201, description: "Service created successfully" })
 	@ApiResponse({ status: 400, description: "Validation error" })
 	@ApiResponse({ status: 403, description: "Only ADMIN can create services" })
-	async create(
-		@CurrentTenant() tenant: any,
-		@Body() dto: CreateServiceDto,
-	) {
+	async create(@CurrentTenant() tenant: any, @Body() dto: CreateServiceDto) {
 		return this.servicesService.create(tenant.id, dto);
 	}
 
@@ -58,10 +55,7 @@ export class ServiceController {
 	@ApiResponse({ status: 200, description: "Service found" })
 	@ApiResponse({ status: 404, description: "Service not found" })
 	@ApiResponse({ status: 401, description: "Unauthorized" })
-	async findOne(
-		@CurrentTenant() tenant: any,
-		@Param("id") id: string,
-	) {
+	async findOne(@CurrentTenant() tenant: any, @Param("id") id: string) {
 		return this.servicesService.findOne(tenant.id, id);
 	}
 
@@ -88,10 +82,7 @@ export class ServiceController {
 	@ApiResponse({ status: 200, description: "Service disabled successfully" })
 	@ApiResponse({ status: 404, description: "Service not found" })
 	@ApiResponse({ status: 403, description: "Only ADMIN can disable services" })
-	async disable(
-		@CurrentTenant() tenant: any,
-		@Param("id") id: string,
-	) {
+	async disable(@CurrentTenant() tenant: any, @Param("id") id: string) {
 		return this.servicesService.disable(tenant.id, id);
 	}
 }

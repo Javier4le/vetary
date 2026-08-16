@@ -1,12 +1,12 @@
-import { ConflictException, Injectable } from "@nestjs/common";
-import * as bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
 // biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { PrismaService } from "@/database/prisma.service";
-// biome-ignore lint/style/useImportType: NestJS DI requires value import
-import { UserRepository } from "../repositories/user.repository";
+import { ConflictException, Injectable } from "@nestjs/common";
+import * as bcrypt from "bcrypt";
 import type { CreateUserDto } from "../dto/create-user.dto";
 import type { CreateVetDto } from "../dto/create-vet.dto";
+// biome-ignore lint/style/useImportType: NestJS DI requires value import
+import { UserRepository } from "../repositories/user.repository";
 
 // 📐 PATRÓN: Service — orquesta la lógica de negocio sin conocer HTTP
 // ⚡ PRINCIPIO: Single Responsibility — solo gestión de usuarios, nada más

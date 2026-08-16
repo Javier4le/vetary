@@ -1,8 +1,8 @@
-import { Test, TestingModule } from "@nestjs/testing";
 import { NotFoundException } from "@nestjs/common";
+import { Test, TestingModule } from "@nestjs/testing";
+import type { CreateServiceDto } from "../../../src/modules/services/dto/create-service.dto";
 import { ServiceRepository } from "../../../src/modules/services/repositories/service.repository";
 import { ServicesService } from "../../../src/modules/services/services/service.service";
-import type { CreateServiceDto } from "../../../src/modules/services/dto/create-service.dto";
 
 describe("ServicesService (Integration)", () => {
 	let service: ServicesService;
@@ -18,10 +18,7 @@ describe("ServicesService (Integration)", () => {
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
-			providers: [
-				ServicesService,
-				{ provide: ServiceRepository, useValue: mockRepository },
-			],
+			providers: [ServicesService, { provide: ServiceRepository, useValue: mockRepository }],
 		}).compile();
 
 		service = module.get<ServicesService>(ServicesService);
