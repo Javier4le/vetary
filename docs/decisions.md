@@ -85,6 +85,32 @@ El JWT es **tenant-scoped**. El claim `tenantId` del token debe coincidir con el
 
 ---
 
+## ADR-003 — Functional work units and evidence-based estimates
+**Fecha:** 2026-08-16
+**Estado:** aceptada
+**Fase:** Fase 2 (cierre)
+
+### Contexto
+Los presupuestos de PR-1 (~260 estimadas / 630 reales), PR-2 (~160 / 974) y PR-3 (~220 / 1.210) subestimaron sistemáticamente el trabajo porque contaban principalmente producción y no incluían tests, fixtures ni artefactos OpenSpec. La excepción repetida dejó de proteger el foco de revisión.
+
+### Decisión
+- Las fases grandes se dividen en unidades funcionales de hasta 400 líneas reales.
+- Cada estimación incluye producción, tests, fixtures, configuración y documentación OpenSpec.
+- Los barridos de formato o calidad son cambios independientes sobre `develop` y no consumen el presupuesto de una unidad funcional.
+- Para disponibilidad, la unidad debe separar repository + unitarios, service + reglas de solapamiento, y controller + E2E.
+- Fase 3 (reservas) debe planificarse con esta descomposición antes de implementar.
+
+### Alternativas consideradas
+- Mantener un presupuesto único por PR: descartado por las tres desviaciones consecutivas.
+- Anular el presupuesto al final: descartado; elimina la función de control del ledger.
+
+### Consecuencias
+- Más commits y slices pequeños, con revisiones más enfocadas.
+- Las estimaciones serán mayores, pero estarán basadas en el cambio completo que realmente se revisa.
+- La normalización de calidad tendrá historial y presupuesto propios.
+
+---
+
 <!-- Plantilla para copiar:
 
 ## ADR-001 — [Título]

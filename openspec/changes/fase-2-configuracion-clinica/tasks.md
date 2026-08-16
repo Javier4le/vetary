@@ -17,6 +17,11 @@ PR-3 (T-010 to T-014) has a functional estimate of approximately 220 changed lin
 This budget excludes repository-wide formatting/normalization commits and does not inherit
 the PR-2 candidate's 4,999-line quality baseline.
 
+Retrospective: PR-1 measured ~630 lines, PR-2 measured 974 lines, and PR-3 measured
+1,210 lines. Future functional estimates MUST include production code, tests, fixtures,
+configuration, and OpenSpec artifacts; quality sweeps remain separate changes.
+Fase 3 MUST split large work into functional units of at most 400 measured lines.
+
 Decision needed before apply: Yes — maintainer decision required before runtime settle
 Chained PRs recommended: Yes
 Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to develop after PR-3
