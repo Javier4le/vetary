@@ -24,10 +24,9 @@ export abstract class BaseRepository<T> {
 
 	constructor(
 		protected readonly prisma: PrismaService,
-		delegate: unknown,
+		delegate: TenantDelegate<T>,
 	) {
-		// Prisma's generated delegate is narrowed once at this infrastructure boundary.
-		this.delegate = delegate as TenantDelegate<T>;
+		this.delegate = delegate;
 	}
 
 	/**
