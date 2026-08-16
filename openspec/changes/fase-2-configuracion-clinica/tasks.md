@@ -79,8 +79,8 @@ Chain strategy: feature-branch-chain — accumulate in feature/fase-2, merge to 
   - Tests required: Yes (unit) — 8 tests passing
   - Status: ✅ Completed (c918510; schema correction 64324b1)
 
-- [x] T-007: Modify UserService to inject VetProfileRepository and implement createVet atomic transaction
-  - Acceptance: Atomically create User, UserTenant, and VetProfile; rollback on failure
+- [x] T-007: Implement createVet atomic transaction with the Prisma transaction client
+  - Acceptance: Atomically create User, UserTenant, and VetProfile; rollback on failure. Atomic writes use the Prisma transaction client; VetProfileRepository remains available for tenant-scoped read paths.
   - Est. lines: 50 | Actual: ~95 lines
   - Dependencies: T-006
   - Files: `vetary-api/src/modules/users/services/user.service.ts`, `vetary-api/src/modules/users/dto/create-vet.dto.ts`
