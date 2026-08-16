@@ -1,5 +1,4 @@
 import { BaseRepository } from "@/database/base.repository";
-// biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { PrismaService } from "@/database/prisma.service";
 import { Injectable } from "@nestjs/common";
 import type { VetProfile } from "@prisma/client";
@@ -11,11 +10,7 @@ import type { VetProfile } from "@prisma/client";
 @Injectable()
 export class VetProfileRepository extends BaseRepository<VetProfile> {
 	constructor(protected readonly prisma: PrismaService) {
-		super(prisma);
-	}
-
-	protected getDelegate() {
-		return this.prisma.vetProfile;
+		super(prisma, prisma.vetProfile);
 	}
 
 	async findAllByTenant(tenantId: string): Promise<VetProfile[]> {

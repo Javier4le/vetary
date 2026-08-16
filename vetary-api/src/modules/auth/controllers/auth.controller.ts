@@ -5,6 +5,7 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from "@n
 import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
+import type { AuthenticatedUser, TenantContext } from "../../../common/types/request-context";
 import { LoginDto } from "../dto/login.dto";
 import { RefreshTokenDto } from "../dto/refresh-token.dto";
 import { AuthService } from "../services/auth.service";
@@ -120,13 +121,8 @@ export class AuthController {
 	@ApiResponse({ status: 401, description: "Unauthorized" })
 	async me(
 		@CurrentUser()
-		user: {
-			userId: string;
-			tenantId: string;
-			role: string;
-			email: string;
-		},
-		@CurrentTenant() tenant: unknown,
+		user: AuthenticatedUser,
+		@CurrentTenant() tenant: TenantContext | null,
 	) {
 		return {
 			userId: user.userId,

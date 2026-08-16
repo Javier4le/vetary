@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import type { Role } from "@prisma/client";
+import type { Request } from "express";
 import { ROLES_KEY } from "../decorators/roles.decorator";
 
 // 🏗️ ARQUITECTURA: RolesGuard — CUARTO en la cadena (último antes del Controller)
@@ -28,7 +29,7 @@ export class RolesGuard implements CanActivate {
 			return true;
 		}
 
-		const request = context.switchToHttp().getRequest();
+		const request = context.switchToHttp().getRequest<Request>();
 		const user = request.user; // Set by AuthGuard
 
 		// 🔒 SEGURIDAD: AuthGuard debería haber rechazado antes, pero fail-closed aquí también

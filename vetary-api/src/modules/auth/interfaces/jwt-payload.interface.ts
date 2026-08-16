@@ -10,10 +10,11 @@ export interface JwtPayload {
 	tenantId: string;
 
 	// role — permisos del usuario EN ESTE TENANT
-	role: string;
+	role: Role;
 
 	// email — identidad global del usuario (no cambia entre tenants)
 	email: string;
 
 	// iat = issued at, exp = expiry — gestionados automáticamente por jwt.sign()
 }
+import type { Role } from "@prisma/client";

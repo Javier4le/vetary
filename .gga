@@ -7,7 +7,7 @@ PROVIDER="opencode"
 
 # File patterns to include in review (comma-separated)
 # Solo archivos fuente del proyecto, excluyendo config y docs
-FILE_PATTERNS="src/**/*.ts,src/**/*.tsx"
+FILE_PATTERNS="src/**/*.ts,src/**/*.tsx,biome.json,package.json,tsconfig.json,prisma/schema.prisma"
 
 # File patterns to exclude from review (comma-separated)
 # Tests ya tienen su propio ciclo de validacion (jest)

@@ -20,10 +20,10 @@
 				"noConstAssign": "error"
 			},
 			"suspicious": {
-				"noConsole": "warn",
+				"noConsole": "error",
 				"noDebugger": "error",
 				"noDoubleEquals": "error",
-				"noExplicitAny": "warn",
+				"noExplicitAny": "error",
 				"noEmptyBlockStatements": "warn",
 				"noGlobalIsNan": "error"
 			},

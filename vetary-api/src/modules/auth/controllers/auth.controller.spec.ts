@@ -1,5 +1,5 @@
 import { Test, type TestingModule } from "@nestjs/testing";
-// biome-ignore lint/style/useImportType: NestJS DI requires value import
+import { Role } from "@prisma/client";
 import { AuthService } from "../services/auth.service";
 import { AuthController } from "./auth.controller";
 
@@ -103,17 +103,22 @@ describe("AuthController", () => {
 			const mockUser = {
 				userId: "user-1",
 				tenantId: "tenant-a",
-				role: "VET",
+				role: Role.VET,
 				email: "vet@clinica.com",
 			};
-			const mockTenant = { id: "tenant-a", name: "Clínica A" };
+			const mockTenant = {
+				id: "tenant-a",
+				name: "Clínica A",
+				subdomain: "clinica-a",
+				status: "ACTIVE",
+			};
 
 			const result = await controller.me(mockUser, mockTenant);
 
 			expect(result).toEqual({
 				userId: "user-1",
 				email: "vet@clinica.com",
-				role: "VET",
+				role: Role.VET,
 				tenantId: "tenant-a",
 				tenant: mockTenant,
 			});
@@ -123,7 +128,7 @@ describe("AuthController", () => {
 			const mockUser = {
 				userId: "user-1",
 				tenantId: "tenant-a",
-				role: "VET",
+				role: Role.VET,
 				email: "vet@clinica.com",
 			};
 

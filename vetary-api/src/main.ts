@@ -1,4 +1,4 @@
-import { ValidationPipe } from "@nestjs/common";
+import { Logger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import helmet from "helmet";
@@ -18,6 +18,7 @@ import { ConfigService } from "./config/config.service";
 //   6. Swagger (documentación de contrato)
 
 async function bootstrap(): Promise<void> {
+	const logger = new Logger("Bootstrap");
 	const app = await NestFactory.create(AppModule);
 
 	// ─── 1. Security Headers (Helmet) ───
@@ -67,8 +68,8 @@ async function bootstrap(): Promise<void> {
 	const port = configService.port ?? 3000;
 	await app.listen(port);
 
-	console.log(`🚀 Vetary API running on http://localhost:${port}`);
-	console.log(`📘 Swagger docs available at http://localhost:${port}/docs`);
+	logger.log(`Vetary API running on http://localhost:${port}`);
+	logger.log(`Swagger docs available at http://localhost:${port}/docs`);
 }
 
 bootstrap();

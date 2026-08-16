@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import type { Request } from "express";
 import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
 
 // 🏗️ ARQUITECTURA: TenantGuard — TERCERO en la cadena (después de AuthGuard)
@@ -32,7 +33,7 @@ export class TenantGuard implements CanActivate {
 			return true;
 		}
 
-		const request = context.switchToHttp().getRequest();
+		const request = context.switchToHttp().getRequest<Request>();
 		const tenant = request.tenant; // Set by TenantMiddleware
 		const user = request.user; // Set by AuthGuard
 

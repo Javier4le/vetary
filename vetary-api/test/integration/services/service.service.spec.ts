@@ -1,5 +1,6 @@
 import { NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
+import type { Service } from "@prisma/client";
 import type { CreateServiceDto } from "../../../src/modules/services/dto/create-service.dto";
 import { ServiceRepository } from "../../../src/modules/services/repositories/service.repository";
 import { ServicesService } from "../../../src/modules/services/services/service.service";
@@ -45,7 +46,7 @@ describe("ServicesService (Integration)", () => {
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};
-			repository.createService.mockResolvedValue(mockService as any);
+			repository.createService.mockResolvedValue(mockService as unknown as Service);
 			const result = await service.create("tenant-1", dto);
 			expect(result).toEqual(mockService);
 			expect(repository.createService).toHaveBeenCalledWith("tenant-1", {
@@ -81,12 +82,12 @@ describe("ServicesService (Integration)", () => {
 				{
 					id: "1",
 					name: "Consulta General",
-					tenantedId: "tenant-1",
+					tenantId: "tenant-1",
 					priceClp: 25000,
 					isActive: true,
 				},
 			];
-			repository.findAllByTenant.mockResolvedValue(mockServices as any);
+			repository.findAllByTenant.mockResolvedValue(mockServices as unknown as Service[]);
 			const result = await service.findAll("tenant-1");
 			expect(result).toEqual(mockServices);
 			expect(repository.findAllByTenant).toHaveBeenCalledWith("tenant-1");
@@ -98,11 +99,11 @@ describe("ServicesService (Integration)", () => {
 			const mockService = {
 				id: "1",
 				name: "Consulta General",
-				tenantedId: "tenant-1",
+				tenantId: "tenant-1",
 				priceClp: 25000,
 				isActive: true,
 			};
-			repository.findByIdAndTenant.mockResolvedValue(mockService as any);
+			repository.findByIdAndTenant.mockResolvedValue(mockService as unknown as Service);
 			const result = await service.findOne("tenant-1", "1");
 			expect(result).toEqual(mockService);
 		});
@@ -118,11 +119,11 @@ describe("ServicesService (Integration)", () => {
 			const mockService = {
 				id: "1",
 				name: "Consulta General",
-				tenantedId: "tenant-1",
+				tenantId: "tenant-1",
 				priceClp: 25000,
 				isActive: false,
 			};
-			repository.softDisable.mockResolvedValue(mockService as any);
+			repository.softDisable.mockResolvedValue(mockService as unknown as Service);
 			const result = await service.disable("tenant-1", "1");
 			expect(result).toEqual(mockService);
 			expect(repository.softDisable).toHaveBeenCalledWith("tenant-1", "1");

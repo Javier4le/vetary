@@ -1,5 +1,6 @@
 import { BadRequestException, ForbiddenException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
+import type { Request, Response } from "express";
 import { PrismaService } from "../../database/prisma.service";
 import { TenantMiddleware } from "./tenant.middleware";
 
@@ -40,8 +41,8 @@ describe("TenantMiddleware", () => {
 	it("should attach tenant to req when subdomain is valid", async () => {
 		prismaService.tenant.findUnique.mockResolvedValue(mockActiveTenant);
 
-		const req: any = { hostname: "laspalmeras.vetary.app" };
-		const res: any = {};
+		const req = { hostname: "laspalmeras.vetary.app" } as unknown as Request;
+		const res = {} as Response;
 		const next = jest.fn();
 
 		await middleware.use(req, res, next);
@@ -57,8 +58,8 @@ describe("TenantMiddleware", () => {
 	it("should throw NotFoundException when subdomain does not exist", async () => {
 		prismaService.tenant.findUnique.mockResolvedValue(null);
 
-		const req: any = { hostname: "clinicadesconocida.vetary.app" };
-		const res: any = {};
+		const req = { hostname: "clinicadesconocida.vetary.app" } as unknown as Request;
+		const res = {} as Response;
 		const next = jest.fn();
 
 		await expect(middleware.use(req, res, next)).rejects.toThrow(NotFoundException);
@@ -68,8 +69,8 @@ describe("TenantMiddleware", () => {
 	it("should throw ForbiddenException when tenant is suspended", async () => {
 		prismaService.tenant.findUnique.mockResolvedValue(mockSuspendedTenant);
 
-		const req: any = { hostname: "laspalmeras.vetary.app" };
-		const res: any = {};
+		const req = { hostname: "laspalmeras.vetary.app" } as unknown as Request;
+		const res = {} as Response;
 		const next = jest.fn();
 
 		await expect(middleware.use(req, res, next)).rejects.toThrow(ForbiddenException);
@@ -77,10 +78,10 @@ describe("TenantMiddleware", () => {
 
 	// 🧪 TEST: Sin subdomain (localhost sin variable de entorno) → 400
 	it("should throw BadRequestException when no subdomain and no DEFAULT_TENANT_SUBDOMAIN", async () => {
-		delete process.env.DEFAULT_TENANT_SUBDOMAIN;
+		Reflect.deleteProperty(process.env, "DEFAULT_TENANT_SUBDOMAIN");
 
-		const req: any = { hostname: "localhost" };
-		const res: any = {};
+		const req = { hostname: "localhost" } as unknown as Request;
+		const res = {} as Response;
 		const next = jest.fn();
 
 		await expect(middleware.use(req, res, next)).rejects.toThrow(BadRequestException);
@@ -91,8 +92,8 @@ describe("TenantMiddleware", () => {
 		process.env.DEFAULT_TENANT_SUBDOMAIN = "dev-clinic";
 		prismaService.tenant.findUnique.mockResolvedValue(mockActiveTenant);
 
-		const req: any = { hostname: "localhost" };
-		const res: any = {};
+		const req = { hostname: "localhost" } as unknown as Request;
+		const res = {} as Response;
 		const next = jest.fn();
 
 		await middleware.use(req, res, next);
@@ -102,6 +103,6 @@ describe("TenantMiddleware", () => {
 		});
 		expect(next).toHaveBeenCalledWith();
 
-		delete process.env.DEFAULT_TENANT_SUBDOMAIN;
+		Reflect.deleteProperty(process.env, "DEFAULT_TENANT_SUBDOMAIN");
 	});
 });

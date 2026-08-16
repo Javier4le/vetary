@@ -6,7 +6,7 @@
 // A diferencia de tests unitarios que mockean servicios, aquí testeamos la integración
 // completa del request lifecycle.
 
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
 import type { RefreshToken, Role, Tenant, TenantStatus, User, UserTenant } from "@prisma/client";
@@ -23,6 +23,13 @@ interface InMemoryDb {
 	users: User[];
 	userTenants: UserTenant[];
 	refreshTokens: RefreshToken[];
+}
+
+function required<T>(value: T | undefined, field: string): T {
+	if (value === undefined) {
+		throw new Error(`Missing required test fixture field: ${field}`);
+	}
+	return value;
 }
 
 function createEmptyDb(): InMemoryDb {
@@ -54,7 +61,7 @@ const mockPrismaClient = {
 			const tenant: Tenant = {
 				id: data.id || randomUUID(),
 				name: data.name || "Test Clinic",
-				subdomain: data.subdomain!,
+				subdomain: required(data.subdomain, "subdomain"),
 				status: (data.status || "ACTIVE") as TenantStatus,
 				timezone: data.timezone || "America/Santiago",
 				createdAt: new Date(),
@@ -80,10 +87,10 @@ const mockPrismaClient = {
 		create: async ({ data }: { data: Partial<User> }) => {
 			const user: User = {
 				id: data.id || randomUUID(),
-				email: data.email!,
-				passwordHash: data.passwordHash!,
-				firstName: data.firstName!,
-				lastName: data.lastName!,
+				email: required(data.email, "email"),
+				passwordHash: required(data.passwordHash, "passwordHash"),
+				firstName: required(data.firstName, "firstName"),
+				lastName: required(data.lastName, "lastName"),
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};
@@ -101,8 +108,8 @@ const mockPrismaClient = {
 		create: async ({ data }: { data: Partial<UserTenant> }) => {
 			const ut: UserTenant = {
 				id: data.id || randomUUID(),
-				userId: data.userId!,
-				tenantId: data.tenantId!,
+				userId: required(data.userId, "userId"),
+				tenantId: required(data.tenantId, "tenantId"),
 				role: (data.role || "STAFF") as Role,
 				createdAt: new Date(),
 				updatedAt: new Date(),
@@ -125,7 +132,10 @@ const mockPrismaClient = {
 					.filter((ut) => ut.tenantId === where.tenantId)
 					.map((ut) => ({
 						...ut,
-						user: db.users.find((u) => u.id === ut.userId)!,
+						user: required(
+							db.users.find((u) => u.id === ut.userId),
+							`user:${ut.userId}`,
+						),
 					}));
 			}
 			return [];
@@ -135,10 +145,10 @@ const mockPrismaClient = {
 		create: async ({ data }: { data: Partial<RefreshToken> }) => {
 			const token: RefreshToken = {
 				id: data.id || randomUUID(),
-				token: data.token!,
-				userId: data.userId!,
-				tenantId: data.tenantId!,
-				expiresAt: data.expiresAt!,
+				token: required(data.token, "token"),
+				userId: required(data.userId, "userId"),
+				tenantId: required(data.tenantId, "tenantId"),
+				expiresAt: required(data.expiresAt, "expiresAt"),
 				revokedAt: data.revokedAt ?? null,
 				createdAt: new Date(),
 			};
@@ -188,8 +198,12 @@ export async function createTestingApp(): Promise<INestApplication> {
 	})
 		.overrideProvider(PrismaService)
 		.useValue({
-			$connect: async () => {},
-			$disconnect: async () => {},
+			$connect: async () => {
+				// No external database is used by the in-memory E2E fixture.
+			},
+			$disconnect: async () => {
+				// No external database is used by the in-memory E2E fixture.
+			},
 			$transaction: inMemoryTransaction,
 			...mockPrismaClient,
 		})

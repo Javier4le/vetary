@@ -6,6 +6,7 @@ import { UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Role } from "@prisma/client";
+import type { AuthenticatedUser, TenantContext } from "../../../common/types/request-context";
 import { CreateStaffDto } from "../dto/create-staff.dto";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { CreateVetDto } from "../dto/create-vet.dto";
@@ -26,7 +27,7 @@ export class UserController {
 	@ApiResponse({ status: 200, description: "Users in current clinic" })
 	@ApiResponse({ status: 401, description: "Unauthorized" })
 	@ApiResponse({ status: 403, description: "Forbidden" })
-	async findUsersInTenant(@CurrentTenant() tenant: any) {
+	async findUsersInTenant(@CurrentTenant() tenant: TenantContext) {
 		return this.userService.findUsersInTenant(tenant.id);
 	}
 
@@ -38,7 +39,7 @@ export class UserController {
 	@ApiResponse({ status: 201, description: "User created successfully" })
 	@ApiResponse({ status: 409, description: "User already exists in this clinic" })
 	@ApiResponse({ status: 403, description: "Only ADMIN can create users" })
-	async createUser(@CurrentTenant() tenant: any, @Body() dto: CreateUserDto) {
+	async createUser(@CurrentTenant() tenant: TenantContext, @Body() dto: CreateUserDto) {
 		return this.userService.createUser(tenant.id, dto);
 	}
 
@@ -50,7 +51,7 @@ export class UserController {
 	@ApiResponse({ status: 201, description: "Vet created successfully" })
 	@ApiResponse({ status: 409, description: "User already exists in this clinic" })
 	@ApiResponse({ status: 403, description: "Only ADMIN can create vets" })
-	async createVet(@CurrentTenant() tenant: any, @Body() dto: CreateVetDto) {
+	async createVet(@CurrentTenant() tenant: TenantContext, @Body() dto: CreateVetDto) {
 		return this.userService.createVet(tenant.id, dto);
 	}
 
@@ -62,7 +63,7 @@ export class UserController {
 	@ApiResponse({ status: 201, description: "Staff member created successfully" })
 	@ApiResponse({ status: 409, description: "User already exists in this clinic" })
 	@ApiResponse({ status: 403, description: "Only ADMIN can create staff" })
-	async createStaff(@CurrentTenant() tenant: any, @Body() dto: CreateStaffDto) {
+	async createStaff(@CurrentTenant() tenant: TenantContext, @Body() dto: CreateStaffDto) {
 		return this.userService.createUser(tenant.id, { ...dto, role: Role.STAFF });
 	}
 
@@ -71,7 +72,10 @@ export class UserController {
 	@ApiOperation({ summary: "Get current user info" })
 	@ApiResponse({ status: 200, description: "Current user" })
 	@ApiResponse({ status: 401, description: "Unauthorized" })
-	async getCurrentUser(@CurrentUser() user: any, @CurrentTenant() tenant: any) {
+	async getCurrentUser(
+		@CurrentUser() user: AuthenticatedUser,
+		@CurrentTenant() tenant: TenantContext,
+	) {
 		return this.userService.findUsersInTenant(tenant.id).then((users) => {
 			const current = users.find((u) => u.id === user.userId);
 			return current ?? user;

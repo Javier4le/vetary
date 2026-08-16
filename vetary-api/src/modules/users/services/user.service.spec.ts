@@ -37,14 +37,16 @@ describe("UserService", () => {
 		};
 
 		prismaService = {
-			$transaction: jest.fn().mockImplementation(async (callback: (tx: any) => Promise<any>) => {
-				const txMock = {
-					user: { create: jest.fn() },
-					userTenant: { create: jest.fn() },
-					vetProfile: { create: jest.fn() },
-				};
-				return callback(txMock);
-			}),
+			$transaction: jest
+				.fn()
+				.mockImplementation(async (callback: (tx: object) => Promise<unknown>) => {
+					const txMock = {
+						user: { create: jest.fn() },
+						userTenant: { create: jest.fn() },
+						vetProfile: { create: jest.fn() },
+					};
+					return callback(txMock);
+				}),
 		};
 
 		const module: TestingModule = await Test.createTestingModule({
@@ -165,8 +167,8 @@ describe("UserService", () => {
 			// 🔒 SEGURIDAD: Tenant A users should not appear in Tenant B results
 			expect(resultA).toHaveLength(2);
 			expect(resultB).toHaveLength(1);
-			expect(resultA.map((u: any) => u.id)).toEqual(["user-a1", "user-a2"]);
-			expect(resultB.map((u: any) => u.id)).toEqual(["user-b1"]);
+			expect(resultA.map((u) => u.id)).toEqual(["user-a1", "user-a2"]);
+			expect(resultB.map((u) => u.id)).toEqual(["user-b1"]);
 		});
 
 		it("should show same user in two tenants with different roles", async () => {
@@ -247,13 +249,15 @@ describe("UserService", () => {
 
 			userRepository.findByEmail.mockResolvedValue(null); // No existing user
 
-			prismaService.$transaction.mockImplementation(async (callback: (tx: any) => Promise<any>) => {
-				const txMock = {
-					user: { create: jest.fn().mockResolvedValue(mockUser) },
-					userTenant: { create: jest.fn().mockResolvedValue(mockUserTenant) },
-				};
-				return callback(txMock);
-			});
+			prismaService.$transaction.mockImplementation(
+				async (callback: (tx: object) => Promise<unknown>) => {
+					const txMock = {
+						user: { create: jest.fn().mockResolvedValue(mockUser) },
+						userTenant: { create: jest.fn().mockResolvedValue(mockUserTenant) },
+					};
+					return callback(txMock);
+				},
+			);
 
 			const result = await service.createUser(tenantA.id, newUserDto);
 
@@ -375,14 +379,16 @@ describe("UserService", () => {
 
 			userRepository.findByEmail.mockResolvedValue(null);
 
-			prismaService.$transaction.mockImplementation(async (callback: (tx: any) => Promise<any>) => {
-				const txMock = {
-					user: { create: jest.fn().mockResolvedValue(mockUser) },
-					userTenant: { create: jest.fn().mockResolvedValue(mockUserTenant) },
-					vetProfile: { create: jest.fn().mockResolvedValue(mockVetProfile) },
-				};
-				return callback(txMock);
-			});
+			prismaService.$transaction.mockImplementation(
+				async (callback: (tx: object) => Promise<unknown>) => {
+					const txMock = {
+						user: { create: jest.fn().mockResolvedValue(mockUser) },
+						userTenant: { create: jest.fn().mockResolvedValue(mockUserTenant) },
+						vetProfile: { create: jest.fn().mockResolvedValue(mockVetProfile) },
+					};
+					return callback(txMock);
+				},
+			);
 
 			const result = await service.createVet(tenantA.id, createVetDto);
 
@@ -426,13 +432,15 @@ describe("UserService", () => {
 			userRepository.findByEmail.mockResolvedValue(existingUser);
 			userRepository.findUserTenant.mockResolvedValue(null);
 
-			prismaService.$transaction.mockImplementation(async (callback: (tx: any) => Promise<any>) => {
-				const txMock = {
-					userTenant: { create: jest.fn().mockResolvedValue(mockUserTenant) },
-					vetProfile: { create: jest.fn().mockResolvedValue(mockVetProfile) },
-				};
-				return callback(txMock);
-			});
+			prismaService.$transaction.mockImplementation(
+				async (callback: (tx: object) => Promise<unknown>) => {
+					const txMock = {
+						userTenant: { create: jest.fn().mockResolvedValue(mockUserTenant) },
+						vetProfile: { create: jest.fn().mockResolvedValue(mockVetProfile) },
+					};
+					return callback(txMock);
+				},
+			);
 
 			const dto: CreateVetDto = {
 				email: "maria@vet.com",

@@ -6,8 +6,8 @@ import {
 	NotFoundException,
 } from "@nestjs/common";
 import type { NextFunction, Request, Response } from "express";
-// biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { PrismaService } from "../../database/prisma.service";
+import type { AuthenticatedUser, TenantContext } from "../types/request-context";
 
 // 🏗️ ARQUITECTURA: TenantMiddleware — PRIMER punto de entrada de toda request
 // Corre ANTES de cualquier Guard o Controller
@@ -24,12 +24,8 @@ import { PrismaService } from "../../database/prisma.service";
 // Extendemos Request de Express para poder adjuntar req.tenant con tipado
 declare module "express" {
 	interface Request {
-		tenant?: {
-			id: string;
-			name: string;
-			subdomain: string;
-			status: string;
-		};
+		tenant?: TenantContext;
+		user?: AuthenticatedUser;
 	}
 }
 

@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { ConfigService } from "@/config/config.service";
 import { PrismaService } from "@/database/prisma.service";
 import { ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";

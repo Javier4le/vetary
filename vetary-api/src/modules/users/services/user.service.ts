@@ -1,11 +1,10 @@
-import { randomUUID } from "crypto";
-// biome-ignore lint/style/useImportType: NestJS DI requires value import
+import { randomUUID } from "node:crypto";
 import { PrismaService } from "@/database/prisma.service";
 import { ConflictException, Injectable } from "@nestjs/common";
+import type { Prisma } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import type { CreateUserDto } from "../dto/create-user.dto";
 import type { CreateVetDto } from "../dto/create-vet.dto";
-// biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { UserRepository } from "../repositories/user.repository";
 
 // 📐 PATRÓN: Service — orquesta la lógica de negocio sin conocer HTTP
@@ -47,7 +46,7 @@ export class UserService {
 				);
 			}
 
-			const result = await this.prisma.$transaction(async (tx: any) => {
+			const result = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
 				const userTenant = await tx.userTenant.create({
 					data: {
 						userId: existingUser.id,
@@ -87,7 +86,7 @@ export class UserService {
 		const temporaryPassword = randomUUID();
 		const passwordHash = await bcrypt.hash(temporaryPassword, bcryptRounds);
 
-		const result = await this.prisma.$transaction(async (tx: any) => {
+		const result = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
 			const user = await tx.user.create({
 				data: {
 					email: dto.email,
@@ -135,7 +134,16 @@ export class UserService {
 	 * Encuentra todos los usuarios de un tenant específico
 	 * 🔒 SEGURIDAD: Scoping por tenantId vía UserTenant join
 	 */
-	async findUsersInTenant(tenantId: string): Promise<any[]> {
+	async findUsersInTenant(tenantId: string): Promise<
+		Array<{
+			id: string;
+			email: string;
+			firstName: string;
+			lastName: string;
+			role: string;
+			createdAt: Date;
+		}>
+	> {
 		const userTenants = await this.userRepository.findUsersInTenant(tenantId);
 
 		// Transforma los resultados para devolver usuarios con su rol
@@ -199,7 +207,7 @@ export class UserService {
 		const passwordHash = await bcrypt.hash(dto.password, bcryptRounds);
 
 		// Transacción atómica: Si falla UserTenant, User se deshace
-		const result = await this.prisma.$transaction(async (tx: any) => {
+		const result = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
 			const user = await tx.user.create({
 				data: {
 					email: dto.email,

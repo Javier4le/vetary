@@ -1,6 +1,7 @@
 import { ConfigService } from "@/config/config.service";
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
+import type { Role } from "@prisma/client";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import type { JwtPayload } from "../interfaces/jwt-payload.interface";
 
@@ -44,7 +45,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
 	async validate(payload: JwtPayload): Promise<{
 		userId: string;
 		tenantId: string;
-		role: string;
+		role: Role;
 		email: string;
 	}> {
 		// ⚡ PRINCIPIO: Minimal Surface — solo extraemos lo que necesitan los Guards

@@ -1,9 +1,8 @@
-// biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { PrismaService } from "@/database/prisma.service";
 import { BadRequestException, ConflictException, Injectable } from "@nestjs/common";
+import type { Prisma } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import type { RegisterTenantDto } from "../dto/register-tenant.dto";
-// biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { TenantRepository } from "../repositories/tenant.repository";
 
 // 📐 PATRÓN: Service — orquesta la lógica de negocio sin conocer HTTP ni la BD directamente
@@ -81,7 +80,7 @@ export class TenantService {
 			Number(process.env.BCRYPT_ROUNDS) || 10,
 		);
 
-		const result = await this.prisma.$transaction(async (tx: any) => {
+		const result = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
 			// 1. Crear el Tenant
 			const tenant = await tx.tenant.create({
 				data: {

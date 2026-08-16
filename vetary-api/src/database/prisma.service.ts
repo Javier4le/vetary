@@ -1,4 +1,4 @@
-import { Injectable, type OnModuleDestroy, type OnModuleInit } from "@nestjs/common";
+import { Injectable, Logger, type OnModuleDestroy, type OnModuleInit } from "@nestjs/common";
 import { PrismaClient } from "@prisma/client";
 
 // 🏗️ ARQUITECTURA: PrismaService — Single database connection pool
@@ -7,17 +7,19 @@ import { PrismaClient } from "@prisma/client";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+	private readonly logger = new Logger(PrismaService.name);
+
 	async onModuleInit(): Promise<void> {
 		// 📐 PATRÓN: Connection Lifecycle Management
 		// Conectar al inicializar el módulo, no en cada query
 		await this.$connect();
-		console.log("✅ Database connection established");
+		this.logger.log("Database connection established");
 	}
 
 	async onModuleDestroy(): Promise<void> {
 		// 📐 PATRÓN: Graceful Shutdown
 		// Cerrar la conexión limpiamente al apagar la app
 		await this.$disconnect();
-		console.log("🔌 Database connection closed");
+		this.logger.log("Database connection closed");
 	}
 }

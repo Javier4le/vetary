@@ -1,6 +1,17 @@
 import { UnauthorizedException } from "@nestjs/common";
 import type { PrismaService } from "./prisma.service";
 
+type TenantDelegate<T> = {
+	findMany(args: { where: Record<string, unknown> }): Promise<T[]>;
+	findFirst(args: { where: Record<string, unknown> }): Promise<T | null>;
+	create(args: { data: Record<string, unknown> }): Promise<T>;
+	updateMany(args: {
+		where: Record<string, unknown>;
+		data: Record<string, unknown>;
+	}): Promise<{ count: number }>;
+	deleteMany(args: { where: Record<string, unknown> }): Promise<{ count: number }>;
+};
+
 // 🏗️ ARQUITECTURA: BaseRepository — Template para todos los repositorios tenant-scoped
 // 📐 PATRÓN: Template Method Pattern — la clase base define el esqueleto, las subclases los detalles
 // 🔒 SEGURIDAD: Enforces tenantId filtering — si falta tenantId, throw exception (fail-safe)
@@ -9,7 +20,15 @@ import type { PrismaService } from "./prisma.service";
 // Incluso si falla TenantMiddleware o TenantGuard, este repository NO permite queries sin tenantId
 
 export abstract class BaseRepository<T> {
-	constructor(protected readonly prisma: PrismaService) {}
+	private readonly delegate: TenantDelegate<T>;
+
+	constructor(
+		protected readonly prisma: PrismaService,
+		delegate: unknown,
+	) {
+		// Prisma's generated delegate is narrowed once at this infrastructure boundary.
+		this.delegate = delegate as TenantDelegate<T>;
+	}
 
 	/**
 	 * 🔒 SEGURIDAD: Find records scoped to tenant
@@ -19,7 +38,10 @@ export abstract class BaseRepository<T> {
 	 *
 	 * 📐 PATRÓN: Fail-Safe — mejor fallar explícitamente que retornar data incorrecta
 	 */
-	protected async findByTenant(tenantId: string, where: any = {}): Promise<T[]> {
+	protected async findByTenant(
+		tenantId: string,
+		where: Record<string, unknown> = {},
+	): Promise<T[]> {
 		this.validateTenantId(tenantId);
 
 		return this.getDelegate().findMany({
@@ -33,7 +55,10 @@ export abstract class BaseRepository<T> {
 	 * @param where - Filters (required, e.g., { id: 'xxx' })
 	 * @returns Single record or null if not found
 	 */
-	protected async findOneByTenant(tenantId: string, where: any): Promise<T | null> {
+	protected async findOneByTenant(
+		tenantId: string,
+		where: Record<string, unknown>,
+	): Promise<T | null> {
 		this.validateTenantId(tenantId);
 
 		return this.getDelegate().findFirst({
@@ -47,7 +72,7 @@ export abstract class BaseRepository<T> {
 	 * @param data - Record data (tenantId will be added automatically)
 	 * @returns Created record
 	 */
-	protected async createForTenant(tenantId: string, data: any): Promise<T> {
+	protected async createForTenant(tenantId: string, data: Record<string, unknown>): Promise<T> {
 		this.validateTenantId(tenantId);
 
 		return this.getDelegate().create({
@@ -65,7 +90,11 @@ export abstract class BaseRepository<T> {
 	 * ⚠️ DECISIÓN: Usamos updateMany en vez de update para filtrar por tenantId + id
 	 * update() solo acepta unique constraint, updateMany() acepta cualquier where
 	 */
-	protected async updateForTenant(tenantId: string, id: string, data: any): Promise<any> {
+	protected async updateForTenant(
+		tenantId: string,
+		id: string,
+		data: Record<string, unknown>,
+	): Promise<{ count: number }> {
 		this.validateTenantId(tenantId);
 
 		return this.getDelegate().updateMany({
@@ -80,7 +109,7 @@ export abstract class BaseRepository<T> {
 	 * @param id - Record ID
 	 * @returns Delete result
 	 */
-	protected async deleteForTenant(tenantId: string, id: string): Promise<any> {
+	protected async deleteForTenant(tenantId: string, id: string): Promise<{ count: number }> {
 		this.validateTenantId(tenantId);
 
 		return this.getDelegate().deleteMany({
@@ -104,15 +133,11 @@ export abstract class BaseRepository<T> {
 	}
 
 	/**
-	 * 📐 PATRÓN: Template Method — subclasses MUST implement this
-	 * @returns Prisma model delegate (e.g., prisma.booking, prisma.pet)
+	 * @returns Typed Prisma model delegate (e.g., prisma.booking, prisma.pet)
 	 *
-	 * Example implementation in BookingRepository:
-	 * ```typescript
-	 * protected getDelegate() {
-	 *   return this.prisma.booking;
-	 * }
-	 * ```
+	 * The concrete delegate is supplied by each repository constructor.
 	 */
-	protected abstract getDelegate(): any;
+	protected getDelegate(): TenantDelegate<T> {
+		return this.delegate;
+	}
 }

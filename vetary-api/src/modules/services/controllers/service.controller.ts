@@ -15,6 +15,7 @@ import {
 import { AuthGuard } from "@nestjs/passport";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Role } from "@prisma/client";
+import type { TenantContext } from "../../../common/types/request-context";
 import { CreateServiceDto } from "../dto/create-service.dto";
 import { UpdateServiceDto } from "../dto/update-service.dto";
 import { ServicesService } from "../services/service.service";
@@ -33,7 +34,7 @@ export class ServiceController {
 	@ApiOperation({ summary: "List all services in current clinic" })
 	@ApiResponse({ status: 200, description: "Services in current clinic" })
 	@ApiResponse({ status: 401, description: "Unauthorized" })
-	async findAll(@CurrentTenant() tenant: any) {
+	async findAll(@CurrentTenant() tenant: TenantContext) {
 		return this.servicesService.findAll(tenant.id);
 	}
 
@@ -45,7 +46,7 @@ export class ServiceController {
 	@ApiResponse({ status: 201, description: "Service created successfully" })
 	@ApiResponse({ status: 400, description: "Validation error" })
 	@ApiResponse({ status: 403, description: "Only ADMIN can create services" })
-	async create(@CurrentTenant() tenant: any, @Body() dto: CreateServiceDto) {
+	async create(@CurrentTenant() tenant: TenantContext, @Body() dto: CreateServiceDto) {
 		return this.servicesService.create(tenant.id, dto);
 	}
 
@@ -55,7 +56,7 @@ export class ServiceController {
 	@ApiResponse({ status: 200, description: "Service found" })
 	@ApiResponse({ status: 404, description: "Service not found" })
 	@ApiResponse({ status: 401, description: "Unauthorized" })
-	async findOne(@CurrentTenant() tenant: any, @Param("id") id: string) {
+	async findOne(@CurrentTenant() tenant: TenantContext, @Param("id") id: string) {
 		return this.servicesService.findOne(tenant.id, id);
 	}
 
@@ -67,7 +68,7 @@ export class ServiceController {
 	@ApiResponse({ status: 404, description: "Service not found" })
 	@ApiResponse({ status: 403, description: "Only ADMIN can update services" })
 	async update(
-		@CurrentTenant() tenant: any,
+		@CurrentTenant() tenant: TenantContext,
 		@Param("id") id: string,
 		@Body() dto: UpdateServiceDto,
 	) {
@@ -82,7 +83,7 @@ export class ServiceController {
 	@ApiResponse({ status: 200, description: "Service disabled successfully" })
 	@ApiResponse({ status: 404, description: "Service not found" })
 	@ApiResponse({ status: 403, description: "Only ADMIN can disable services" })
-	async disable(@CurrentTenant() tenant: any, @Param("id") id: string) {
+	async disable(@CurrentTenant() tenant: TenantContext, @Param("id") id: string) {
 		return this.servicesService.disable(tenant.id, id);
 	}
 }

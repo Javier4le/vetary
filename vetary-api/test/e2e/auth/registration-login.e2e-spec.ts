@@ -5,12 +5,13 @@
 // ⚡ PRINCIPIO: Los E2E tests son el contrato de confianza del sistema.
 // Si estos pasan, sabemos que los usuarios reales pueden usar el sistema.
 
-import type { INestApplication } from "@nestjs/common";
+import { type INestApplication, Logger } from "@nestjs/common";
 import request from "supertest";
 import { createTestingApp, db, resetDb, seedClinic } from "../utils/test-helper";
 
 describe("E2E — Registration and Login Flow", () => {
 	let app: INestApplication;
+	const logger = new Logger("RegistrationLoginE2E");
 
 	beforeAll(async () => {
 		app = await createTestingApp();
@@ -38,8 +39,8 @@ describe("E2E — Registration and Login Flow", () => {
 			})
 			.redirects(1);
 
-		console.log("REGISTER status:", response.status);
-		console.log("REGISTER body:", response.body);
+		logger.log(`REGISTER status: ${response.status}`);
+		logger.log(`REGISTER body: ${JSON.stringify(response.body)}`);
 
 		expect(response.status).toBe(201);
 

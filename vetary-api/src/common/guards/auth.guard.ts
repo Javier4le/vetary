@@ -2,6 +2,7 @@ import { ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/com
 import { Reflector } from "@nestjs/core";
 import { AuthGuard as PassportAuthGuard } from "@nestjs/passport";
 import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
+import type { AuthenticatedUser } from "../types/request-context";
 
 // 🏗️ ARQUITECTURA: AuthGuard — SEGUNDO en la cadena (después de TenantMiddleware)
 // Valida JWT en rutas protegidas. Si @Public(), salta completamente.
@@ -41,11 +42,11 @@ export class CustomAuthGuard extends PassportAuthGuard("jwt") {
 	 * Se ejecuta DESPUÉS de que Passport validó la firma.
 	 * Si err o user son falsy → token inválido o expirado.
 	 */
-	handleRequest<TUser = any>(err: any, user: any): TUser {
+	handleRequest<TUser = AuthenticatedUser>(err: unknown, user: unknown): TUser {
 		if (err || !user) {
 			// 🔒 SEGURIDAD: Nunca exponer detalles del error al cliente
 			throw err || new UnauthorizedException("Invalid token");
 		}
-		return user;
+		return user as TUser;
 	}
 }

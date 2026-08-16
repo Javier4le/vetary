@@ -10,16 +10,15 @@ import { CustomAuthGuard } from "../../../../src/common/guards/auth.guard";
 jest.mock("@nestjs/passport", () => ({
 	AuthGuard: jest.fn().mockImplementation((_strategy: string) => {
 		return class MockPassportAuthGuard {
-			constructor() {}
 			async canActivate(_context: ExecutionContext): Promise<boolean> {
 				// Mock: simula que Passport verificó JWT y lo dejó pasar
 				return true;
 			}
-			handleRequest<TUser = any>(err: any, user: any): TUser {
+			handleRequest<TUser = unknown>(err: unknown, user: unknown): TUser {
 				if (err || !user) {
 					throw err || new UnauthorizedException("Invalid token");
 				}
-				return user;
+				return user as TUser;
 			}
 		};
 	}),

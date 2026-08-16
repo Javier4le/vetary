@@ -71,6 +71,10 @@ El agente advierte la consecuencia pero **respeta el criterio fundamentado del d
 
 Si alguien dice "esto no aplica a mi lenguaje", está equivocado sobre el principio (aunque el mecanismo cambie según el stack).
 
+### Reglas declaradas del proyecto
+
+Las reglas declaradas del proyecto no pueden relajarse sin autorización explícita del mantenedor. Si una regla bloquea el trabajo, hay que preguntar en lugar de bajar su severidad o desactivarla.
+
 ---
 
 ## NIVEL 2 — Patrones (universales en concepto, opcionales en uso)

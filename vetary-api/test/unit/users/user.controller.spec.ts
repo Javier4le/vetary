@@ -15,7 +15,12 @@ describe("UserController — vets/staff endpoints", () => {
 		createVet: jest.Mock;
 	};
 
-	const tenant = { id: "tenant-1", name: "Clínica Test", subdomain: "clinica-test" };
+	const tenant = {
+		id: "tenant-1",
+		name: "Clínica Test",
+		subdomain: "clinica-test",
+		status: "ACTIVE",
+	};
 
 	beforeEach(async () => {
 		userService = {

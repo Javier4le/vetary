@@ -8,39 +8,43 @@ import { BaseRepository } from "../../../src/database/base.repository";
 import { PrismaService } from "../../../src/database/prisma.service";
 
 // Mock repository para testing (no se puede instanciar BaseRepository directamente)
-class TestRepository extends BaseRepository<any> {
-	// Store delegate as instance property so spies can be attached
-	private mockDelegate = {
-		findMany: jest.fn().mockResolvedValue([]),
-		findFirst: jest.fn().mockResolvedValue(null),
-		create: jest.fn().mockResolvedValue({}),
-		updateMany: jest.fn().mockResolvedValue({ count: 1 }),
-		deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
-	};
+type TestEntity = Record<string, unknown>;
 
-	protected getDelegate() {
-		return this.mockDelegate;
+class TestRepository extends BaseRepository<TestEntity> {
+	constructor(prisma: PrismaService) {
+		const mockDelegate = {
+			findMany: jest.fn().mockResolvedValue([]),
+			findFirst: jest.fn().mockResolvedValue(null),
+			create: jest.fn().mockResolvedValue({}),
+			updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+			deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
+		};
+		super(prisma, mockDelegate);
 	}
 
 	// Public wrappers to test protected methods
-	public async testFindByTenant(tenantId: string, where: any = {}) {
+	public async testFindByTenant(tenantId: string, where: Record<string, unknown> = {}) {
 		return this.findByTenant(tenantId, where);
 	}
 
-	public async testFindOneByTenant(tenantId: string, where: any) {
+	public async testFindOneByTenant(tenantId: string, where: Record<string, unknown>) {
 		return this.findOneByTenant(tenantId, where);
 	}
 
-	public async testCreateForTenant(tenantId: string, data: any) {
+	public async testCreateForTenant(tenantId: string, data: Record<string, unknown>) {
 		return this.createForTenant(tenantId, data);
 	}
 
-	public async testUpdateForTenant(tenantId: string, id: string, data: any) {
+	public async testUpdateForTenant(tenantId: string, id: string, data: Record<string, unknown>) {
 		return this.updateForTenant(tenantId, id, data);
 	}
 
 	public async testDeleteForTenant(tenantId: string, id: string) {
 		return this.deleteForTenant(tenantId, id);
+	}
+
+	public testGetDelegate() {
+		return this.getDelegate();
 	}
 }
 
@@ -55,42 +59,42 @@ describe("BaseRepository (RED → GREEN → REFACTOR)", () => {
 
 	describe("🔒 SEGURIDAD: Fail-safe when tenantId is missing", () => {
 		it("❌ findByTenant with null tenantId should throw UnauthorizedException", async () => {
-			await expect(repository.testFindByTenant(null as any, {})).rejects.toThrow(
+			await expect(repository.testFindByTenant(null as unknown as string, {})).rejects.toThrow(
 				UnauthorizedException,
 			);
-			await expect(repository.testFindByTenant(null as any, {})).rejects.toThrow(
+			await expect(repository.testFindByTenant(null as unknown as string, {})).rejects.toThrow(
 				/Tenant context is missing/,
 			);
 		});
 
 		it("❌ findByTenant with undefined tenantId should throw UnauthorizedException", async () => {
-			await expect(repository.testFindByTenant(undefined as any, {})).rejects.toThrow(
+			await expect(repository.testFindByTenant(undefined as unknown as string, {})).rejects.toThrow(
 				UnauthorizedException,
 			);
 		});
 
 		it("❌ findOneByTenant with null tenantId should throw UnauthorizedException", async () => {
-			await expect(repository.testFindOneByTenant(null as any, {})).rejects.toThrow(
+			await expect(repository.testFindOneByTenant(null as unknown as string, {})).rejects.toThrow(
 				UnauthorizedException,
 			);
 		});
 
 		it("❌ createForTenant with null tenantId should throw UnauthorizedException", async () => {
-			await expect(repository.testCreateForTenant(null as any, {})).rejects.toThrow(
+			await expect(repository.testCreateForTenant(null as unknown as string, {})).rejects.toThrow(
 				UnauthorizedException,
 			);
 		});
 
 		it("❌ updateForTenant with null tenantId should throw UnauthorizedException", async () => {
-			await expect(repository.testUpdateForTenant(null as any, "some-id", {})).rejects.toThrow(
-				UnauthorizedException,
-			);
+			await expect(
+				repository.testUpdateForTenant(null as unknown as string, "some-id", {}),
+			).rejects.toThrow(UnauthorizedException);
 		});
 
 		it("❌ deleteForTenant with null tenantId should throw UnauthorizedException", async () => {
-			await expect(repository.testDeleteForTenant(null as any, "some-id")).rejects.toThrow(
-				UnauthorizedException,
-			);
+			await expect(
+				repository.testDeleteForTenant(null as unknown as string, "some-id"),
+			).rejects.toThrow(UnauthorizedException);
 		});
 
 		it("❌ empty string tenantId should throw UnauthorizedException", async () => {
@@ -104,7 +108,7 @@ describe("BaseRepository (RED → GREEN → REFACTOR)", () => {
 		it("✅ findByTenant with valid tenantId should call Prisma with tenantId filter", async () => {
 			await repository.testFindByTenant(validTenantId, { status: "active" });
 
-			const delegate = repository["getDelegate"]();
+			const delegate = repository.testGetDelegate();
 			expect(delegate.findMany).toHaveBeenCalledWith({
 				where: {
 					tenantId: validTenantId,
@@ -116,7 +120,7 @@ describe("BaseRepository (RED → GREEN → REFACTOR)", () => {
 		it("✅ findOneByTenant with valid tenantId should call Prisma with tenantId filter", async () => {
 			await repository.testFindOneByTenant(validTenantId, { id: "some-id" });
 
-			const delegate = repository["getDelegate"]();
+			const delegate = repository.testGetDelegate();
 			expect(delegate.findFirst).toHaveBeenCalledWith({
 				where: {
 					tenantId: validTenantId,
@@ -128,7 +132,7 @@ describe("BaseRepository (RED → GREEN → REFACTOR)", () => {
 		it("✅ createForTenant with valid tenantId should call Prisma with tenantId in data", async () => {
 			await repository.testCreateForTenant(validTenantId, { name: "Test" });
 
-			const delegate = repository["getDelegate"]();
+			const delegate = repository.testGetDelegate();
 			expect(delegate.create).toHaveBeenCalledWith({
 				data: {
 					tenantId: validTenantId,
@@ -142,7 +146,7 @@ describe("BaseRepository (RED → GREEN → REFACTOR)", () => {
 				name: "Updated",
 			});
 
-			const delegate = repository["getDelegate"]();
+			const delegate = repository.testGetDelegate();
 			expect(delegate.updateMany).toHaveBeenCalledWith({
 				where: {
 					id: "record-id",
@@ -157,7 +161,7 @@ describe("BaseRepository (RED → GREEN → REFACTOR)", () => {
 		it("✅ deleteForTenant with valid tenantId should filter by id AND tenantId", async () => {
 			await repository.testDeleteForTenant(validTenantId, "record-id");
 
-			const delegate = repository["getDelegate"]();
+			const delegate = repository.testGetDelegate();
 			expect(delegate.deleteMany).toHaveBeenCalledWith({
 				where: {
 					id: "record-id",
@@ -170,7 +174,7 @@ describe("BaseRepository (RED → GREEN → REFACTOR)", () => {
 	describe("📐 PATRÓN: Template Method — getDelegate() must be implemented", () => {
 		it("should require subclasses to implement getDelegate()", () => {
 			// TestRepository implements it, so it should work
-			const delegate = repository["getDelegate"]();
+			const delegate = repository.testGetDelegate();
 			expect(delegate).toBeDefined();
 			expect(delegate.findMany).toBeDefined();
 		});

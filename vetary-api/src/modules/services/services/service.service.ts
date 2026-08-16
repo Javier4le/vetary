@@ -3,7 +3,6 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import type { Service } from "@prisma/client";
 import type { CreateServiceDto } from "../dto/create-service.dto";
 import type { UpdateServiceDto } from "../dto/update-service.dto";
-// biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { ServiceRepository } from "../repositories/service.repository";
 
 // 📐 PATRÓN: Service — orquesta la lógica de negocio sin conocer HTTP

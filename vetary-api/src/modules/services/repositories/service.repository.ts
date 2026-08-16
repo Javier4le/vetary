@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
 import { BaseRepository } from "@/database/base.repository";
-// biome-ignore lint/style/useImportType: NestJS DI requires value import
 import { PrismaService } from "@/database/prisma.service";
 import type { Service } from "@prisma/client";
 
@@ -13,15 +12,7 @@ import type { Service } from "@prisma/client";
 @Injectable()
 export class ServiceRepository extends BaseRepository<Service> {
 	constructor(protected readonly prisma: PrismaService) {
-		super(prisma);
-	}
-
-	/**
-	 * 🔒 SEGURIDAD: Devuelve el delegate de Prisma para el model Service
-	 * BaseRepository usa esto para ejecutar queries con tenantId automático
-	 */
-	protected getDelegate() {
-		return this.prisma.service;
+		super(prisma, prisma.service);
 	}
 
 	/**
