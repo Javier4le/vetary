@@ -80,12 +80,23 @@ Las decisiones arquitectónicas completas están documentadas en [`ARCHITECTURE.
 
 | Fase | Descripción | Estado |
 |------|-------------|--------|
-| 1 | Auth + Multi-tenancy | ✅ Completa |
-| 2 | Configuración de la clínica | 🔄 En progreso (PR-1 completo; PR-2 y PR-3 pendientes) |
-| 3 | Sistema de reservas | ⬜ Pendiente |
+| 1 | Auth + Multi-tenancy | ✅ Completa — tag `fase-1-complete` |
+| 2 | Configuración de la clínica | ✅ Completa — tag `fase-2-complete` |
+| 3 | Sistema de reservas | ➡️ Siguiente |
 | 4 | Ficha clínica | ⬜ Pendiente |
 | 5 | Dashboard + UI final | ⬜ Pendiente |
 | 6 | Deploy | ⬜ Pendiente |
+
+### Verificación actual del backend
+
+- **Unitarios:** 14 suites / 111 tests pasando
+- **Integración con PostgreSQL:** 4 suites / 27 tests pasando
+- **E2E:** 3 suites / 15 tests pasando
+- **TypeScript:** `tsc --noEmit` sin errores
+- **Biome:** 0 errores y 0 warnings
+- **Prisma:** 5.22.0, 2 migraciones aplicadas
+
+La Fase 2 está cerrada. La Fase 3 (reservas) aún no ha comenzado.
 
 ---
 

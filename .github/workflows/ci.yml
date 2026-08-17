@@ -2,6 +2,9 @@ name: CI
 
 on:
   push:
+    branches:
+      - develop
+      - main
   pull_request:
     branches:
       - develop
@@ -55,6 +58,14 @@ jobs:
       - name: Biome
         run: pnpm exec biome check .
 
+      - name: Generate Prisma Client
+        working-directory: vetary-api
+        run: pnpm exec prisma generate
+
+      - name: TypeScript
+        working-directory: vetary-api
+        run: pnpm exec tsc --noEmit
+
       - name: Unit tests
         working-directory: vetary-api
         run: pnpm exec jest --no-coverage
@@ -70,7 +81,3 @@ jobs:
       - name: E2E tests
         working-directory: vetary-api
         run: pnpm exec jest --config ./test/jest-e2e.json --no-coverage
-
-      - name: TypeScript
-        working-directory: vetary-api
-        run: pnpm exec tsc --noEmit
