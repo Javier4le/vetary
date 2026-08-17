@@ -1,3 +1,5 @@
+![CI](https://github.com/Javier4le/vetary/actions/workflows/ci.yml/badge.svg)
+
 # Vetary
 
 > Plataforma SaaS multi-tenant de gestión y reservas para clínicas veterinarias.
@@ -18,7 +20,7 @@ Cada clínica obtiene dos mundos:
 
 ## Propósito del proyecto
 
-Vetary nació como proyecto de aprendizaje y construcción de producto, con tres objetivos concretos:
+Vetary nació como proyecto de aprendizaje y construcción de producto, con dos objetivos concretos:
 
 **Aprendizaje:** Construir aplicando arquitectura en capas (Layered Architecture), Repository, Template Method, Decorator y principios SOLID de forma consciente. `Strategy` existe en la infraestructura de autenticación (`JwtStrategy`); Factory, Observer y las estrategias de dominio de reservas están planificados para la Fase 3.
 
@@ -52,9 +54,13 @@ Domain        →  Entities, Business Rules, Domain Events
 Infrastructure →  Repositories, Prisma, External APIs
 ```
 
+La capa Domain todavía está poco poblada: las reglas viven principalmente en los Services y aún no existen entidades ni eventos de dominio dedicados. Estas responsabilidades se irán extrayendo con el sistema de reservas de la Fase 3.
+
 La estrategia de multi-tenancy es **Shared Database, Shared Schema con `tenant_id`**. Cada registro de datos pertenece a un tenant específico y el sistema garantiza en la capa de repositorio que ninguna query se ejecute sin ese filtro.
 
 Las decisiones arquitectónicas completas están documentadas en [`ARCHITECTURE.md`](./ARCHITECTURE.md).
+
+---
 
 ## Cómo se construye este proyecto
 
@@ -123,6 +129,9 @@ La Fase 2 está cerrada. La Fase 3 (reservas) aún no ha comenzado.
 git clone https://github.com/Javier4le/vetary.git
 cd vetary
 
+# Entrar al backend (la base de datos y su configuración viven aquí)
+cd vetary-api
+
 # Levantar la base de datos
 docker compose up -d
 
@@ -133,11 +142,14 @@ pnpm install
 cp .env.example .env
 # Completar las variables en .env
 
+# Generar Prisma Client
+pnpm exec prisma generate
+
 # Migraciones
-pnpm --filter vetary-api prisma:migrate
+pnpm exec prisma migrate deploy
 
 # Correr el servidor
-pnpm --filter vetary-api start:dev
+pnpm start:dev
 ```
 
 > El frontend todavía no existe; `vetary-web/` permanece como carpeta planificada para la Fase 5.
