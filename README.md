@@ -18,11 +18,9 @@ Cada clínica obtiene dos mundos:
 
 ## Propósito del proyecto
 
-Vetary nació como proyecto de portfolio y aprendizaje, con tres objetivos concretos:
+Vetary nació como proyecto de aprendizaje y construcción de producto, con tres objetivos concretos:
 
-**Aprendizaje:** Construir aplicando arquitectura en capas (Layered Architecture), patrones de diseño GoF (Repository, Factory, Observer, Strategy, Decorator) y principios SOLID de forma consciente — entendiendo por qué se usa cada herramienta, no solo cómo.
-
-**Portfolio:** Demostrar capacidad para diseñar y construir un producto SaaS real, con decisiones arquitectónicas documentadas y justificadas. El proyecto está pensado para ser mostrado tanto en entrevistas técnicas como a clientes potenciales en plataformas freelance.
+**Aprendizaje:** Construir aplicando arquitectura en capas (Layered Architecture), Repository, Template Method, Decorator y principios SOLID de forma consciente. `Strategy` existe en la infraestructura de autenticación (`JwtStrategy`); Factory, Observer y las estrategias de dominio de reservas están planificados para la Fase 3.
 
 **Producto:** El sistema resuelve un problema real del mercado LATAM. Las clínicas veterinarias pequeñas y medianas no tienen acceso a sistemas de gestión modernos, accesibles y fáciles de implementar. Vetary apunta a ese nicho.
 
@@ -38,12 +36,8 @@ Vetary nació como proyecto de portfolio y aprendizaje, con tres objetivos concr
 - **Docker** para base de datos en desarrollo y stack completo en producción
 
 ### Frontend
-- **React 18** + TypeScript estricto + Vite
-- **TanStack Query v5** para estado de servidor
-- **Zustand** para estado de UI
-- **React Router v6**
-- **Tailwind CSS** + **shadcn/ui**
-- **React Hook Form** + **Zod** para formularios
+- El frontend todavía no está implementado; `vetary-web/` contiene únicamente la especificación de stack `STACK-react.md`.
+- Para la Fase 5 está planificado: React 18, TypeScript estricto, Vite, TanStack Query, Zustand, React Router, Tailwind CSS, shadcn/ui, React Hook Form y Zod.
 
 ---
 
@@ -61,6 +55,22 @@ Infrastructure →  Repositories, Prisma, External APIs
 La estrategia de multi-tenancy es **Shared Database, Shared Schema con `tenant_id`**. Cada registro de datos pertenece a un tenant específico y el sistema garantiza en la capa de repositorio que ninguna query se ejecute sin ese filtro.
 
 Las decisiones arquitectónicas completas están documentadas en [`ARCHITECTURE.md`](./ARCHITECTURE.md).
+
+## Cómo se construye este proyecto
+
+Vetary se desarrolla con un flujo de **Spec-Driven Development**: cada cambio sustancial pasa por exploración, propuesta, especificación, diseño y tareas antes de escribir código. Los artefactos de ese proceso están versionados en `openspec/` y se archivan al cerrar cada fase.
+
+El código se valida mediante evidencia:
+
+| Portón | Qué verifica | Dónde corre |
+|---|---|---|
+| Pre-commit | Biome y revisión automática contra las reglas del proyecto | Local |
+| CI (GitHub Actions) | Biome, generación de Prisma, compilación, unitarios, migraciones, integración con PostgreSQL real y E2E | Servidor limpio |
+| Receipt-driven review | Evidencia de comandos y estado nativo antes de cerrar una unidad de trabajo | Local, antes de entregar |
+
+Las reglas de construcción están en [`AGENTS.md`](./AGENTS.md). Las decisiones arquitectónicas, con su contexto y alternativas, están en [`docs/decisions.md`](./docs/decisions.md). El estado verificado está en [`openspec/STATUS.md`](./openspec/STATUS.md).
+
+Herramientas: [gentle-ai](https://github.com/Gentleman-Programming/gentle-ai), OpenSpec para los artefactos de especificación y Engram para memoria entre sesiones.
 
 ---
 
@@ -110,8 +120,8 @@ La Fase 2 está cerrada. La Fase 3 (reservas) aún no ha comenzado.
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tu-usuario/vetary-api
-cd vetary-api
+git clone https://github.com/Javier4le/vetary.git
+cd vetary
 
 # Levantar la base de datos
 docker compose up -d
@@ -130,7 +140,7 @@ pnpm --filter vetary-api prisma:migrate
 pnpm --filter vetary-api start:dev
 ```
 
-> El frontend tiene su propio repositorio: `vetary-web`
+> El frontend todavía no existe; `vetary-web/` permanece como carpeta planificada para la Fase 5.
 
 ---
 
@@ -146,6 +156,5 @@ pnpm --filter vetary-api start:dev
 
 ## Autor
 
-**Javier Rojas** — Developer Frontend/Backend  
-Viña del Mar, Chile  
+**Javier Rojas** — Desarrollador de Software
 [LinkedIn](https://www.linkedin.com/in/javier4le) · [GitHub](https://www.github.com/Javier4le)
