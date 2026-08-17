@@ -15,6 +15,14 @@ permissions:
 
 env:
   DATABASE_URL: postgresql://postgres:postgres@localhost:5432/vetary_dev
+  NODE_ENV: test
+  PORT: 3000
+  JWT_SECRET: ci-only-test-secret-with-at-least-32-characters
+  JWT_EXPIRATION: 15m
+  REFRESH_TOKEN_EXPIRATION: 7d
+  BCRYPT_ROUNDS: 10
+  ALLOWED_ORIGINS: http://localhost:3001
+  RATE_LIMIT_ENABLED: "false"
 
 jobs:
   quality:
