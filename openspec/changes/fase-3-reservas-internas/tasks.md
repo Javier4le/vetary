@@ -19,9 +19,18 @@ Chain strategy: stacked-to-main
 | 5 T-017..T-018 | availability guard | PR5 | integration guard | real PG guard cases | revert availability |
 | 6 T-019..T-020 | E2E+gates | PR6 | e2e+full suites | HTTP happy path | N/A verify only |
 
-Delivery strategy: six stacked PRs, each targeting `develop` in order. The change branch is
-`feature/fase-3-reservas-internas`; merge the completed stack into `develop` before starting
-`feature/fase-3-reservas-publicas`.
+Delivery strategy: six independent PRs, each using its own branch and targeting `develop` in
+order. Merge each slice before creating the next branch; no branch accumulates multiple slices.
+
+Branches:
+- PR1 / T-001..T-003: `feat/fase-3-internas-pr1-foundation`
+- PR2 / T-004..T-007: `feat/fase-3-internas-pr2-rules`
+- PR3 / T-008..T-011: `feat/fase-3-internas-pr3-concurrency`
+- PR4 / T-012..T-016: `feat/fase-3-internas-pr4-http`
+- PR5 / T-017..T-018: `feat/fase-3-internas-pr5-availability`
+- PR6 / T-019..T-020: `feat/fase-3-internas-pr6-e2e`
+
+After PR6 merges, start `feat/fase-3-publicas-pr1-foundation` for the next OpenSpec change.
 
 ## Phase 1: Foundation
 
