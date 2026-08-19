@@ -8,8 +8,8 @@ Let ADMIN/STAFF create and manage bookings against a vet's weekly availability. 
 
 ## Branch / PR Boundary
 
-- PR-1 branch `feat/fase-3-internas-pr1-foundation`; PR targets `develop`. Each later slice uses
-  its own `feat/fase-3-internas-prN-*` branch and also targets `develop`.
+- PR-1 branch `feature/fase-3-internas-pr1-foundation`; PR targets `develop`. Each later slice uses
+  its own `feature/fase-3-internas-prN-*` branch and also targets `develop`.
 - Independent artifacts; tasks start at T-001.
 - Phase tag `fase-3-complete` is created only after BOTH changes close (see ADR-004).
 

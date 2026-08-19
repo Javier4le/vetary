@@ -12,8 +12,8 @@ including discarded approaches and the rationale for the accepted decisions.
 
 ## Branch / PR Boundary
 
-- PR-1 branch `feat/fase-3-publicas-pr1-foundation`; PR targets `develop` after the internal
-  change merges. Later slices use their own `feat/fase-3-publicas-prN-*` branches.
+- PR-1 branch `feature/fase-3-publicas-pr1-foundation`; PR targets `develop` after the internal
+  change merges. Later slices use their own `feature/fase-3-publicas-prN-*` branches.
 - Runs immediately after `fase-3-reservas-internas`, before Phase 4.
 - Independent artifacts; tasks start at T-001. Phase tag `fase-3-complete` after both close.
 

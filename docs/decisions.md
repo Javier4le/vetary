@@ -124,9 +124,9 @@ reviewable changes while remaining a single product phase.
 ### Decision
 - One product phase MAY contain multiple OpenSpec changes; each change has independent
   artifacts, task numbering (starting at T-001), branches, and PRs.
-- Phase 3 changes: `fase-3-reservas-internas` (PR-1 branch `feat/fase-3-internas-pr1-foundation`),
-  followed by `fase-3-reservas-publicas` (PR-1 branch `feat/fase-3-publicas-pr1-foundation`).
-- Every slice uses its own `feat/` branch and targets `develop`; no branch accumulates multiple
+- Phase 3 changes: `fase-3-reservas-internas` (PR-1 branch `feature/fase-3-internas-pr1-foundation`),
+  followed by `fase-3-reservas-publicas` (PR-1 branch `feature/fase-3-publicas-pr1-foundation`).
+- Every slice uses its own `feature/` branch and targets `develop`; no branch accumulates multiple
   slices before merge.
 - The phase tag `fase-3-complete` is created on `develop` ONLY after both changes close. There
   are no `fase-3a-complete` / `fase-3b-complete` tags.

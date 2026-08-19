@@ -23,14 +23,14 @@ Delivery strategy: six independent PRs, each using its own branch and targeting 
 order. Merge each slice before creating the next branch; no branch accumulates multiple slices.
 
 Branches:
-- PR1 / T-001..T-003: `feat/fase-3-internas-pr1-foundation`
-- PR2 / T-004..T-007: `feat/fase-3-internas-pr2-rules`
-- PR3 / T-008..T-011: `feat/fase-3-internas-pr3-concurrency`
-- PR4 / T-012..T-016: `feat/fase-3-internas-pr4-http`
-- PR5 / T-017..T-018: `feat/fase-3-internas-pr5-availability`
-- PR6 / T-019..T-020: `feat/fase-3-internas-pr6-e2e`
+- PR1 / T-001..T-003: `feature/fase-3-internas-pr1-foundation`
+- PR2 / T-004..T-007: `feature/fase-3-internas-pr2-rules`
+- PR3 / T-008..T-011: `feature/fase-3-internas-pr3-concurrency`
+- PR4 / T-012..T-016: `feature/fase-3-internas-pr4-http`
+- PR5 / T-017..T-018: `feature/fase-3-internas-pr5-availability`
+- PR6 / T-019..T-020: `feature/fase-3-internas-pr6-e2e`
 
-After PR6 merges, start `feat/fase-3-publicas-pr1-foundation` for the next OpenSpec change.
+After PR6 merges, start `feature/fase-3-publicas-pr1-foundation` for the next OpenSpec change.
 
 ## Phase 1: Foundation
 
