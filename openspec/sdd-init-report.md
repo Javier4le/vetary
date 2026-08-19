@@ -1,6 +1,6 @@
 # Vetary — SDD Init Report
 **Generated:** 2026-05-31  
-**Refreshed:** 2026-08-12  
+**Refreshed:** 2026-08-19
 **Project:** vetary  
 **Phase:** sdd-init  
 **Status:** ✅ Complete (refreshed)
@@ -11,12 +11,12 @@
 
 SDD initialization complete for Vetary, a multi-tenant SaaS platform for veterinary clinic management. Project context persisted to OpenSpec (`openspec/config.yaml`) and Engram (`sdd-init/vetary`, `sdd/vetary/testing-capabilities`, `skill-registry`) with strict TDD mode ACTIVE.
 
-**Key findings (verified 2026-08-12):**
-- **Testing capabilities:** Jest 29.7 (backend) — **12 suites / 98 tests, all passing** (verified by running the suite). E2E configured with 8 tests in `test/e2e/{auth,security}` (require Postgres). Frontend (Vitest) planned — not bootstrapped.
+**Key findings (verified 2026-08-19):**
+- **Testing capabilities:** Jest 29.7 (backend) — **14 unit suites / 111 tests, 4 integration suites / 27 tests, and 3 E2E suites / 15 tests, all passing** (verified by separate pnpm commands). Frontend (Vitest) planned — not bootstrapped.
 - **Strict TDD:** ACTIVE — mandatory for auth, tenant isolation, repositories, bookings, and services logic.
 - **Test command:** `pnpm --filter vetary-api test`
-- **Code status:** Phase 1 COMPLETED (`fase-1-complete` tag); Phase 2 (Clinic Configuration) in progress — PR-1 done, PR-2/PR-3 pending.
-- **Linter/formatter:** Biome 1.9 only (ESLint + Prettier removed — commit `d9280eb`).
+- **Code status:** Phase 1 COMPLETED (`fase-1-complete` tag); Phase 2 (Clinic Configuration) COMPLETED and archived (`fase-2-complete` tag); Phase 3 (Bookings) NOT STARTED.
+- **Linter/formatter:** Biome 1.9.4 only (ESLint + Prettier removed — commit `d9280eb`).
 - **Architecture:** 4-layer architecture with mandatory Repository pattern for tenant filtering.
 
 ---
@@ -27,10 +27,10 @@ SDD initialization complete for Vetary, a multi-tenant SaaS platform for veterin
 - **Runtime:** Node.js 22 (engine-strict=true in `.npmrc`)
 - **Framework:** NestJS 10 with TypeScript strict mode
 - **Database:** PostgreSQL 16 (Docker)
-- **ORM:** Prisma 5.8
+- **ORM:** Prisma 7.9.1 with `prisma.config.ts`, `@prisma/adapter-pg`, and generated client output under `src/generated/prisma`
 - **Auth:** JWT with refresh tokens (passport-jwt, bcrypt)
 - **Validation:** class-validator + class-transformer (global ValidationPipe)
-- **Lint/format:** Biome 1.9 (replaced ESLint + Prettier)
+- **Lint/format:** Biome 1.9.4 (replaced ESLint + Prettier)
 - **Testing:** Jest 29.7
 
 ### Frontend (vetary-web/)
@@ -51,17 +51,19 @@ SDD initialization complete for Vetary, a multi-tenant SaaS platform for veterin
 
 ### Backend Testing Stack (verified)
 - **Framework:** Jest 29.7 (ts-jest, `moduleNameMapper` `@/` → `src/`)
-- **Current state:** 12 suites / 98 tests — ALL PASSING (run on 2026-08-12)
+- **Current state:** 14 unit suites / 111 tests, 4 integration suites / 27 tests, and 3 E2E suites / 15 tests — ALL PASSING (run on 2026-08-19)
 - **Test types:**
   - Unit: business logic, guards (auth/tenant/roles), env validation, BaseRepository, middleware
   - Integration: services with tenant isolation verification
-  - E2E: `test/e2e/{auth,security}` — 8 tests, configured via `test/jest-e2e.json` (require Postgres)
+  - E2E: configured via `test/jest-e2e.json` — 3 suites / 15 tests passing
 - **Coverage requirements:** auth logic 100% · multi-tenant isolation 100% · business rules 80%
 - **Commands:**
+  - Unit: `pnpm --filter vetary-api exec jest --no-coverage`
+  - Integration: `pnpm --filter vetary-api exec jest --config ./test/jest-integration.json --no-coverage`
   - Test: `pnpm --filter vetary-api test`
   - Watch: `pnpm --filter vetary-api test:watch`
   - Coverage: `pnpm --filter vetary-api test:cov`
-  - E2E: `pnpm --filter vetary-api test:e2e`
+  - E2E: `pnpm --filter vetary-api exec jest --config ./test/jest-e2e.json --no-coverage`
 
 ### Frontend Testing Stack (planned)
 - **Framework:** Vitest — component, hook, and mocked service tests
@@ -170,30 +172,30 @@ bcrypt (cost ≥10) · JWT secret from env · refresh token rotation · role gua
 ## 8. Project Progress
 
 ### Phase 1 — Auth + Multi-tenancy Foundation ✅ COMPLETED
-Tag `fase-1-complete` on `develop`. Tests: 12 suites / 98 passing.
+Tag `fase-1-complete` on `develop`.
 
-### Phase 2 — Clinic Configuration 🔄 IN PROGRESS
-Change: `openspec/changes/fase-2-configuracion-clinica/` (proposal, spec, design, tasks)
-Delivery: chained PRs, `feature-branch-chain` strategy
+### Phase 2 — Clinic Configuration ✅ COMPLETED
+Change archived at `openspec/changes/archive/2026-08-16-fase-2-configuracion-clinica/`; tag `fase-2-complete`.
 
 | PR | Status | Scope |
 |----|--------|-------|
-| PR-1 | ✅ COMPLETED | Services module (schema: Service, VetProfile, VetAvailability, Tenant.timezone; CRUD + soft-disable + tenant isolation); ~630 lines; 49/49 tests green |
-| PR-2 | ⏳ PENDING | VetProfileRepository, `UserService.createVet()` atomic transaction, POST /users/vets + /users/staff |
-| PR-3 | ⏳ PENDING | AvailabilityRepository, AvailabilityService (overlap validation), Controller, tests + E2E |
+| Phase 2 | ✅ COMPLETED | Clinic configuration change archived and tagged `fase-2-complete` |
 
 **Business rules documented:** availability weekly recurring / multi-block per day / one timezone per clinic · services soft-disable, price CLP Int, unique name per tenant · vet creation atomic (User + UserTenant + VetProfile) · single-admin per tenant in v1.
 
-Current branch: `feature/fase-2-pr1-services`.
+Current branch: `develop`.
+
+### Phase 3 — Bookings ⏳ NOT STARTED
+No Phase 3 change directory exists yet. Exploration may begin after this documentation refresh.
 
 ---
 
 ## 9. Next Recommended Actions
 
 1. ✅ Init complete — context refreshed in OpenSpec + Engram
-2. **Run `/sdd-onboard`** to walk through the SDD cycle on this codebase (backend focus)
-3. When resuming Phase 2: checkout `feature/fase-2-pr1-services`, continue from T-006 (VetProfileRepository), run `pnpm --filter vetary-api test` first
-4. For E2E work: start Postgres via docker-compose, then `pnpm --filter vetary-api test:e2e`
+2. **Run Phase 3 SDD exploration** for bookings; do not assume requirements beyond the exploration output.
+3. Before implementation, run the separate unit, integration, and E2E commands listed above.
+4. Use `.github/workflows/ci.yml` as the CI verification reference.
 
 ---
 
@@ -212,7 +214,7 @@ Current branch: `feature/fase-2-pr1-services`.
 ## 11. Artifacts Created (this refresh)
 
 **OpenSpec:**
-- Config: `openspec/config.yaml` (refreshed 2026-08-12 — linter Biome, 12/98 tests, Phase 1 complete, Phase 2 added, pnpm commands, PostgreSQL 16)
+- Config: `openspec/config.yaml` (refreshed 2026-08-19 — Prisma 7.9.1, Biome 1.9.4, 14/111 unit, 4/27 integration, 3/15 E2E, CI, Phase 2 complete, Phase 3 not started)
 - Report: `openspec/sdd-init-report.md` (this file)
 
 **Engram (obs IDs):**
@@ -232,25 +234,27 @@ Init phase loaded `sdd-init/SKILL.md` (phase contract) and `_shared/SKILL.md` be
 
 ---
 
-## Refresh Log (2026-08-12)
+## Refresh Log (2026-08-19)
 
 Changes applied to the prior init artifacts (approved by user; non-destructive):
 
-1. Linter: ESLint 8.56 → **Biome 1.9** (ESLint + Prettier removed, commit `d9280eb`)
+1. Linter: ESLint 8.56 → **Biome 1.9.4** (ESLint + Prettier removed, commit `d9280eb`)
 2. Formatter: Prettier + Biome → **Biome only** (lint + format unified)
-3. Test count: 7 suites / 72 → **12 suites / 98** (verified by running jest)
+3. Test count: 12 suites / 98 → **14 unit suites / 111 tests; 4 integration suites / 27 tests; 3 E2E suites / 15 tests** (verified by separate Jest commands)
 4. Test commands: `cd vetary-api && npm run …` → **`pnpm --filter vetary-api …`** (pnpm-only convention)
-5. E2E: "no E2E tests yet" → **8 E2E tests** in `test/e2e/{auth,security}` (require Postgres)
+5. E2E: previous 8-test state → **3 suites / 15 tests** via `test/jest-e2e.json`
 6. PostgreSQL version pinned: **16**
 7. Phase 1 status: In progress → **COMPLETED** (tag `fase-1-complete`)
-8. Phase 2 added: `fase-2-configuracion-clinica` (PR-1 done, PR-2/3 pending, chained PRs)
-9. Strict TDD modules: added `services`
-10. Conventions added: money CLP Int, no `import type` on decorated classes, pnpm-only, `@/` aliases, engine-strict
-11. Engram context cached (obs #18, #32, #33)
+8. Phase 2: in progress → **COMPLETED**, archived and tagged `fase-2-complete`
+9. Phase 3: explicitly recorded as **NOT STARTED**; no change directory created
+10. Strict TDD modules: added `services`
+11. Conventions added: money CLP Int, no `import type` on decorated classes, pnpm-only, `@/` aliases, engine-strict
+12. CI workflow verified at `.github/workflows/ci.yml`
+13. Engram context cached (obs #18, #32, #33)
 
 ---
 
-**Summary:** Vetary is fully initialized and refreshed for the SDD workflow. Strict TDD is ACTIVE. Testing capabilities verified (12 suites / 98 tests green). Phase 1 complete, Phase 2 in progress. Ready for `/sdd-onboard`.
+**Summary:** Vetary is initialized and refreshed for the SDD workflow. Strict TDD is ACTIVE. Testing capabilities verified (14/111 unit, 4/27 integration, 3/15 E2E). Phase 1 and Phase 2 are complete; Phase 3 Bookings is not started. Ready for Phase 3 exploration.
 
 **Test command:** `pnpm --filter vetary-api test`  
 **Strict TDD modules:** auth, tenants, repositories, bookings, services  
