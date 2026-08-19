@@ -7,7 +7,9 @@
 			"**/coverage/**",
 			"**/src/generated/**",
 			"**/.codegraph/**",
-			"**/.pi-lens/**"
+			"**/.pi-lens/**",
+			".pi/gentle-ai/persona.json",
+			".atl/.skill-registry.cache.json"
 		]
 	},
 	"linter": {
