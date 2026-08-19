@@ -1,6 +1,6 @@
+import type { Role } from "@/database/prisma";
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import type { Role } from "@prisma/client";
 import type { Request } from "express";
 import { ROLES_KEY } from "../decorators/roles.decorator";
 

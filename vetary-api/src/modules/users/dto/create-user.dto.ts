@@ -1,5 +1,5 @@
+import type { Role } from "@/database/prisma";
 import { ApiProperty } from "@nestjs/swagger";
-import type { Role } from "@prisma/client";
 import {
 	IsEmail,
 	IsEnum,

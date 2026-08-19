@@ -1,6 +1,6 @@
+import type { Role, User } from "@/database/prisma";
 import { PrismaService } from "@/database/prisma.service";
 import { Injectable } from "@nestjs/common";
-import type { Role, User } from "@prisma/client";
 
 // 📐 PATRÓN Repository: encapsula todo el acceso a datos relacionados con User
 // ⚠️ DECISIÓN: UserRepository NO extiende BaseRepository

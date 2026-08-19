@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 
 import { BaseRepository } from "@/database/base.repository";
+import type { Service } from "@/database/prisma";
 import { PrismaService } from "@/database/prisma.service";
-import type { Service } from "@prisma/client";
 
 // 📐 PATRÓN Repository: encapsula todo el acceso a datos relacionados con Service
 // ⚡ PRINCIPIO: Single Responsibility — solo gestión de servicios, nada más

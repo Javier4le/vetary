@@ -1,6 +1,6 @@
+import type { Tenant } from "@/database/prisma";
 import { PrismaService } from "@/database/prisma.service";
 import { Injectable } from "@nestjs/common";
-import type { Tenant } from "@prisma/client";
 
 // 📐 PATRÓN Repository: encapsula todo el acceso a datos de Tenant
 // ⚠️ DECISIÓN: TenantRepository NO extiende BaseRepository

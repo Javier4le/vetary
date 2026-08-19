@@ -7,10 +7,6 @@
 // completa del request lifecycle.
 
 import { randomUUID } from "node:crypto";
-import { INestApplication, Module, ValidationPipe } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { Test, type TestingModule } from "@nestjs/testing";
-import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import type {
 	RefreshToken,
 	Role,
@@ -20,7 +16,11 @@ import type {
 	UserTenant,
 	VetAvailability,
 	VetProfile,
-} from "@prisma/client";
+} from "@/database/prisma";
+import { INestApplication, Module, ValidationPipe } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { Test, type TestingModule } from "@nestjs/testing";
+import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { AppModule } from "../../../src/app.module";
 import { PrismaService } from "../../../src/database/prisma.service";
 

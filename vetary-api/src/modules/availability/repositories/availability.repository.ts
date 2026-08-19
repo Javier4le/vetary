@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 
 import { BaseRepository } from "@/database/base.repository";
+import type { VetAvailability } from "@/database/prisma";
 import { PrismaService } from "@/database/prisma.service";
-import type { VetAvailability } from "@prisma/client";
 
 // 📐 PATRÓN Repository: encapsula todo el acceso a datos de disponibilidad
 // ⚡ PRINCIPIO: Single Responsibility — solo horarios de veterinarios

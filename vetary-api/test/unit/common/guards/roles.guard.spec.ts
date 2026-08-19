@@ -1,6 +1,6 @@
+import { Role } from "@/database/prisma";
 import { ExecutionContext, ForbiddenException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { Role } from "@prisma/client";
 import { RolesGuard } from "../../../../src/common/guards/roles.guard";
 
 // 🧪 TEST: RolesGuard — TDD Cycle

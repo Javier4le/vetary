@@ -1,7 +1,7 @@
 import { ConfigService } from "@/config/config.service";
+import type { Role } from "@/database/prisma";
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
-import type { Role } from "@prisma/client";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import type { JwtPayload } from "../interfaces/jwt-payload.interface";
 

@@ -1,5 +1,5 @@
+import type { Service } from "@/database/prisma";
 import { Test, TestingModule } from "@nestjs/testing";
-import type { Service } from "@prisma/client";
 import { PrismaService } from "../../../src/database/prisma.service";
 import { ServiceRepository } from "../../../src/modules/services/repositories/service.repository";
 

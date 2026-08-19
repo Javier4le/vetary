@@ -1,5 +1,5 @@
+import type { VetAvailability } from "@/database/prisma";
 import { Test, TestingModule } from "@nestjs/testing";
-import type { VetAvailability } from "@prisma/client";
 import { PrismaService } from "../../../src/database/prisma.service";
 import { AvailabilityRepository } from "../../../src/modules/availability/repositories/availability.repository";
 

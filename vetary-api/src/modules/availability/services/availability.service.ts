@@ -5,8 +5,8 @@ import {
 	NotFoundException,
 } from "@nestjs/common";
 
+import type { VetAvailability } from "@/database/prisma";
 import { UserRepository } from "@/modules/users/repositories/user.repository";
-import type { VetAvailability } from "@prisma/client";
 import type { CreateAvailabilityDto } from "../dto/create-availability.dto";
 import { AvailabilityRepository } from "../repositories/availability.repository";
 

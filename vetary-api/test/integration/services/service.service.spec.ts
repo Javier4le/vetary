@@ -1,6 +1,6 @@
+import type { Service } from "@/database/prisma";
 import { NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
-import type { Service } from "@prisma/client";
 import type { CreateServiceDto } from "../../../src/modules/services/dto/create-service.dto";
 import { ServiceRepository } from "../../../src/modules/services/repositories/service.repository";
 import { ServicesService } from "../../../src/modules/services/services/service.service";

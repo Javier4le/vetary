@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
+import type { Prisma } from "@/database/prisma";
 import { PrismaService } from "@/database/prisma.service";
 import { ConflictException, Injectable } from "@nestjs/common";
-import type { Prisma } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import type { CreateUserDto } from "../dto/create-user.dto";
 import type { CreateVetDto } from "../dto/create-vet.dto";

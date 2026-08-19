@@ -1,9 +1,9 @@
 import { ConfigService } from "@/config/config.service";
+import type { Role } from "@/database/prisma";
 import { PrismaService } from "@/database/prisma.service";
 import { ForbiddenException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test, type TestingModule } from "@nestjs/testing";
-import type { Role } from "@prisma/client";
 import { AuthService } from "./auth.service";
 
 // 🧪 TEST: AuthService — autenticación, tokens y seguridad

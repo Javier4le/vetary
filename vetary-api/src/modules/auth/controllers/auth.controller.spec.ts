@@ -1,5 +1,5 @@
+import { Role } from "@/database/prisma";
 import { Test, type TestingModule } from "@nestjs/testing";
-import { Role } from "@prisma/client";
 import { AuthService } from "../services/auth.service";
 import { AuthController } from "./auth.controller";
 

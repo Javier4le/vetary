@@ -27,6 +27,7 @@ session-*.md
 dist/
 build/
 *.tsbuildinfo
+vetary-api/src/generated/
 
 # OS
 .DS_Store

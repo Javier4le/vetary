@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 
-import type { Service } from "@prisma/client";
+import type { Service } from "@/database/prisma";
 import type { CreateServiceDto } from "../dto/create-service.dto";
 import type { UpdateServiceDto } from "../dto/update-service.dto";
 import { ServiceRepository } from "../repositories/service.repository";

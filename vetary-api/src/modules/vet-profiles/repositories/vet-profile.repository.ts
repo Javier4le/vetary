@@ -1,7 +1,7 @@
 import { BaseRepository } from "@/database/base.repository";
+import type { VetProfile } from "@/database/prisma";
 import { PrismaService } from "@/database/prisma.service";
 import { Injectable } from "@nestjs/common";
-import type { VetProfile } from "@prisma/client";
 
 // 📐 PATRÓN Repository: encapsula todo el acceso a datos relacionados con VetProfile
 // ⚡ PRINCIPIO: Single Responsibility — solo gestión de perfiles de veterinarios, nada más

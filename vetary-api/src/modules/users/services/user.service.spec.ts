@@ -1,7 +1,7 @@
+import type { Role } from "@/database/prisma";
 import { PrismaService } from "@/database/prisma.service";
 import { ConflictException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
-import type { Role } from "@prisma/client";
 import type { CreateUserDto } from "../dto/create-user.dto";
 import type { CreateVetDto } from "../dto/create-vet.dto";
 import { UserRepository } from "../repositories/user.repository";

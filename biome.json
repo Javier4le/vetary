@@ -5,6 +5,7 @@
 			"**/dist/**",
 			"**/node_modules/**",
 			"**/coverage/**",
+			"**/src/generated/**",
 			"**/.codegraph/**",
 			"**/.pi-lens/**"
 		]

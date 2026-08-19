@@ -1,5 +1,5 @@
+import type { Role } from "@/database/prisma";
 import { SetMetadata } from "@nestjs/common";
-import type { Role } from "@prisma/client";
 
 // 🏗️ ARQUITECTURA: @Roles() decorator define roles requeridos para una ruta
 // 📐 PATRÓN: Decorator Pattern — metadata que RolesGuard lee para validar acceso

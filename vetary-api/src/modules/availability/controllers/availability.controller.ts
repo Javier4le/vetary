@@ -1,5 +1,6 @@
 import { CurrentTenant } from "@/common/decorators/current-tenant.decorator";
 import { Roles } from "@/common/decorators/roles.decorator";
+import { Role } from "@/database/prisma";
 import {
 	Body,
 	Controller,
@@ -13,7 +14,6 @@ import {
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { Role } from "@prisma/client";
 import type { TenantContext } from "../../../common/types/request-context";
 import { CreateAvailabilityDto } from "../dto/create-availability.dto";
 import { AvailabilityService } from "../services/availability.service";

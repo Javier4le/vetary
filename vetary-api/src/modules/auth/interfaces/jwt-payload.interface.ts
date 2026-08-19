@@ -17,4 +17,4 @@ export interface JwtPayload {
 
 	// iat = issued at, exp = expiry — gestionados automáticamente por jwt.sign()
 }
-import type { Role } from "@prisma/client";
+import type { Role } from "@/database/prisma";

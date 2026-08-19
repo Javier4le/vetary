@@ -3,12 +3,12 @@
 // ⚡ PRINCIPIO: Schema as Code — la estructura de BD vive en control de versiones
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

@@ -1,6 +1,6 @@
+import type { Prisma } from "@/database/prisma";
 import { PrismaService } from "@/database/prisma.service";
 import { BadRequestException, ConflictException, Injectable } from "@nestjs/common";
-import type { Prisma } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import type { RegisterTenantDto } from "../dto/register-tenant.dto";
 import { TenantRepository } from "../repositories/tenant.repository";

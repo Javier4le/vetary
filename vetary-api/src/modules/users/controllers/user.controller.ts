@@ -1,11 +1,11 @@
 import { CurrentTenant } from "@/common/decorators/current-tenant.decorator";
 import { CurrentUser } from "@/common/decorators/current-user.decorator";
 import { Roles } from "@/common/decorators/roles.decorator";
+import { Role } from "@/database/prisma";
 import { Body, Controller, Get, HttpCode, HttpStatus, Post } from "@nestjs/common";
 import { UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { Role } from "@prisma/client";
 import type { AuthenticatedUser, TenantContext } from "../../../common/types/request-context";
 import { CreateStaffDto } from "../dto/create-staff.dto";
 import { CreateUserDto } from "../dto/create-user.dto";

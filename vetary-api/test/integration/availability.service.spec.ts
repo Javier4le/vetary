@@ -1,6 +1,6 @@
+import type { VetAvailability } from "@/database/prisma";
 import { BadRequestException, ConflictException, NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
-import type { VetAvailability } from "@prisma/client";
 import type { CreateAvailabilityDto } from "../../src/modules/availability/dto/create-availability.dto";
 import { AvailabilityRepository } from "../../src/modules/availability/repositories/availability.repository";
 import { AvailabilityService } from "../../src/modules/availability/services/availability.service";

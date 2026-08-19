@@ -1,5 +1,5 @@
+import { Role } from "@/database/prisma";
 import { Test, TestingModule } from "@nestjs/testing";
-import { Role } from "@prisma/client";
 import { UserController } from "../../../src/modules/users/controllers/user.controller";
 import type { CreateStaffDto } from "../../../src/modules/users/dto/create-staff.dto";
 import type { CreateVetDto } from "../../../src/modules/users/dto/create-vet.dto";

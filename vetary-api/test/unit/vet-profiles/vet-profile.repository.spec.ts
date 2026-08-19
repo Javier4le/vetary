@@ -1,5 +1,5 @@
+import type { VetProfile } from "@/database/prisma";
 import { Test, TestingModule } from "@nestjs/testing";
-import type { VetProfile } from "@prisma/client";
 import { PrismaService } from "../../../src/database/prisma.service";
 import { VetProfileRepository } from "../../../src/modules/vet-profiles/repositories/vet-profile.repository";
 
