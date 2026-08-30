@@ -1,5 +1,5 @@
 # Vetary — OpenSpec SDD Configuration
-# Refreshed: 2026-08-12 (was: 2026-06-03)
+# Refreshed: 2026-08-19 (was: 2026-08-12)
 # Phase: sdd-init
 # Artifact store: hybrid (openspec + engram)
 
@@ -15,7 +15,10 @@ stack:
     framework: NestJS 10
     language: TypeScript (strict mode)
     database: PostgreSQL 16 (Docker)
-    orm: Prisma 5.8
+    orm: Prisma 7.9.1
+    prisma_client_output: vetary-api/src/generated/prisma
+    prisma_config: vetary-api/prisma.config.ts
+    prisma_adapter: "@prisma/adapter-pg 7.9.1"
     auth: JWT with refresh tokens (passport-jwt)
     validation: class-validator + class-transformer
     testing: Jest 29.7
@@ -56,16 +59,21 @@ testing:
     test_command: "pnpm --filter vetary-api test"
     watch_command: "pnpm --filter vetary-api test:watch"
     coverage_command: "pnpm --filter vetary-api test:cov"
-    e2e_command: "pnpm --filter vetary-api test:e2e"
     test_location: "vetary-api/src/**/*.spec.ts + vetary-api/test/{unit,integration,e2e}/**/*.spec.ts"
-    current_test_count: "2026-08-13 — npx jest --no-coverage => Test Suites: 15 passed, 15 total; Tests: 118 passed, 118 total. Focused users integration: 1 suite / 4 tests passed against real PostgreSQL. Focused users controller unit: 1 suite / 4 tests passed. E2E: npx jest --config ./test/jest-e2e.json => Test Suites: 2 passed, 2 total; Tests: 8 passed, 8 total. TypeScript: npx tsc --noEmit => exit status 0."
-    e2e_config: test/jest-e2e.json — 2 E2E suites and 8 tests passing (require Postgres via docker-compose)
-    migration_status: "2026-08-13 — npx prisma migrate status => 2 migrations found in prisma/migrations; Database schema is up to date!"
+    current_test_count: "2026-08-19 — pnpm --filter vetary-api exec jest --no-coverage => 14 suites / 111 tests passed; integration config => 4 suites / 27 tests passed; E2E config => 3 suites / 15 tests passed."
+    unit_command: "pnpm --filter vetary-api exec jest --no-coverage"
+    integration_command: "pnpm --filter vetary-api exec jest --config ./test/jest-integration.json --no-coverage"
+    e2e_command: "pnpm --filter vetary-api exec jest --config ./test/jest-e2e.json --no-coverage"
+    e2e_config: test/jest-e2e.json — 3 E2E suites and 15 tests passing
+    migration_status: "2026-08-19 — pnpm --filter vetary-api exec prisma migrate status => 2 migrations found; Database schema is up to date."
+    migrations:
+      - 20260813121018_init
+      - 20260813150943_vet_profile_tenant_scoped_unique
 
     test_types:
       - unit: Business logic (services, repositories, middleware, env validation)
       - integration: Real PostgreSQL persistence, rollback, cross-tenant reuse, and tenant isolation verification
-      - e2e: Critical auth flows (framework configured; 2 suites and 8 tests passing)
+      - e2e: Critical auth flows (framework configured; 3 suites and 15 tests passing)
 
     coverage_requirements:
       auth_logic: 100%
@@ -108,20 +116,24 @@ strict_tdd_justification: |
 
 quality:
   linter:
-    tool: Biome 1.9 (replaced ESLint — commit d9280eb)
+    tool: Biome 1.9.4 (replaced ESLint — commit d9280eb)
     command: "pnpm --filter vetary-api lint"
     config: "Root biome.json — recommended + strict correctness/suspicious/style rules (noConsole, noDebugger, noExplicitAny: error, useImportType: off, unsafeParameterDecoratorsEnabled for NestJS)"
 
   type_checker:
-    tool: TypeScript 5.3 (tsc)
+    tool: TypeScript 5.9.3 (tsc)
     command: "pnpm --filter vetary-api exec tsc --noEmit"
     config: vetary-api/tsconfig.json (strict mode, noImplicitAny, noUnusedLocals, noUnusedParameters)
 
   formatter:
-    tool: Biome 1.9 (replaced Prettier — commit d9280eb)
+    tool: Biome 1.9.4 (replaced Prettier — commit d9280eb)
     command: "pnpm --filter vetary-api format"
     biome_config: Root biome.json — indentStyle tab, indentWidth 2, lineWidth 100, organizeImports enabled
     eslint_removal_reason: "ESLint was configured with only eslint:recommended and all TS rules disabled; Biome 1.9 covers 100% of eslint:recommended, unifies lint + format into one tool, and reduces dependencies (see STACK-nestjs.md)"
+
+  ci:
+    workflow: .github/workflows/ci.yml
+    verified_steps: Biome, Prisma generate, TypeScript, unit tests, Prisma migrations, integration tests, E2E tests
 
 conventions:
   typescript:
@@ -251,25 +263,28 @@ phases:
       - Auth guards
 
     test_status:
-      suites: 15 (unit/integration, passing; npx jest --no-coverage, measured 2026-08-13)
-      tests: 118 (unit/integration, passing; npx jest --no-coverage, measured 2026-08-13)
-      e2e: 2 suites passed, 8 tests passed (npx jest --config ./test/jest-e2e.json, measured 2026-08-13)
+      suites: 14 unit suites + 4 integration suites, passing (measured 2026-08-19)
+      tests: 111 unit tests + 27 integration tests, passing (measured 2026-08-19)
+      e2e: 3 suites passed, 15 tests passed (measured 2026-08-19)
       runner: Jest 29.7
 
   phase_2:
     name: "Clinic Configuration (Services, VetProfiles, Availability)"
-    status: In progress (openspec/changes/fase-2-configuracion-clinica/)
+    status: COMPLETED (archived 2026-08-16; tag fase-2-complete)
     change: fase-2-configuracion-clinica
-    delivery_strategy: Chained PRs — feature-branch-chain (PRs target tracker branch; only it merges to main)
+    archive: openspec/changes/archive/2026-08-16-fase-2-configuracion-clinica/
     pr_status:
-      PR-1: COMPLETED — services module (Service, VetProfile, VetAvailability, Tenant.timezone schema; CRUD + soft-disable + tenant isolation); ~630 lines; 49/49 tests green at merge
-      PR-2: CORRECTION IN PROGRESS — VetProfileRepository, UserService.createVet() atomic transaction (User + UserTenant + VetProfile), POST /users/vets + /users/staff; schema and real PostgreSQL integration corrections pending maintainer budget decision
-      PR-3: PENDING — AvailabilityRepository, AvailabilityService (overlap validation), AvailabilityController, tests + E2E
+      status: COMPLETED — archived SDD change and tagged fase-2-complete
     business_rules:
       - "Availability: weekly recurring, multi-block per day, one timezone per clinic"
       - "Services: soft-disable (isActive), price CLP Int, unique name per tenant"
       - "Vet creation atomic: User + UserTenant + VetProfile in one Prisma transaction"
       - "Concurrency: single-admin per tenant in v1"
+
+  phase_3:
+    name: "Bookings"
+    status: NOT_STARTED
+    change: fase-3-reservas (not created)
 
 risks:
   tenant_data_leakage:
@@ -304,19 +319,20 @@ artifacts_store:
 sdd_init:
   status: refreshed
   generated: 2026-05-31
-  refreshed: 2026-08-12
+  refreshed: 2026-08-19
   testing_capabilities_detected: true
   strict_tdd_activated: true
   project_context_cached: true
   changes_from_refresh:
-    - Linter: ESLint 8.56 → Biome 1.9 (ESLint + Prettier removed in commit d9280eb; see STACK-nestjs.md)
+    - Linter: ESLint 8.56 → Biome 1.9.4 (ESLint + Prettier removed in commit d9280eb; see STACK-nestjs.md)
     - Formatter: Prettier 3.1 + Biome → Biome only (lint + format unified)
-    - Test count: 7 suites / 72 → 15 suites / 118 tests (npx jest --no-coverage, measured 2026-08-13); E2E verified at 2 suites / 8 tests passing (npx jest --config ./test/jest-e2e.json)
+    - Test count: 12 suites / 98 → 14 unit suites / 111 tests; 4 integration suites / 27 tests; 3 E2E suites / 15 tests (measured 2026-08-19)
     - Test commands: "`cd vetary-api && npm run …` → `pnpm --filter vetary-api …` (pnpm-only convention)"
-    - E2E: corrected from "no E2E tests yet" → 8 configured E2E tests in test/e2e/{auth,security}; current run verified at 2 suites / 8 tests passing
+    - E2E: current run verified 3 suites / 15 tests via test/jest-e2e.json
     - PostgreSQL version pinned: 16
     - Phase 1 status: In progress → COMPLETED (tag fase-1-complete)
-    - Phase 2 added: fase-2-configuracion-clinica (PR-1 and PR-2 done, PR-3 pending, chained PR feature-branch-chain)
+    - Phase 2: in progress → COMPLETED, archived and tagged fase-2-complete
+    - Phase 3 Bookings: explicitly recorded as NOT_STARTED; no change directory exists
     - strict_tdd_modules: added services
     - Conventions added: money CLP Int, no import type on decorated classes, pnpm-only, @/ alias imports, engine-strict
     - Engram: sdd-init/vetary (obs #18), sdd/vetary/testing-capabilities (obs #32), skill-registry (obs #33)

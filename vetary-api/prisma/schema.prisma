@@ -24,6 +24,14 @@ enum TenantStatus {
   DELETED
 }
 
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  CANCELLED
+  COMPLETED
+}
+
 model Tenant {
   id        String       @id @default(cuid())
   name      String // "Clínica Veterinaria San Martín"
@@ -39,6 +47,7 @@ model Tenant {
   services          Service[]
   vetProfiles       VetProfile[]
   vetAvailabilities VetAvailability[]
+  bookings          Booking[]
 
   @@index([subdomain]) // ← Índice para búsqueda rápida por subdomain
   @@map("tenants")
@@ -61,10 +70,11 @@ model User {
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   // Relations
-  userTenants      UserTenant[]
-  refreshTokens    RefreshToken[]
-  vetProfiles      VetProfile[]
+  userTenants       UserTenant[]
+  refreshTokens     RefreshToken[]
+  vetProfiles       VetProfile[]
   vetAvailabilities VetAvailability[]
+  bookings          Booking[]
 
   @@index([email]) // ← Índice para búsqueda rápida por email (login)
   @@map("users")
@@ -142,7 +152,8 @@ model Service {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  bookings Booking[]
 
   @@unique([tenantId, name])
   @@index([tenantId])
@@ -197,4 +208,37 @@ model VetAvailability {
 
   @@index([tenantId, vetId, dayOfWeek])
   @@map("vet_availabilities")
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// BOOKING
+// ═════════════════════════════════════════════════════════════════════════════
+// 🏗️ ARQUITECTURA: Reserva interna creada por ADMIN/STAFF sobre disponibilidad veterinaria
+// date: fecha local del tenant; startTime/endTime: instantáneas de reloj "HH:mm"
+// startInstant/endInstant: instantes UTC para comparación de intervalos y concurrencia
+// ⚡ PRINCIPIO: Snapshot + instancia — el historial sobrevive a cambios de disponibilidad
+
+model Booking {
+  id           String        @id @default(cuid())
+  tenantId     String
+  serviceId    String
+  vetId        String        @map("vet_id")
+  petName      String        @map("pet_name")
+  date         DateTime      @db.Date
+  startTime    String        @map("start_time")
+  endTime      String        @map("end_time")
+  startInstant DateTime      @map("start_instant")
+  endInstant   DateTime      @map("end_instant")
+  status       BookingStatus @default(PENDING)
+  notes        String?       @db.VarChar(1000)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  service Service @relation(fields: [serviceId], references: [id])
+  vet     User    @relation(fields: [vetId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, vetId, date])
+  @@index([tenantId, vetId, startInstant])
+  @@map("bookings")
 }
