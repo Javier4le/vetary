@@ -40,10 +40,10 @@ After PR6 merges, start `feature/fase-3-publicas-pr1-foundation` for the next Op
 
 ## Phase 2: Pure Rules
 
-- [ ] T-004 — vetary-api/test/unit/bookings/booking-transitions.spec.ts — RED (from,to) matrix + no-auto (D7); ⇒ fails; ~55
-- [ ] T-005 (T-004) — vetary-api/src/modules/bookings/services/booking-transitions.ts — GREEN map+canTransition; ⇒ green; ~15
-- [ ] T-006 — vetary-api/test/unit/bookings/booking-time.spec.ts — RED gap/ambiguity Santiago, adjacency, fit, bad HH:mm; ⇒ fails; ~90
-- [ ] T-007 (T-006) — vetary-api/src/modules/bookings/services/booking-time.ts — GREEN fromWallClock luxon (D2); ⇒ green; ~60
+- [x] T-004 — vetary-api/test/unit/bookings/booking-transitions.spec.ts — RED (from,to) matrix + no-auto (D7); ⇒ fails; ~55
+- [x] T-005 (T-004) — vetary-api/src/modules/bookings/services/booking-transitions.ts — GREEN map+canTransition; ⇒ green; ~15
+- [x] T-006 — vetary-api/test/unit/bookings/booking-time.spec.ts — RED gap/ambiguity Santiago, adjacency, fit, bad HH:mm; ⇒ fails; ~90
+- [x] T-007 (T-006) — vetary-api/src/modules/bookings/services/booking-time.ts — GREEN fromWallClock luxon (D2); ⇒ green; ~60
 
 ## Phase 3: Repository + Service
 
