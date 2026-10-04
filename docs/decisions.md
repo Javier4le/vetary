@@ -140,6 +140,49 @@ reviewable changes while remaining a single product phase.
 - Two reviewable changes with bounded PRs (within the 400-line budget).
 - Requires discipline: tag only after all changes in the phase close.
 
+## ADR-005 — Frontend foundation pulled forward from Phase 5
+**Date:** 2026-10-04
+**Status:** accepted
+**Phase:** Phase 5 (Frontend Foundation)
+
+### Context
+Vetary is currently a backend-only monorepo. Phases 1 and 2 are complete and verifiable through the API, but nothing built is visible to clients or for a portfolio. Phase 3 (Bookings) is paused at PR-3 (`feature/fase-3-internas-pr3-concurrency`) and Phase 5 (Dashboard and final UI) was originally scheduled after Phases 3 and 4.
+
+### Decision
+Bootstrap the frontend foundation now in a dedicated PR-1 (`feature/fase-5-frontend-pr1-bootstrap`) instead of waiting for Phase 5's natural place in the roadmap. Phase 3 stays paused and untouched; Phase 5 is split into multiple slices, starting with the toolchain scaffold, `apiClient`, router shell, and frontend CI.
+
+### Alternatives considered
+- **Wait for Phase 5 naturally:** rejected because Phase 3 is blocked-paused and waiting would stall any visible UI indefinitely.
+- **Build the frontend in the Phase 3 gap without a dedicated slice:** rejected because it would mix unrelated scopes and complicate the paused Phase 3 branch history.
+
+### Consequences
+- Phase 5 now has multiple reviewable slices; the phase order in `SPEC.md` and `README.md` is updated to reflect that the frontend foundation is already in progress.
+- The frontend can evolve in parallel with the paused backend work without touching `vetary-api/**` or the Phase 3 branch.
+- PR-2 (login, protected routes, layout) depends on this PR-1 landing and on resolving the subdomain → tenantId gap separately.
+
+---
+
+## ADR-006 — Same-domain deployment topology for tenant resolution
+**Date:** 2026-10-04
+**Status:** accepted
+**Phase:** Phase 5 (Frontend Foundation)
+
+### Context
+The backend resolves the tenant exclusively from the `Host` header (`TenantMiddleware`), with a `DEFAULT_TENANT_SUBDOMAIN` fallback when the hostname has ≤1 dot. `TenantGuard` compares the resolved tenant's `id` with the JWT `tenantId` claim. A cross-domain topology (e.g., SPA at `app.vetary.app` and API at `api.vetary.app`) would strip the tenant subdomain from `Host`; additionally, `api` is a reserved subdomain and cannot be a tenant. The API global prefix `/api/v1` is set in `vetary-api/src/main.ts:54` and must be preserved.
+
+### Decision
+Serve the SPA and the API on the same origin for every tenant subdomain. The reverse proxy must preserve the original `Host` header and must not strip `/api/v1`. In development, the Vite proxy forwards `/api` to `http://localhost:3000` with `changeOrigin: false` so the tenant subdomain in `Host` is preserved.
+
+### Alternatives considered
+- **Cross-domain API at `api.vetary.app`:** rejected because the tenant subdomain is lost from `Host`, `TenantMiddleware` cannot resolve the real tenant, and `TenantGuard` fails.
+- **Strip `/api/v1` at the proxy:** rejected because the backend global prefix must remain intact.
+- **Set `changeOrigin: true` in the Vite proxy:** rejected because it would replace `Host` with `localhost` and hide real subdomain resolution behind the fallback tenant.
+
+### Consequences
+- The SPA uses a same-origin relative baseURL `/api/v1` by default, with an optional `VITE_API_URL` override for non-proxied environments.
+- Post-login requests work only when the SPA is served on the tenant's own subdomain (or `DEFAULT_TENANT_SUBDOMAIN` matches that tenant).
+- Reverse-proxy and CDN configuration must preserve `Host` and the `/api/v1` prefix; this is documented as a hard deploy requirement.
+
 ---
 
 <!-- Plantilla para copiar:

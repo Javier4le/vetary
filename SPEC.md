@@ -104,11 +104,11 @@ Cada mascota tiene:
 - **Validación:** class-validator + class-transformer
 
 ### Frontend
-- **Framework:** React 18 con TypeScript estricto
+- **Framework:** React 19 con TypeScript estricto
 - **Build tool:** Vite
 - **Estado servidor:** TanStack Query v5
 - **Estado cliente:** Zustand (solo para lo que no es server state)
-- **Routing:** React Router v6
+- **Routing:** React Router v7 (`react-router-dom`)
 - **UI/Estilos:** Tailwind CSS + shadcn/ui
 - **Formularios:** React Hook Form + Zod
 
@@ -170,6 +170,7 @@ Cada mascota tiene:
 - El cliente puede ver el historial de su mascota
 
 ### Fase 5 — Dashboard y UI final
+- Bootstrap del frontend (Vite + React 19 + TypeScript estricto + Tailwind CSS + shadcn/ui) — En progreso
 - El admin ve métricas básicas en tiempo real
 - El diseño es responsive y pulido en todas las vistas
 - El super admin puede gestionar tenants
