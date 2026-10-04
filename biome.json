@@ -64,7 +64,9 @@
 			"describe",
 			"expect",
 			"it",
-			"jest"
+			"jest",
+			"test",
+			"vi"
 		]
 	},
 	"formatter": {
