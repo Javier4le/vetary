@@ -38,8 +38,8 @@ Vetary nació como proyecto de aprendizaje y construcción de producto, con dos 
 - **Docker** para base de datos en desarrollo y stack completo en producción
 
 ### Frontend
-- El frontend todavía no está implementado; `vetary-web/` contiene únicamente la especificación de stack `STACK-react.md`.
-- Para la Fase 5 está planificado: React 18, TypeScript estricto, Vite, TanStack Query, Zustand, React Router, Tailwind CSS, shadcn/ui, React Hook Form y Zod.
+- El frontend está en bootstrap: `vetary-web/` ya contiene el scaffold de Vite + React 19 + TypeScript estricto + Tailwind CSS + shadcn/ui.
+- Stack planificado: React 19, TypeScript estricto, Vite, TanStack Query, Zustand, React Router v7, Tailwind CSS, shadcn/ui, React Hook Form y Zod.
 
 ---
 
@@ -98,9 +98,9 @@ Herramientas: [gentle-ai](https://github.com/Gentleman-Programming/gentle-ai), O
 |------|-------------|--------|
 | 1 | Auth + Multi-tenancy | ✅ Completa — tag `fase-1-complete` |
 | 2 | Configuración de la clínica | ✅ Completa — tag `fase-2-complete` |
-| 3 | Sistema de reservas | ➡️ Siguiente |
+| 3 | Sistema de reservas | ⏸️ Pausada en PR-3 |
 | 4 | Ficha clínica | ⬜ Pendiente |
-| 5 | Dashboard + UI final | ⬜ Pendiente |
+| 5 | Dashboard + UI final | 🚧 Frontend Foundation + Dashboard — En progreso |
 | 6 | Deploy | ⬜ Pendiente |
 
 ### Verificación actual del backend
@@ -152,7 +152,7 @@ pnpm exec prisma migrate deploy
 pnpm start:dev
 ```
 
-> El frontend todavía no existe; `vetary-web/` permanece como carpeta planificada para la Fase 5.
+> El frontend está en bootstrap en `vetary-web/`; el scaffold de la Fase 5 ya está en progreso.
 
 ---
 

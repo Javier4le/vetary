@@ -89,3 +89,32 @@ jobs:
       - name: E2E tests
         working-directory: vetary-api
         run: pnpm exec jest --config ./test/jest-e2e.json --no-coverage
+
+  web:
+    name: Vetary Web CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript
+        run: pnpm --filter vetary-web exec tsc --noEmit
+
+      - name: Unit tests
+        run: pnpm --filter vetary-web test
